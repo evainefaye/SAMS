@@ -5,6 +5,7 @@ window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
     var serverAddress = 'http://10.100.49.104';     // Set the location of the Node.js server
+    var serverAddress = 'http://127.0.0.1';     // Set the location of the Node.js server    
     var vars = getURLVars(); // Get Parameters from URL
     var env = vars.env;
     switch (env) {

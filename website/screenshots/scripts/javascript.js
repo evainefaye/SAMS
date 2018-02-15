@@ -1,6 +1,7 @@
 $(document).ready(function () {
     // Set the location of the Node.JS server
     var serverAddress = 'http://10.100.49.104';
+    var serverAddress = 'http://127.0.0.1';
     var vars = getURLVars();
     var env = vars.env;
     switch (env) {
@@ -157,8 +158,8 @@ $(document).ready(function () {
     socket.on('Receive Listing', function(data) {
         $('.overlay').hide();
         console.log(data.length);
-        var rows = data.data;
-        if (rows.length > 0) {
+        if (typeof data.data != 'undefined') {
+            var rows = data.data;
             var html = "SESSION ID: <SELECT ID='id' name='id'>";
             html += "<option value='false'>-- SELECT SESSION --</option>";		
             $.each( rows, function (key, value) {
@@ -177,10 +178,10 @@ $(document).ready(function () {
                 }
             });
         } else {
-            var startDate = moment($('#daterange').data('daterangepicker').startDate._d).format('MM/DD/YY');
-            var endDate = moment($('#daterange').data('daterangepicker').endDate._d).format('MM/DD/YY');
+            var startDate = moment($('#daterange').data('daterangepicker').startDate._d).format('MM/DD/YY HH:mm');
+            var endDate = moment($('#daterange').data('daterangepicker').endDate._d).format('MM/DD/YY HH:mm');
             if (data.label == 'Custom Range') {
-                $('div#selector').html('NO SCREENSHOTS WITH DATES BETWEEN ' + startDate + ' AND ' + endDate + ' LOCATED');
+                $('div#selector').html('NO SCREENSHOTS WITH FOUND FOR ' + startDate + ' AND ' + endDate + ' LOCATED');
             } else {
                 var label = data.label;
                 $('div#selector').html('NO SCREENSHOTS FOR ' + label.toUpperCase() + ' LOCATED');
