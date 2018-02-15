@@ -20,39 +20,38 @@ case 'fde':
     var instance = 'FDE';
     var port = '5510';
     var useDB = true;
-    var database = 'sams_fde';	
+    var database = 'sams_fde';
     break;
 case 'dev':
     var instance = 'FDE';
     var port = '5510';
     var useDB = true;
-    var database = 'sams_fde';	
+    var database = 'sams_fde';
 case 'beta':
     var instance = 'PRE-PROD';
     var port = '5520';
     var useDB = true;
-    var database = 'sams_preprod';	
+    var database = 'sams_preprod';
     break;
 case 'pre-prod':
     var instance = 'PRE-PROD';
     var port = '5520';
     var useDB = true;
-    var database = 'sams_preprod';	
+    var database = 'sams_preprod';
     break;
 case 'prod':
     var instance = 'PROD';
     var port = '5530';
     var useDB = true;
-    var database = 'sams_prod';	
+    var database = 'sams_prod';
     break;
 default:
     var instance = 'PROD';
     var port = '5530';
     var useDB = true;
-    var database = 'sams_prod';	
+    var database = 'sams_prod';
     break;
 }
-
 
 if (useDB) {
     var mysql = require('mysql');
@@ -60,7 +59,7 @@ if (useDB) {
         host: 'localhost',
         user: 'sams',
         password: 'develop',
-        database: database		
+        database: database
     };
     var connectDB = function(db_config) {
         global.con = mysql.createConnection(db_config);
@@ -81,32 +80,31 @@ if (useDB) {
                         switch (err.code) {
                         case 'PROTOCOL_CONNECTION_LOST':
                             console.log(new Date().toString(), 'Database Connection Lost');
-                            console.log(new Date().toString(), 'Database Logging temporarily unavailable');							
+                            console.log(new Date().toString(), 'Database Logging temporarily unavailable');
                             setTimeout(function() {
                                 connectDB(db_config);
                             }, 10000);
                             break;
                         default:
                             console.log(new Date().toString(), 'Fatal Database Error: ' + err.code);
-                            console.log(new Date().toString(), 'Database Logging has been disabled.');							
+                            console.log(new Date().toString(), 'Database Logging has been disabled.');
                             break;
                         }
                     }
                 });
                 console.log(new Date().toString(),'Database Connection successful');
-                console.log(new Date().toString(),'Database: ' + database);                
-                var sql = "DELETE FROM duration_log_step_automation WHERE in_progress = 'Y'";
+                console.log(new Date().toString(),'Database: ' + database);
+                var sql = 'DELETE FROM duration_log_step_automation WHERE in_progress = "Y"';
                 global.con.query(sql);
-                var sql = "DELETE FROM duration_log_step_manual WHERE in_progress = 'Y'";
-                global.con.query(sql);				
-                var sql = "DELETE FROM screenshots WHERE in_progress = 'Y'";
-                global.con.query(sql);				
+                var sql = 'DELETE FROM duration_log_step_manual WHERE in_progress = "Y"';
+                global.con.query(sql);
+                var sql = 'DELETE FROM screenshots WHERE in_progress = "Y"';
+                global.con.query(sql);
             }
         });
     };
     connectDB(db_config);
 }
-
 
 // Create Socket.IO Server listening on port designated by instance
 var io = require('socket.io').listen(port);
@@ -126,8 +124,6 @@ io.sockets.on('connection', function (socket) {
         ServerStartTime: serverStartTime
     });
 
-
-
     // Perform when any user disconnects
     socket.on('disconnect', function() {
         var connectionId = socket.connectionId;
@@ -135,7 +131,7 @@ io.sockets.on('connection', function (socket) {
             var userInfo = sashaUsers[connectionId];
             // Remove the SASHA connection from the list of connected users
             delete sashaUsers[connectionId];
-            // Update the list of connected users on monitor  clients
+            // Update the list of connected users on monitor clients
             io.sockets.in('monitor').emit('Remove SASHA Connection from Monitor', {
                 ConnectionId: connectionId,
                 UserInfo: userInfo
@@ -151,7 +147,7 @@ io.sockets.on('connection', function (socket) {
             if (useDB) {
                 var smpSessionId = userInfo.SmpSessionId;
                 if (smpSessionId) {
-                    var sql = "UPDATE screenshots SET in_progress='N' WHERE smp_session_id='" + smpSessionId + "'";
+                    var sql = 'UPDATE screenshots SET in_progress="N" WHERE smp_session_id="' + smpSessionId + '"';
                     global.con.query(sql);
                 }
             }
@@ -162,17 +158,17 @@ io.sockets.on('connection', function (socket) {
                 if (!isNaN(elapsedTime)) {
                     flowStartTime = new Date(flowStartTime).toISOString().slice(0, 19).replace('T', ' ');
                     flowStopTime = new Date(flowStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                    var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' + 
-						mysql.escape(userInfo.SmpSessionId) + ',' + 
+                    var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' +
+						mysql.escape(userInfo.SmpSessionId) + ',' +
 						mysql.escape(flowStartTime) + ',' +
-						mysql.escape(flowStopTime) + ',' + 
+						mysql.escape(flowStopTime) + ',' +
 						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(userInfo.AttUID) + ',' + 
-						mysql.escape(userInfo.FirstName) + ',' + 
+						mysql.escape(userInfo.AttUID) + ',' +
+						mysql.escape(userInfo.FirstName) + ',' +
 						mysql.escape(userInfo.LastName) + ',' +
 						mysql.escape(userInfo.Manager) + ',' +
-						mysql.escape(userInfo.SAMSWorkType) + ',' + 
-						mysql.escape(userInfo.SkillGroup) + ',' + 
+						mysql.escape(userInfo.SAMSWorkType) + ',' +
+						mysql.escape(userInfo.SkillGroup) + ',' +
 						mysql.escape(userInfo.TaskType) + ',';
                     if (elapsedTime > notifyStalledFlowTime / 1000) {
                         sql = sql + mysql.escape('Y');
@@ -193,17 +189,17 @@ io.sockets.on('connection', function (socket) {
                     case 'SO WAIT':
                         oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
                         stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                        var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' + 
-							mysql.escape(userInfo.SmpSessionId) + ',' + 
+                        var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+							mysql.escape(userInfo.SmpSessionId) + ',' +
 							mysql.escape(oldStepStartTime) + ',' +
-							mysql.escape(stepStopTime) + ',' + 
+							mysql.escape(stepStopTime) + ',' +
 							mysql.escape(elapsedTime) + ',' +
-							mysql.escape(userInfo.AttUID) + ',' + 
-							mysql.escape(userInfo.FirstName) + ',' + 
+							mysql.escape(userInfo.AttUID) + ',' +
+							mysql.escape(userInfo.FirstName) + ',' +
 							mysql.escape(userInfo.LastName) + ',' +
 							mysql.escape(userInfo.Manager) + ',' +
-							mysql.escape(userInfo.SAMSWorkType) + ',' + 
-							mysql.escape(userInfo.SkillGroup) + ',' + 
+							mysql.escape(userInfo.SAMSWorkType) + ',' +
+							mysql.escape(userInfo.SkillGroup) + ',' +
 							mysql.escape(userInfo.TaskType) + ',' +
 							mysql.escape(oldFlowName) + ',' +
 							mysql.escape(oldStepName) +	 ',' +
@@ -216,18 +212,18 @@ io.sockets.on('connection', function (socket) {
                         break;
                     default:
                         oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                        stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');				
-                        var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' + 
-							mysql.escape(userInfo.SmpSessionId) + ',' + 
+                        stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
+                        var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+							mysql.escape(userInfo.SmpSessionId) + ',' +
 							mysql.escape(oldStepStartTime) + ',' +
-							mysql.escape(stepStopTime) + ',' + 
+							mysql.escape(stepStopTime) + ',' +
 							mysql.escape(elapsedTime) + ',' +
-							mysql.escape(userInfo.AttUID) + ',' + 
-							mysql.escape(userInfo.FirstName) + ',' + 
+							mysql.escape(userInfo.AttUID) + ',' +
+							mysql.escape(userInfo.FirstName) + ',' +
 							mysql.escape(userInfo.LastName) + ',' +
 							mysql.escape(userInfo.Manager) + ',' +
-							mysql.escape(userInfo.SAMSWorkType) + ',' + 
-							mysql.escape(userInfo.SkillGroup) + ',' + 
+							mysql.escape(userInfo.SAMSWorkType) + ',' +
+							mysql.escape(userInfo.SkillGroup) + ',' +
 							mysql.escape(userInfo.TaskType) + ',' +
 							mysql.escape(oldFlowName) + ',' +
 							mysql.escape(oldStepName) +
@@ -245,7 +241,7 @@ io.sockets.on('connection', function (socket) {
                     var sql = 'UPDATE duration_log_step_manual SET in_progress="N" WHERE smp_session_id ="' + userInfo.SmpSessionId + '"';
                     global.con.query(sql);
                     var sql = 'UPDATE duration_log_step_automation SET in_progress="N" WHERE smp_session_id ="' + userInfo.SmpSessionId + '"';
-                    global.con.query(sql);					
+                    global.con.query(sql);
                 }
             }
         }
@@ -257,30 +253,30 @@ io.sockets.on('connection', function (socket) {
     socket.on('Register SASHA User', function(data) {
         // Place in SASHA room
         socket.join('sasha');
-        var ConnectionId = data.ConnectionId;
-        var UserInfo = data.UserInfo;
-        var UTCTime = new Date().toISOString();
-        UserInfo.ConnectTime = UTCTime;
-        UserInfo.KeepScreenshots = false;
-        sashaUsers[ConnectionId] = UserInfo;
+        var connectionId = data.ConnectionId;
+        var userInfo = data.UserInfo;
+        var utcTime = new Date().toISOString();
+        userInfo.ConnectTime = utcTime;
+        userInfo.KeepScreenshots = false;
+        sashaUsers[connectionId] = userInfo;
         // Join Rooms
-        socket.join(UserInfo.LocationCode);
-        socket.join(UserInfo.City);
-        socket.join(UserInfo.Country);
-        socket.join(UserInfo.State);
-        socket.join(UserInfo.Zip);
-        socket.join(UserInfo.Manager);
-        var AttUID = UserInfo.AttUID;
-        if (typeof sessionCounter[AttUID] == 'undefined') {
-            sessionCounter[AttUID] = 0;
+        socket.join(userInfo.LocationCode);
+        socket.join(userInfo.City);
+        socket.join(userInfo.Country);
+        socket.join(userInfo.State);
+        socket.join(userInfo.Zip);
+        socket.join(userInfo.Manager);
+        var attUID = userInfo.AttUID;
+        if (typeof sessionCounter[attUID] == 'undefined') {
+            sessionCounter[attUID] = 0;
         }
-        sessionCounter[AttUID]++;
-        socket.emit('Add User Sessions to Dictionary', {   		
-            UserSessions: sessionCounter[AttUID]
+        sessionCounter[attUID]++;
+        socket.emit('Add User Sessions to Dictionary', {
+            UserSessions: sessionCounter[attUID]
         });
         io.sockets.in('monitor').emit('Add SASHA Connection to Monitor', {
-            ConnectionId: ConnectionId,
-            UserInfo: UserInfo
+            ConnectionId: connectionId,
+            UserInfo: userInfo
         });
     });
 	
@@ -289,139 +285,138 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('Notify Server Received Skill Group', function(data) {
-        var ConnectionId = socket.connectionId;
-        if (typeof sashaUsers[ConnectionId] == 'undefined') {
+        var connectionId = socket.connectionId;
+        if (typeof sashaUsers[connectionId] == 'undefined') {
             return;
         }
-        var UserInfo = sashaUsers[ConnectionId];
-        if (UserInfo.UserStatus != 'Inactive') {
+        var userInfo = sashaUsers[connectionId];
+        if (userInfo.UserStatus != 'Inactive') {
             return;
         }
-        UserInfo.UserStatus = 'In Process';
-        var FlowName = data.FlowName;
-        var StepName = data.StepName;
-        var StepType = data.StepType;
-        //var FormName = data.FormName;
-        var SkillGroup = data.SkillGroup;
-        var SAMSWorkType = data.SAMSWorkType;
-        var TaskType = data.TaskType;
-        UserInfo['SessionStartTime'] = new Date().toUTCString();
-        UserInfo['StepStartTime'] = new Date().toUTCString();
-        UserInfo['FlowName'] = FlowName;
-        UserInfo['StepName'] = StepName;
-        if  (SkillGroup === null || SkillGroup == 'null' || SkillGroup == '' || SkillGroup == 'undefined') {
-            SkillGroup = 'UNKNOWN';
+        userInfo.UserStatus = 'In Process';
+        var flowName = data.FlowName;
+        var stepName = data.StepName;
+        var stepType = data.StepType;
+        var skillGroup = data.SkillGroup;
+        var samsWorkType = data.SAMSWorkType;
+        var taskType = data.TaskType;
+        userInfo['SessionStartTime'] = new Date().toUTCString();
+        userInfo['StepStartTime'] = new Date().toUTCString();
+        userInfo['FlowName'] = flowName;
+        userInfo['StepName'] = stepName;
+        if  (skillGroup === null || skillGroup == 'null' || skillGroup == '' || skillGroup == 'undefined') {
+            skillGroup = 'UNKNOWN';
         }
-        UserInfo['SkillGroup'] = SkillGroup;
-        UserInfo['SAMSWorkType'] = SAMSWorkType;
-        UserInfo['TaskType'] = TaskType;
-        socket.join(SkillGroup);
-        if (StepType == 'WAIT') {
-            UserInfo.OutputHistory.push(new Object());
+        userInfo['SkillGroup'] = skillGroup;
+        userInfo['SAMSWorkType'] = samsWorkType;
+        userInfo['TaskType'] = taskType;
+        socket.join(skillGroup);
+        if (stepType == 'WAIT') {
+            userInfo.OutputHistory.push(new Object());
         }
-        sashaUsers[ConnectionId] = UserInfo;
+        sashaUsers[connectionId] = userInfo;
         io.sockets.in('monitor').emit('Notify Monitor Begin SASHA Flow', {
-    	    ConnectionId: ConnectionId,
-     	    UserInfo: UserInfo
+    	    ConnectionId: connectionId,
+     	    UserInfo: userInfo
         });
 		
-        flowTimersInstance[ConnectionId] = 0;
-        flowTimers[ConnectionId] = setInterval(function () {
-            flowTimersInstance[ConnectionId]++;
-            var elapsed = Math.floor(flowTimersInstance[ConnectionId] * (notifyStalledFlowTime / 1000) / 60);
+        flowTimersInstance[connectionId] = 0;
+        flowTimers[connectionId] = setInterval(function () {
+            flowTimersInstance[connectionId]++;
+            var elapsed = Math.floor(flowTimersInstance[connectionId] * (notifyStalledFlowTime / 1000) / 60);
             if (elapsed == 0 || elapsed > 1 ) {
                 elapsedtext = elapsed + ' minutes';
             } else {
                 var elapsedtext = elapsed + ' minute';
             }
-            io.sockets.connected[ConnectionId].emit('Notify SASHA', {
+            io.sockets.connected[connectionId].emit('Notify SASHA', {
                 Message: 'You have a SASHA Flow that has been active for ' + elapsedtext + ' without completion.',
                 RequireBlur: false,
                 GiveFocus: true,
                 RequireInteraction: true,
-                ConnectionId: ConnectionId
+                ConnectionId: connectionId
             });
         }, notifyStalledFlowTime);
-        stepTimersInstance[ConnectionId] = 0;
-        stepTimers[ConnectionId] = setInterval(function () {
-            stepTimersInstance[ConnectionId]++;
-            var elapsed = Math.floor(stepTimersInstance[ConnectionId] * (notifyStalledStepTime / 1000) / 60);
+        stepTimersInstance[connectionId] = 0;
+        stepTimers[connectionId] = setInterval(function () {
+            stepTimersInstance[connectionId]++;
+            var elapsed = Math.floor(stepTimersInstance[connectionId] * (notifyStalledStepTime / 1000) / 60);
             if (elapsed == 0 || elapsed > 1) {
                 var elapsedtext = elapsed + ' minutes';
             } else {
                 elapsedtext = elapsed + ' minute';
             }
-            io.sockets.connected[ConnectionId].emit('Notify SASHA', {
+            io.sockets.connected[connectionId].emit('Notify SASHA', {
                 Message: 'SASHA Flow has not seen movement in  ' + elapsedtext + ' for your non-active SASHA window.',
                 RequireBlur: true,
                 GiveFocus: true,
                 RequireInteraction: true,
-                ConnectionId: ConnectionId
+                ConnectionId: connectionId
             });
         }, notifyStalledStepTime);
     });
 
     socket.on('Send SAMS Flow and Step', function(data) {
-        var ConnectionId = socket.connectionId;
-        if (typeof sashaUsers[ConnectionId] == 'undefined') {
+        var connectionId = socket.connectionId;
+        if (typeof sashaUsers[connectionId] == 'undefined') {
             return;
         }
-        var FlowName = data.FlowName;
-        var StepName = data.StepName;
-        var StepType = data.StepType;
-        var FormName = data.FormName;
+        var flowName = data.FlowName;
+        var stepName = data.StepName;
+        var stepType = data.StepType;
+        var formName = data.FormName;
         if (useDB) {
-            var UserInfo = sashaUsers[ConnectionId];			
-            var OldFlowName = UserInfo.FlowName;
-            var OldStepName = UserInfo.StepName;
-            var OldStepStartTime =  UserInfo.StepStartTime;
-            var StepStopTime = new Date().toUTCString();
-            var elapsedTime = (Date.parse(StepStopTime)-Date.parse(OldStepStartTime))/1000;
+            var userInfo = sashaUsers[connectionId];
+            var oldFlowName = userInfo.FlowName;
+            var oldStepName = userInfo.StepName;
+            var oldStepStartTime = userInfo.StepStartTime;
+            var stepStopTime = new Date().toUTCString();
+            var elapsedTime = (Date.parse(stepStopTime)-Date.parse(oldStepStartTime))/1000;
             if (!isNaN(elapsedTime)) {
                 var sql = '';
-                switch (OldStepName) {
+                switch (oldStepName) {
                 case 'SO WAIT':
-                    OldStepStartTime = new Date(OldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                    StepStopTime = new Date(StepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' + 
-						mysql.escape(UserInfo.SmpSessionId) + ',' + 
-						mysql.escape(OldStepStartTime) + ',' +
-						mysql.escape(StepStopTime) + ',' + 
+                    oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
+                    stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
+                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+						mysql.escape(userInfo.SmpSessionId) + ',' +
+						mysql.escape(oldStepStartTime) + ',' +
+						mysql.escape(stepStopTime) + ',' +
 						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(UserInfo.AttUID) + ',' + 
-						mysql.escape(UserInfo.FirstName) + ',' + 
-						mysql.escape(UserInfo.LastName) + ',' +
-						mysql.escape(UserInfo.Manager) + ',' +
-						mysql.escape(UserInfo.SAMSWorkType) + ',' + 
-						mysql.escape(UserInfo.SkillGroup) + ',' + 
-						mysql.escape(UserInfo.TaskType) + ',' +
-						mysql.escape(OldFlowName) + ',' +
-						mysql.escape(OldStepName) + ',' +
+						mysql.escape(userInfo.AttUID) + ',' +
+						mysql.escape(userInfo.FirstName) + ',' +
+						mysql.escape(userInfo.LastName) + ',' +
+						mysql.escape(userInfo.Manager) + ',' +
+						mysql.escape(userInfo.SAMSWorkType) + ',' +
+						mysql.escape(userInfo.SkillGroup) + ',' +
+						mysql.escape(userInfo.TaskType) + ',' +
+						mysql.escape(oldFlowName) + ',' +
+						mysql.escape(oldStepName) + ',' +
                         mysql.escape('Y') + ',';
                     if (elapsedTime > 30) {
                         sql = sql + ',' + mysql.escape('Y');
                     } else {
                         sql = sql + mysql.escape('N');
                     }
-                    sql = sql + ')';						
+                    sql = sql + ')';
                     break;
                 default:
-                    OldStepStartTime = new Date(OldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                    StepStopTime = new Date(StepStopTime).toISOString().slice(0, 19).replace('T', ' ');				
-                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' + 
-						mysql.escape(UserInfo.SmpSessionId) + ',' + 
-						mysql.escape(OldStepStartTime) + ',' +
-						mysql.escape(StepStopTime) + ',' + 
+                    oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
+                    stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
+                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+						mysql.escape(userInfo.SmpSessionId) + ',' +
+						mysql.escape(oldStepStartTime) + ',' +
+						mysql.escape(stepStopTime) + ',' +
 						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(UserInfo.AttUID) + ',' + 
-						mysql.escape(UserInfo.FirstName) + ',' + 
-						mysql.escape(UserInfo.LastName) + ',' +
-						mysql.escape(UserInfo.Manager) + ',' +
-						mysql.escape(UserInfo.SAMSWorkType) + ',' + 
-						mysql.escape(UserInfo.SkillGroup) + ',' + 
-						mysql.escape(UserInfo.TaskType) + ',' +
-						mysql.escape(OldFlowName) + ',' +
-						mysql.escape(OldStepName) + ',' +
+						mysql.escape(userInfo.AttUID) + ',' +
+						mysql.escape(userInfo.FirstName) + ',' +
+						mysql.escape(userInfo.LastName) + ',' +
+						mysql.escape(userInfo.Manager) + ',' +
+						mysql.escape(userInfo.SAMSWorkType) + ',' +
+						mysql.escape(userInfo.SkillGroup) + ',' +
+						mysql.escape(userInfo.TaskType) + ',' +
+						mysql.escape(oldFlowName) + ',' +
+						mysql.escape(oldStepName) + ',' +
 						mysql.escape('Y') + ',';
                     if (elapsedTime > 300) {
                         sql = sql + mysql.escape('Y');
@@ -434,74 +429,73 @@ io.sockets.on('connection', function (socket) {
                 global.con.query(sql);
             }
         }
-        UserInfo.FlowName = FlowName;
-        UserInfo.StepName = StepName;
-        UserInfo.StepStartTime =  new Date().toUTCString();
-        UserInfo.FlowHistory.push(FlowName);
-        UserInfo.StepHistory.push(StepName);
-        UserInfo.StepTypeHistory.push(StepType);
-        UserInfo.FormNameHistory.push(FormName);
-        if (StepType == 'WAIT') {
-            UserInfo.OutputHistory.push(new Object());
+        userInfo.FlowName = flowName;
+        userInfo.StepName = stepName;
+        userInfo.StepStartTime =  new Date().toUTCString();
+        userInfo.FlowHistory.push(flowName);
+        userInfo.StepHistory.push(stepName);
+        userInfo.StepTypeHistory.push(stepType);
+        userInfo.FormNameHistory.push(formName);
+        if (stepType == 'WAIT') {
+            userInfo.OutputHistory.push(new Object());
         }
-        UserInfo.StepTime.push(Math.floor(Date.now()/1000));
-        sashaUsers[ConnectionId] = UserInfo;
-        io.sockets.in('monitor').in(ConnectionId).emit('Update Flow and Step Info', {
-            ConnectionId: ConnectionId,
-            UserInfo: UserInfo
+        userInfo.StepTime.push(Math.floor(Date.now()/1000));
+        sashaUsers[connectionId] = userInfo;
+        io.sockets.in('monitor').in(connectionId).emit('Update Flow and Step Info', {
+            ConnectionId: connectionId,
+            UserInfo: userInfo
         });
-        if (UserInfo.UserStatus == 'In Process') {
-            clearInterval(stepTimers[ConnectionId]);
-            stepTimersInstance[ConnectionId] = 0;
-            stepTimers[ConnectionId] = setInterval(function () {
-                stepTimersInstance[ConnectionId]++;
-                var elapsed = Math.floor(stepTimersInstance[ConnectionId] * (notifyStalledStepTime / 1000) / 60);
+        if (userInfo.UserStatus == 'In Process') {
+            clearInterval(stepTimers[connectionId]);
+            stepTimersInstance[connectionId] = 0;
+            stepTimers[connectionId] = setInterval(function () {
+                stepTimersInstance[connectionId]++;
+                var elapsed = Math.floor(stepTimersInstance[connectionId] * (notifyStalledStepTime / 1000) / 60);
                 if (elapsed == 0 || elapsed > 1 ) {
                     var elapsedtext = elapsed + ' minutes';
                 } else {
                     elapsedtext = elapsed + ' minute';
-                }                
-                io.sockets.connected[ConnectionId].emit('Notify SASHA', {
+                }
+                io.sockets.connected[connectionId].emit('Notify SASHA', {
                     Message: 'SASHA Flow has not seen movement in  ' + elapsedtext + ' for your non-active SASHA window.',
                     RequireBlur: false,
                     GiveFocus: true,
                     RequireInteraction: true,
-                    ConnectionId: ConnectionId
+                    ConnectionId: connectionId
                 });
             }, notifyStalledStepTime);
         }
     });
     
-
     socket.on('Alert Server of Stalled Session', function(data) {
-        var ConnectionId = data.ConnectionId;
-        if (typeof sashaUsers[ConnectionId] == 'undefined') {
+        var connectionId = data.ConnectionId;
+        if (typeof sashaUsers[connectionId] == 'undefined') {
             return;
         }
-        var UserInfo = sashaUsers[ConnectionId];
+        var userInfo = sashaUsers[connectionId];
         io.sockets.in('monitor').emit('Alert Monitor of Stalled Session', {
-            UserInfo: UserInfo
+            UserInfo: userInfo
         });
     });
 
     socket.on('Request Current Connection Data', function(data) {
-        var ConnectionId = socket.connectionId;
-        var ActiveTab = data.ActiveTab;
+        var connectionId = socket.connectionId;
+        var activeTab = data.ActiveTab;
         for (var key in sashaUsers) {
-            var UserInfo = sashaUsers[key];
-            if (UserInfo.UserStatus == 'Inactive') {
+            var userInfo = sashaUsers[key];
+            if (userInfo.UserStatus == 'Inactive') {
                 socket.emit('Add SASHA Connection to Monitor', {
                     ConnectionId: key,
-                    UserInfo: UserInfo
+                    UserInfo: userInfo
                 });
             } else {
                 socket.emit('Notify Monitor Begin SASHA Flow', {
-                    ConnectionId: ConnectionId,
-                    UserInfo: UserInfo
+                    ConnectionId: connectionId,
+                    UserInfo: userInfo
                 });
             }
         }
-        if (ActiveTab != 'none') {
+        if (activeTab != 'none') {
             socket.emit('Reset Active Tab', {
                 ActiveTab: data.ActiveTab
             });
@@ -509,108 +503,106 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('Request Client Detail from Server', function(data) {
-        var ClientId = data.ConnectionId;
-        socket.join(ClientId);
-        if (typeof sashaUsers[ClientId] == 'undefined') {
+        var clientId = data.ConnectionId;
+        socket.join(clientId);
+        if (typeof sashaUsers[clientId] == 'undefined') {
             socket.emit('No Such Client');
             return;
         }
-        var UserInfo = sashaUsers[ClientId];
+        var userInfo = sashaUsers[clientId];
         socket.emit('Receive Client Detail from Server', {
-            UserInfo: UserInfo
+            UserInfo: userInfo
         });
     });
 
     socket.on('Request SASHA ScreenShot from Server', function(data) {
-        var ConnectionId = data.connectionId;
+        var connectionId = data.connectionId;
         io.emit('Request SASHA ScreenShot from SASHA', {
-            ConnectionId: ConnectionId
+            ConnectionId: connectionId
         });
     });
 
     socket.on('Send SASHA ScreenShot to Server', function(data) {
-        var ImageURL = data.ImageURL;
-        var ConnectionId = socket.connectionId;
-        io.in(ConnectionId).emit('Send SASHA ScreenShot to Monitor', {
-            ImageURL: ImageURL
+        var imageURL = data.ImageURL;
+        var connectionId = socket.connectionId;
+        io.in(connectionId).emit('Send SASHA ScreenShot to Monitor', {
+            ImageURL: imageURL
         });
     });
 
     socket.on('Request SASHA Dictionary from Server', function(data) {
-        var ConnectionId = data.connectionId;
+        var connectionId = data.connectionId;
         io.emit('Request SASHA Dictionary from SASHA', {
-            ConnectionId: ConnectionId
+            ConnectionId: connectionId
         });
     });
 
     socket.on('Send SASHA Dictionary to Server', function(data) {
-        var Dictionary = data.Dictionary;
-        var ConnectionId = socket.connectionId;
-        io.in(ConnectionId).emit('Send SASHA Dictionary to Monitor', {
-            Dictionary: Dictionary
+        var dictionary = data.Dictionary;
+        var connectionId = socket.connectionId;
+        io.in(connectionId).emit('Send SASHA Dictionary to Monitor', {
+            Dictionary: dictionary
         });
     });
 
     socket.on('Request SASHA Skill Group Info from Server', function(data) {
-        var ConnectionId = data.ConnectionId;
-        var RequestValue = data.RequestValue;
+        var connectionId = data.ConnectionId;
+        var requestValue = data.RequestValue;
         io.emit('Request SASHA Skill Group Info from SASHA', {
-            RequestValue: RequestValue,
-            ConnectionId: ConnectionId
+            RequestValue: requestValue,
+            ConnectionId: connectionId
         });
     });
 
     socket.on('Send SASHA Skill Group Info to Server', function(data) {
-        var ResultValue = data.ResultValue;
-        var ConnectionId = socket.connectionId;
-        io.in(ConnectionId).emit('Send SASHA Skill Group Info to Monitor', {
-            ResultValue: ResultValue
+        var resultValue = data.ResultValue;
+        var connectionId = socket.connectionId;
+        io.in(connectionId).emit('Send SASHA Skill Group Info to Monitor', {
+            ResultValue: resultValue
         });
     });
 
     socket.on('Send Agent Inputs to SAMS', function(data) {
-        var ConnectionId = socket.connectionId;
-        var Output = data.Output;
-        var UserInfo = sashaUsers[ConnectionId];
-        if (typeof UserInfo != 'undefined') {
-            UserInfo.OutputHistory.push(Output);
-            sashaUsers[ConnectionId] = UserInfo;
-            io.in(ConnectionId).emit('Send Agent Inputs to Monitor', {
-                Output: Output
+        var connectionId = socket.connectionId;
+        var output = data.Output;
+        var userInfo = sashaUsers[connectionId];
+        if (typeof userInfo != 'undefined') {
+            userInfo.OutputHistory.push(output);
+            sashaUsers[connectionId] = userInfo;
+            io.in(connectionId).emit('Send Agent Inputs to Monitor', {
+                Output: output
             });
         }
     });
 
     socket.on('Send User Message to Server', function(data) {
-        var ConnectionId = data.ConnectionId;
-        var BroadcastText = data.BroadcastText;
-        if (BroadcastText.trim()) {
-            io.sockets.connected[ConnectionId].emit('Send User Message to User', {        
-                BroadcastText: BroadcastText,
-                ConnectionId: ConnectionId
+        var connectionId = data.ConnectionId;
+        var broadcastText = data.BroadcastText;
+        if (broadcastText.trim()) {
+            io.sockets.connected[connectionId].emit('Send User Message to User', {
+                BroadcastText: broadcastText,
+                ConnectionId: connectionId
             });
         }
     });
 
-
     socket.on('Notify Server Session Closed', function (data) {
-        var ConnectionId = data.ConnectionId;
-        io.in(ConnectionId).emit('Notify Popup Session Closed');
+        var connectionId = data.ConnectionId;
+        io.in(connectionId).emit('Notify Popup Session Closed');
     });
 	
-
     socket.on('Save Screenshot', function(data) {
         if (useDB) {
-            var ConnectionId = socket.connectionId;        
-            if (typeof sashaUsers[ConnectionId] != 'undefined') {
-                var UserInfo = sashaUsers[ConnectionId];
-                var ImageURL = data.ImageURL;
-                var smpSessionId = UserInfo.SmpSessionId;
-                var flowName = UserInfo.FlowName;
-                var stepName = UserInfo.StepName;
+            var connectionId = socket.connectionId;
+            if (typeof sashaUsers[connectionId] != 'undefined') {
+                var userInfo = sashaUsers[connectionId];
+                var imageURL = data.ImageURL;
+                var smpSessionId = userInfo.SmpSessionId;
+                var flowName = userInfo.FlowName;
+                var stepName = userInfo.StepName;
                 var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 if (smpSessionId) {
-                    var sql = 'INSERT INTO screenshots (GUID, smp_session_id, timestamp, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(ImageURL) + ',' + mysql.escape('Y') + ')';
+                    var sql = 'INSERT INTO screenshots (GUID, smp_session_id, timestamp, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
                     global.con.query(sql);
                 }
             }
@@ -628,11 +620,11 @@ io.sockets.on('connection', function (socket) {
                 var label = 'Custom Range';
             }
             if (includeInProgress == 'N') {
-                var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE in_progress="N" AND timestamp >= "' + startDate + '" AND timestamp <= "' + endDate + '" ORDER BY timestamp ASC';  
+                var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE in_progress="N" AND timestamp >= "' + startDate + '" AND timestamp <= "' + endDate + '" ORDER BY timestamp ASC';
             } else {
                 var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE timestamp >= "' + startDate + '" AND timestamp <= "' + endDate + '" ORDER BY timestamp ASC';
             }
-            global.con.query(sql, (err, rows) => {			
+            global.con.query(sql, (err, rows) => {
                 socket.emit('Receive Listing', {
                     data: rows,
                     label: label
@@ -640,7 +632,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-	
+
     socket.on('Get ScreenShots', function(data) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
