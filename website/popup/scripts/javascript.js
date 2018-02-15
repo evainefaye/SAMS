@@ -7,17 +7,18 @@ $(document).ready(function () {
 
     var vars = getURLVars();
     var env = vars.env;
+    var serverAddress = 'http://10.100.49.104';    
     switch (env) {
     case 'fde':
         var socketURL = serverAddress + ':5510';
         break;
     case 'dev':
-		var socketURL = serverAddress + ':5510';
+        var socketURL = serverAddress + ':5510';
         break;
     case 'beta':
         var socketURL = serverAddress + ':5520';
         break;
-        case 'pre-prod':
+    case 'pre-prod':
         var socketURL = serverAddress + ':5520';
         break;
     case 'prod':
@@ -26,10 +27,9 @@ $(document).ready(function () {
     default:
         var socketURL = serverAddress + ':5530';
         break;
-        }
     }
     // Initialize variables
-    window.socket = io.connect(socketURL)
+    window.socket = io.connect(socketURL);
 
     socket.on('connect', function () {
         var vars = getURLVars();
@@ -58,7 +58,7 @@ $(document).ready(function () {
     });
 
     $('button#pushMessageButton').off('click.broadcast').on('click.broadcast', function () {
-        var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g,'<br />')
+        var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g,'<br />');
         socket.emit('Send User Message to Server', {
             ConnectionId: window.SASHAClientId,
             BroadcastText: broadcastText
@@ -177,7 +177,7 @@ $(document).ready(function () {
         stepDuration = stepDuration - stepDurationHours * 3600;
         var stepDurationMinutes = Math.floor(stepDuration / 60);
         stepDuration = stepDuration - stepDurationMinutes * 60;
-        var stepDurationSeconds = stepDuration
+        var stepDurationSeconds = stepDuration;
         stepDurationHours = ('00' + stepDurationHours).slice(-2) + ':';
         stepDurationMinutes = ('00' + stepDurationMinutes).slice(-2) + ':';
         stepDurationSeconds = ('00' + stepDurationSeconds).slice(-2);
@@ -187,7 +187,7 @@ $(document).ready(function () {
         if (FlowName != lastFlowName) {        
             html = html + '<tr><td class="flow text-left">' + FlowName + '</td>';
         } else {
-            html = html + '<tr><td class="flow text-left">&nbsp</td>'
+            html = html + '<tr><td class="flow text-left">&nbsp</td>';
         }
         html = html + '<td class="step text-left">' + StepName + '</td>';
         html = html + '<td class="type text-left">' + StepType + '</td>';
@@ -224,7 +224,7 @@ $(document).ready(function () {
     });
 
     socket.on('Send SASHA ScreenShot to Monitor', function (data) {
-        var ImageURL = data.ImageURL
+        var ImageURL = data.ImageURL;
         $('img#SASHAScreenshot').attr('src', ImageURL).show();
         $('img#SASHAScreenshot').parent().css('background-image', 'none');
         $('a.fancybox').attr('href',ImageURL);
@@ -290,7 +290,7 @@ $(document).ready(function () {
     });
 
     socket.on('Send Agent Inputs to Monitor', function(data) {
-        var Output = data.Output
+        var Output = data.Output;
         var html = '<table class="table-bordered">';
         Object.keys(Output).forEach(function (key) { 
             html += '<tr>';
@@ -397,7 +397,7 @@ let getSkillGroupInfo = function (skillGroup) {
             RequestValue: requestValue
         });
     }
-    skillgroupInfoTimer = setTimeout(function () { getSkillGroupInfo(skillGroup) }, AutoRefresh * 1000);
+    skillgroupInfoTimer = setTimeout(function () { getSkillGroupInfo(skillGroup); }, AutoRefresh * 1000);
 };
 
 let showFlowHistory = function(UserInfo) {
@@ -446,7 +446,7 @@ let showFlowHistory = function(UserInfo) {
         stepDuration = stepDuration - stepDurationHours * 3600;
         var stepDurationMinutes = Math.floor(stepDuration / 60);
         stepDuration = stepDuration - stepDurationMinutes * 60;
-        var stepDurationSeconds = stepDuration        
+        var stepDurationSeconds = stepDuration;
         stepDurationHours = ('00' + stepDurationHours).slice(-2) + ':';
         stepDurationMinutes = ('00' + stepDurationMinutes).slice(-2) + ':';
         stepDurationSeconds = ('00' + stepDurationSeconds).slice(-2);
