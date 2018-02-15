@@ -36,6 +36,7 @@
         "socket": true,
         "SASHA": true,
         "wf": true,
-        "html2canvas": true
+        "html2canvas": true,
+        "moment": true
     }
 }
