@@ -29,10 +29,27 @@
         <div class="overlay">
             <div id="loading-img"></div>
         </div>
-        <div><b>SELECT DATE RANGE:&nbsp;</b><input type='text' id='daterange' size='40' />&nbsp;&nbsp;&nbsp;<input id='includeInProgress' type='checkbox'>&nbsp;&nbsp;<b>INCLUDE WORKFLOWS CURRENTLY IN PROGRESS</b></input>&nbsp;&nbsp;<button id="reloadlist">RELOAD</button></div>
-        <br />
-        <br />
-        <div id="selector"></div>
-        <div id='screenshotdata'></div>
+        <div class="initializationScreen">
+            INITIALIZING....
+        </div>
+        <div id='main'>
+            <p>
+                <center><h2>SCREENSHOT DISPLAY</h2></center>
+            </p>
+            <br>
+            <div class='row'>
+                <div class='col-md-4 col-md-offset-4 calendar'>
+                    <input type='text' id='daterange' class='form-control' placeholder='SELECT DATE RANGE TO SEARCH' />
+                    <i class='glyphicon glyphicon-calendar fa fa-calendar'></i>                                
+                </div>
+            </div>
+            <br />        
+            <br />
+            <div class='row'>
+                <div id='noData' class='col-md-12 text-center'></div>                
+                <div id='selectRecord' class='col-md-12'></div>
+            </div>
+            <div id='screenshotdata'></div>
+        </div>
     </body>
 </html>

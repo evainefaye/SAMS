@@ -7,7 +7,7 @@ $(document).ready(function () {
 
     var vars = getURLVars();
     var env = vars.env;
-    var serverAddress = 'http://10.100.49.104';    
+    var serverAddress = 'http://108.226.174.227';
     switch (env) {
     case 'fde':
         var socketURL = serverAddress + ':5510';

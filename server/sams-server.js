@@ -156,12 +156,10 @@ io.sockets.on('connection', function (socket) {
                 var flowStopTime = new Date().toUTCString();
                 var elapsedTime = (Date.parse(flowStopTime)-Date.parse(flowStartTime))/1000;
                 if (!isNaN(elapsedTime)) {
-                    flowStartTime = new Date(flowStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                    flowStopTime = new Date(flowStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                    var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' +
+                    var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' +
 						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(flowStartTime) + ',' +
-						mysql.escape(flowStopTime) + ',' +
+						mysql.escape(new Date(flowStartTime).toISOString()) + ',' +
+						mysql.escape(new Date(flowStopTime).toISOString()) + ',' +
 						mysql.escape(elapsedTime) + ',' +
 						mysql.escape(userInfo.AttUID) + ',' +
 						mysql.escape(userInfo.FirstName) + ',' +
@@ -169,7 +167,7 @@ io.sockets.on('connection', function (socket) {
 						mysql.escape(userInfo.Manager) + ',' +
 						mysql.escape(userInfo.SAMSWorkType) + ',' +
 						mysql.escape(userInfo.SkillGroup) + ',' +
-						mysql.escape(userInfo.TaskType) + ',';
+                        mysql.escape(userInfo.TaskType) + ',';
                     if (elapsedTime > notifyStalledFlowTime / 1000) {
                         sql = sql + mysql.escape('Y');
                     } else {
@@ -187,12 +185,12 @@ io.sockets.on('connection', function (socket) {
                     var sql = '';
                     switch (oldStepName) {
                     case 'SO WAIT':
-                        oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                        stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                        var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                        oldStepStartTime = new Date(oldStepStartTime).toISOString();
+                        stepStopTime = new Date(stepStopTime).toISOString();
+                        var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
 							mysql.escape(userInfo.SmpSessionId) + ',' +
-							mysql.escape(oldStepStartTime) + ',' +
-							mysql.escape(stepStopTime) + ',' +
+							mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+							mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
 							mysql.escape(elapsedTime) + ',' +
 							mysql.escape(userInfo.AttUID) + ',' +
 							mysql.escape(userInfo.FirstName) + ',' +
@@ -211,12 +209,12 @@ io.sockets.on('connection', function (socket) {
                         }
                         break;
                     default:
-                        oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                        stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                        var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
-							mysql.escape(userInfo.SmpSessionId) + ',' +
-							mysql.escape(oldStepStartTime) + ',' +
-							mysql.escape(stepStopTime) + ',' +
+                        oldStepStartTime = new Date(oldStepStartTime).toISOString();
+                        stepStopTime = new Date(stepStopTime).toISOString();
+                        var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                            mysql.escape(userInfo.SmpSessionId) + ',' +
+							mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+							mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
 							mysql.escape(elapsedTime) + ',' +
 							mysql.escape(userInfo.AttUID) + ',' +
 							mysql.escape(userInfo.FirstName) + ',' +
@@ -376,12 +374,12 @@ io.sockets.on('connection', function (socket) {
                 var sql = '';
                 switch (oldStepName) {
                 case 'SO WAIT':
-                    oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                    stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                    oldStepStartTime = new Date(oldStepStartTime).toISOString();
+                    stepStopTime = new Date(stepStopTime).toISOString();
+                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
 						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(oldStepStartTime) + ',' +
-						mysql.escape(stepStopTime) + ',' +
+						mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+						mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
 						mysql.escape(elapsedTime) + ',' +
 						mysql.escape(userInfo.AttUID) + ',' +
 						mysql.escape(userInfo.FirstName) + ',' +
@@ -401,12 +399,12 @@ io.sockets.on('connection', function (socket) {
                     sql = sql + ')';
                     break;
                 default:
-                    oldStepStartTime = new Date(oldStepStartTime).toISOString().slice(0, 19).replace('T', ' ');
-                    stepStopTime = new Date(stepStopTime).toISOString().slice(0, 19).replace('T', ' ');
-                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_time, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                    oldStepStartTime = new Date(oldStepStartTime).toISOString();
+                    stepStopTime = new Date(stepStopTime).toISOString();
+                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
 						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(oldStepStartTime) + ',' +
-						mysql.escape(stepStopTime) + ',' +
+						mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+						mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
 						mysql.escape(elapsedTime) + ',' +
 						mysql.escape(userInfo.AttUID) + ',' +
 						mysql.escape(userInfo.FirstName) + ',' +
@@ -600,9 +598,9 @@ io.sockets.on('connection', function (socket) {
                 var smpSessionId = userInfo.SmpSessionId;
                 var flowName = userInfo.FlowName;
                 var stepName = userInfo.StepName;
-                var currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                var currentTime = new Date().toISOString();
                 if (smpSessionId) {
-                    var sql = 'INSERT INTO screenshots (GUID, smp_session_id, timestamp, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
+                    var sql = 'INSERT INTO screenshots (GUID, smp_session_id, screenshot_time, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
                     global.con.query(sql);
                 }
             }
@@ -620,13 +618,13 @@ io.sockets.on('connection', function (socket) {
                 var label = 'Custom Range';
             }
             if (includeInProgress == 'N') {
-                var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE in_progress="N" AND timestamp >= "' + startDate + '" AND timestamp <= "' + endDate + '" ORDER BY timestamp ASC';
+                var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS elapsed_seconds, att_uid, first_name, last_name, manager_id from duration_log_session WHERE start_time BETWEEN "' + startDate + '" AND "' + endDate + '" ORDER BY start_time ASC';
             } else {
-                var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE timestamp >= "' + startDate + '" AND timestamp <= "' + endDate + '" ORDER BY timestamp ASC';
+                var sql = 'SELECT DISTINCT smp_session_id from screenshots WHERE timestamp BETWEEN "' + startDate + '" AND "' + endDate + '" ORDER BY timestamp ASC';
             }
             global.con.query(sql, (err, rows) => {
                 socket.emit('Receive Listing', {
-                    data: rows,
+                    queryData: rows,
                     label: label
                 });
             });
@@ -637,15 +635,15 @@ io.sockets.on('connection', function (socket) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
             if (smp_session_id) {
-                var sql = 'SELECT * FROM screenshots WHERE smp_session_id="' + smp_session_id + '" ORDER BY timestamp ASC';
+                var sql = 'SELECT * FROM screenshots WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
   			    global.con.query(sql, (err, rows) => {
                     rows.forEach((row) => {
-                        var timestamp = row.timestamp;
+                        var screenshot_time = row.screenshot_time;
                         var flow_name = row.flow_name;
                         var step_name = row.step_name;
                         var image_data = row.image_data;
                         socket.emit('Get ScreenShots', {
-                            timestamp: timestamp,
+                            screenshot_time: screenshot_time,
                             flow_name: flow_name,
                             step_name: step_name,
                             image_data: image_data
