@@ -649,6 +649,7 @@ io.sockets.on('connection', function (socket) {
                             image_data: image_data
                         });
                     });
+                    socket.emit('Screenshots Delivered');
                 });
             }
         }

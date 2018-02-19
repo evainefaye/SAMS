@@ -343,12 +343,35 @@ $(document).ready(function () {
     });
 
     socket.on('Get ScreenShots', function (data) {
+        $('div#slides').hide();
         var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
         var html = '<p>Timestamp: ' + screenshot_time + '<br />' + 'Flow: ' + flow_name + ' -> ' + step_name + '<br /><img src="' + image_data + '">';
-        $('div#screenshotdata').append(html);
+//        $('div#screenshotdata').append(html);
+        var ht = '<img src="' + image_data + '" />';
+        $('div#slides').append(ht);
+
+    });
+
+    socket.on('Screenshots Delivered', function() {
+        alert('here');
+        $('div#slides').show();
+        $('div#slides').slidesjs({
+            width: 940,
+            height: 528,
+            navigation: {
+                active: true
+            },
+            effect: 'slide',
+            pagination: {
+                active: false
+            },
+            play: {
+                active: false
+            }
+        });
     });
 	
 	
