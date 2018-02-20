@@ -31,6 +31,12 @@ $(document).ready(function () {
         break;
     }
 
+    $('div.flexslider').hide();
+    $('input#closeBtn').off('click').on('click', function() {
+        alert('clicked close button');
+        $('div.flexslider').html('<input id="closeBtn" type="button" class="btn btn-warning" value="X"><ul class="slides"></ul>');
+    });
+
     $('input:radio[name=searchtype]').change(function() {
         $('#searchtype > label.active').removeClass('btn-primary').addClass('btn-info');
         $('#searchtype > label').not('.active').removeClass('btn-info').addClass('btn-primary');        
@@ -321,9 +327,11 @@ $(document).ready(function () {
             $('div#selectRecord').html(html).show();
             $('div#noData').hide();
             $('table#selectRow tr').off('dblclick').on('dblclick', function() {
+                alert('dblclick done');
+                $('.flexslider').remove();
+                $('div.flex-container').append('<div class="flexslider"><input id="closeBtn" type="button" class="btn btn-warning" value="X"><ul class="slides"></ul></div>');
                 var smp_session_id = $(this).children().first().html();
                 $('div#screenshot').html('<p class="imglist"></p>');
-
                 socket.emit('Get ScreenShots', {
                     smp_session_id: smp_session_id
                 });
@@ -348,30 +356,22 @@ $(document).ready(function () {
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
-        var html = '<p>Timestamp: ' + screenshot_time + '<br />' + 'Flow: ' + flow_name + ' -> ' + step_name + '<br /><img src="' + image_data + '">';
-//        $('div#screenshotdata').append(html);
-        var ht = '<img src="' + image_data + '" />';
-        $('div#slides').append(ht);
+        var html = '<li><img src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        $('ul.slides').append(html);
 
     });
 
     socket.on('Screenshots Delivered', function() {
-        alert('here');
-        $('div#slides').show();
-        $('div#slides').slidesjs({
-            width: 940,
-            height: 528,
-            navigation: {
-                active: true
-            },
-            effect: 'slide',
-            pagination: {
-                active: false
-            },
-            play: {
-                active: false
-            }
+        alert('test');
+        $('.flexslider').flexslider({
+            controlsContainer: '.flexslider',
+            animation: 'slide',
+            slideshow: false,
+            directionNav: true,
+            prevText: 'Previous',
+            nextText: 'Next'
         });
+        $('div.flexslider').show();
     });
 	
 	
