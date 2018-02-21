@@ -41,6 +41,10 @@ $(document).ready(function () {
     $('select#environment').off('change').on('change', function () {
         environment = $(this).find(':selected').val();
         Cookies.set('environment',environment);
+        $.each(windowManager, function (key) {
+            windowManager[key].close();
+            delete windowManager[key];
+        });
         window.location.reload();
     });
     $('#SupervisorList').val(Cookies.get('SupervisorList'));
@@ -90,7 +94,7 @@ $(document).ready(function () {
     });
 
     socket.on('disconnect', function () {
-        $('div.initializationScreen').html('CONNECTION LOST. ATTEMTPING TO RECONNECT...').show();
+        $('div.initializationScreen').html('CONNECTION INTERRUPTED').show();
         $('div.mainScreen').hide();
         $('div#supervisorFilter').hide();
         // store currently active tab
@@ -171,12 +175,8 @@ $(document).ready(function () {
                 var win = windowManager[winName];
                 win.close();
             }
-            vars = getURLVars();
-            if (vars.env) {
-                windowManager[winName] = window.open('../popup/index.html?env=' + vars.env + '&id=' + id, winName);
-            } else {
-                windowManager[winName] = window.open('../popup/index.html?id=' + id, winName);
-            }
+            var environment = $('select#environment').find(':selected').val();
+            windowManager[winName] = window.open('../popup/index.html?env=' + environment + '&id=' + id, winName);
         });
     });
 
@@ -332,17 +332,15 @@ $(document).ready(function () {
         // Update on doubleclick events to launch detail window
         $('table tbody tr').not('.group-header').off('dblclick').on('dblclick', function () {
             var id = $(this).attr('connectionId');
+            Cookies.set('connectionId',id);
             var winName = 'window_' + id;
             if (typeof windowManager[winName] != 'undefined') {
                 var win = windowManager[winName];
                 win.close();
             }
-            vars = getURLVars();
-            if (vars.env) {
-                windowManager[winName] = window.open('../popup/index.html?env=' + vars.env + '&id=' + id, winName);
-            } else {
-                windowManager[winName] = window.open('../popup/index.html?id=' + id, winName);
-            }
+            var environment = $('select#environment').find(':selected').val();
+//            windowManager[winName] = window.open('../popup/index.html?env=' + environment + '&id=' + id, winName);
+            windowManager[winName] = window.open('../popup/index.html');
         });
     });
 

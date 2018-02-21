@@ -5,18 +5,22 @@ var screenshotTimer;
 
 $(document).ready(function () {
 
-    var vars = getURLVars();
-    var env = vars.env;
+    var environment = Cookies.get('environment');
+    window.connectionId = Cookies.get('connectionId');
+    if (typeof connectionId == 'undefined' || typeof(environment) == 'undefined') {
+        $('body').empty();
+        $('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MAIN</span></div>');
+        socket.disconnect();
+        setTimeout(function() { window.close(); }, AutoRefresh * 1000);
+        Cookies.remove('connectionId');
+        throw new Error();
+    }
+    Cookies.remove('connectionId');
+
     var serverAddress = 'http://108.226.174.227';
-    switch (env) {
+    switch (environment) {
     case 'fde':
         var socketURL = serverAddress + ':5510';
-        break;
-    case 'dev':
-        var socketURL = serverAddress + ':5510';
-        break;
-    case 'beta':
-        var socketURL = serverAddress + ':5520';
         break;
     case 'pre-prod':
         var socketURL = serverAddress + ':5520';
@@ -25,18 +29,16 @@ $(document).ready(function () {
         var socketURL = serverAddress + ':5530';
         break;
     default:
-        var socketURL = serverAddress + ':5530';
+        alert('no environment');
         break;
     }
     // Initialize variables
     window.socket = io.connect(socketURL);
 
     socket.on('connect', function () {
-        var vars = getURLVars();
-        var connectionId = vars.id;
-        window.SASHAClientId = connectionId;
+        window.SASHAClientId = window.connectionId;
         socket.emit('Request Client Detail from Server', {
-            ConnectionId: connectionId
+            ConnectionId: window.connectionId
         });
     });
 
@@ -218,7 +220,7 @@ $(document).ready(function () {
 
     socket.on('No Such Client', function () {
         $('body').empty();
-        $('body').append('<div class="header text-center"><span class="data">NO SUCH CONNECTION</span></div>');
+        $('body').append('<div class="header text-center"><span class="data">SELECTED SASHA FLOW NOT IN PROGRESS</span></div>');
         socket.disconnect();
         setTimeout(function() { window.close(); }, AutoRefresh * 1000);
     });
