@@ -37,6 +37,8 @@
         "SASHA": true,
         "wf": true,
         "html2canvas": true,
-        "moment": true
+        "moment": true,
+        "define": true,
+        "Cookies": true
     }
 }

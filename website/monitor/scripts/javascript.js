@@ -5,42 +5,52 @@ window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
     var serverAddress = 'http://10.100.49.104';     // Set the location of the Node.js server
-    var serverAddress = 'http://127.0.0.1';     // Set the location of the Node.js server    
+    var serverAddress = 'http://108.226.174.227';     // Set the location of the Node.js server    
+
+    var environment = Cookies.get('environment');
+    if (typeof environment == 'undefined') {
+        environment = 'prod';
+        Cookies.set('environment','prod');
+    }
+    $('select#environment option[value=' + environment + ']').prop('selected', 'selected').change();
+
     var vars = getURLVars(); // Get Parameters from URL
     var env = vars.env;
-    switch (env) {
+    switch (environment) {
     // Set Node.js port and version description based on environment variable.  Default loads production 
     case 'fde':
         var socketURL = serverAddress + ':5510';
-        var version = 'FDE (FLOW DEVELOPMENT ENVIRONMENT)';
-        break;
-    case 'dev':
-        var socketURL = serverAddress + ':5510';
-        var version = 'FDE (FLOW DEVELOPMENT ENVIRONMENT)';
-        break;
-    case 'beta':
-        var socketURL = serverAddress + ':5520';
-        version = 'BETA (PRE-PROD)';
+        var version = 'DEVELOPMENT';
         break;
     case 'pre-prod':
         var socketURL = serverAddress + ':5520';
-        version = 'BETA (PRE-PROD)';
+        version = 'BETA';
         break;
     case 'prod':
         var socketURL = serverAddress + ':5530';
         version = 'PRODUCTION';
         break;
     default:
+        environment = 'prod';
+        Cookies.set('environment','prod');
         var socketURL = serverAddress + ':5530';
         version = 'PRODUCTION';
         break;
     }
+
+    $('select#environment').off('change').on('change', function () {
+        environment = $(this).find(':selected').val();
+        Cookies.set('environment',environment);
+        window.location.reload();
+    });
+    $('#SupervisorList').val(Cookies.get('SupervisorList'));
 
     document.title = 'SAMS - ' + version + ' SASHA ACTIVITY MONITORING SYSTEM'; // Set Window Title
 
 	
     // Define Event for enabling / disabling the supervisors list for filtering
     $('#SupervisorList').off('keyup').on('keyup', function() {
+        Cookies.set('SupervisorList',$('#SupervisorList').val().trim());
         if ($('#SupervisorList').val().trim().length > 0) {
             var supervisorList = $('#SupervisorList').val().trim();
             supervisorList = supervisorList.replace(/[;|: ,]+/g,',');
@@ -61,7 +71,7 @@ $(document).ready(function () {
             $('table').trigger('update').trigger('applyWidgetId','zebra');
         }
     });
-    $('span#version').html(version);  // Display the Monitor version on page
+    $('span#environment').html(version);  // Display the Monitor version on page
     window.socket = io.connect(socketURL); // Connect to socket.io
 
     // Define function to autoclose detail windows opened by monitor window when appropriate
@@ -82,6 +92,7 @@ $(document).ready(function () {
     socket.on('disconnect', function () {
         $('div.initializationScreen').html('CONNECTION LOST. ATTEMTPING TO RECONNECT...').show();
         $('div.mainScreen').hide();
+        $('div#supervisorFilter').hide();
         // store currently active tab
         var active = $('li.active').attr('tabId');
         // Remove any countdown timers
@@ -545,6 +556,7 @@ let toLocalDateTime = function (timestamp) {
 let showMainScreen = function () {
     $('div.initializationScreen').hide();
     $('div.mainScreen').show();
+    $('div#supervisorFilter').show();
     // Update Server Start Time
 };
 
