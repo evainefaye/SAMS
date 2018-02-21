@@ -55,6 +55,7 @@ img {
 
   .flexslider .slides > li {
     display: none;
+    backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 }
  

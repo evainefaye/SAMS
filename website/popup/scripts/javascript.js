@@ -7,7 +7,7 @@ $(document).ready(function () {
 
     var environment = Cookies.get('environment');
     window.connectionId = Cookies.get('connectionId');
-    if (typeof connectionId == 'undefined' || typeof(environment) == 'undefined') {
+    if (typeof connectionId == 'undefined' || typeof environment == 'undefined') {
         $('body').empty();
         $('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MAIN</span></div>');
         socket.disconnect();
@@ -326,18 +326,6 @@ let toLocalTime = function (timestamp) {
         seconds = seconds.slice(-2);
         return hours + ':' + minutes + ':' + seconds;
     }
-};
-
-// Read a page's GET URL variables and return them as an associative array.
-let getURLVars = function () {
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for (var i = 0; i < hashes.length; i++) {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
 };
 
 // Add Styling on Timer if over threshold

@@ -15,7 +15,6 @@ $(document).ready(function () {
     $('select#environment option[value=' + environment + ']').prop('selected', 'selected').change();
 
     var vars = getURLVars(); // Get Parameters from URL
-    var env = vars.env;
     switch (environment) {
     // Set Node.js port and version description based on environment variable.  Default loads production 
     case 'fde':
@@ -338,8 +337,6 @@ $(document).ready(function () {
                 var win = windowManager[winName];
                 win.close();
             }
-            var environment = $('select#environment').find(':selected').val();
-//            windowManager[winName] = window.open('../popup/index.html?env=' + environment + '&id=' + id, winName);
             windowManager[winName] = window.open('../popup/index.html');
         });
     });
