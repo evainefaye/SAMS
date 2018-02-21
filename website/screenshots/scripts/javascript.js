@@ -33,8 +33,7 @@ $(document).ready(function () {
 
     $('div.flexslider').hide();
     $('input#closeBtn').off('click').on('click', function() {
-        alert('clicked close button');
-        $('div.flexslider').html('<input id="closeBtn" type="button" class="btn btn-warning" value="X"><ul class="slides"></ul>');
+        $('div.flexslider').html('<input id="closeBtn" type="button" class="btn btn-warning" value="X"><table id="header"></table><ul class="slides"></ul>');
     });
 
     $('input:radio[name=searchtype]').change(function() {
@@ -130,7 +129,7 @@ $(document).ready(function () {
 
 /*
     // call the tablesorter plugin
-    $('table').tablesorter({
+    $('table#selectRow').tablesorter({
         theme: 'blue',
 
         // hidden filter input/selects will resize the columns, so try to minimize the change
@@ -303,7 +302,7 @@ $(document).ready(function () {
             var queryData = new Object();
         }
         if (queryData.length > 0) {
-            var html = '<table id=selectRow border=1>';
+            var html = '<table id="selectRow" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SMP SESSION ID</th><th class="text-center">FLOW STARTED</th><th class="text-center">FLOW COMPLETED</th><th class="text-center">ELAPSED<br />TIME</th><th class="text-center">AGENT<br />ATT UID</th><th class="text-center">AGENT NAME</th><th class="text-center">MANAGER<br />ATT UID</th></thead><tbody>';
             $.each( queryData, function (key, value) {
                 var smp_session_id = value.smp_session_id;
                 var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -314,22 +313,21 @@ $(document).ready(function () {
                 var last_name = value.last_name;
                 var manager_id = value.manager_id;
                 html = html + '<tr>';
-                html = html + '<td>' + smp_session_id + '</td>';
-                html = html + '<td>' + start_time + '</td>';                
-                html = html + '<td>' + stop_time + '</td>';
-                html = html + '<td>' + elapsed_seconds + '</td>';
-                html = html + '<td>' + attuid + '</td>';                
-                html = html + '<td>' + last_name + ',' + first_name + '</td>';
-                html = html + '<td>' + manager_id + '</td>';
+                html = html + '<td class="col-sm-2">' + smp_session_id + '</td>';
+                html = html + '<td class="col-sm-1 text-center">' + start_time + '</td>';                
+                html = html + '<td class="col-sm-1 text-center">' + stop_time + '</td>';
+                html = html + '<td class="col-sm-1 text-center">' + elapsed_seconds + '</td>';
+                html = html + '<td class="col-sm-1">' + attuid + '</td>';                
+                html = html + '<td class="col-sm-4">' + last_name + ',' + first_name + '</td>';
+                html = html + '<td class="col-sm-1">' + manager_id + '</td>';
                 html = html + '</tr>';
             });
-            html = html + '</table>';
+            html = html + '</tbody></table>';
             $('div#selectRecord').html(html).show();
             $('div#noData').hide();
             $('table#selectRow tr').off('dblclick').on('dblclick', function() {
-                alert('dblclick done');
                 $('.flexslider').remove();
-                $('div.flex-container').append('<div class="flexslider"><input id="closeBtn" type="button" class="btn btn-warning" value="X"><ul class="slides"></ul></div>');
+                $('div.flex-container').append('<div class="flexslider"><input id="closeBtn" type="button" class="btn btn-warning" value="X"><table id="header"></table><ul class="slides"></ul></div>');
                 var smp_session_id = $(this).children().first().html();
                 $('div#screenshot').html('<p class="imglist"></p>');
                 socket.emit('Get ScreenShots', {
@@ -362,7 +360,6 @@ $(document).ready(function () {
     });
 
     socket.on('Screenshots Delivered', function() {
-        alert('test');
         $('.flexslider').flexslider({
             controlsContainer: '.flexslider',
             animation: 'slide',
@@ -373,7 +370,28 @@ $(document).ready(function () {
         });
         $('div.flexslider').show();
     });
-	
+    
+    socket.on('Update Header', function (data) {
+        var session_id = data.session_id;
+        var start_time = moment(data.start_time).format('MM/DD/YYYY HH:mm:ss');
+        var stop_time = moment(data.stop_time).format('MM/DD/YYYY HH:mm:ss');
+        var elapsed_seconds = data.elapsed_seconds;
+        var att_uid = data.att_uid;
+        var agent_name = data.agent_name;
+        var manager_id = data.manager_id;
+        var work_source = data.work_source;
+        var business_line = data.business_line;
+        var task_type = data.task_type;
+        var html = '<tr><td class="label">SESSION ID:</td><td>' + session_id + '</td><td class="label">ELAPSED TIME:</td><td>' + elapsed_seconds + '</td><tr>' +
+            '<tr><td class="label">START TIME:</td><td>' + start_time + '</td><td class="label">STOP TIME:</td><td>' + stop_time + '</td></tr>' +
+            '<tr><td class="label">ATT UID:</td><td>' + att_uid + '</td><td class="label">AGENT NAME:</td><td>' + agent_name + '</td></tr>' +
+            '<tr><td class="label">MANAGER UID:</td><td>' + manager_id + '</td><tr>' + 
+            '<tr><td class="label">WORK SOURCE:</td><td>' + work_source + '</td><td class="label">BUSINESS LINE:</td><td>' + business_line + '</td></tr>';
+        if (task_type.trim().length > 0) {
+            html = html + '<tr><td class="label">TASK TYPE:</td><td>' + task_type + '</td></tr>';
+        }
+        $('table#header').append(html);
+    });
 	
     if (vars.id) {
         if (vars.connection) {

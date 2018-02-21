@@ -89,3 +89,8 @@ img {
 }
  
 .flexslider .slides { zoom: 1; }
+
+table#header {
+    width: 100%;
+    color: #ffffff;
+}

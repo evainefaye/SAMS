@@ -596,8 +596,10 @@ io.sockets.on('connection', function (socket) {
                 var userInfo = sashaUsers[connectionId];
                 var imageURL = data.ImageURL;
                 var smpSessionId = userInfo.SmpSessionId;
-                var flowName = userInfo.FlowName;
-                var stepName = userInfo.StepName;
+                var flowName = userInfo.FlowHistory.reverse()[1];
+                var stepName = userInfo.StepHistory.reverse()[1];
+                // var flowName = userInfo.FlowName;
+                //  var stepName = userInfo.StepName;
                 var currentTime = new Date().toISOString();
                 if (smpSessionId) {
                     var sql = 'INSERT INTO screenshots (GUID, smp_session_id, screenshot_time, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
@@ -635,20 +637,50 @@ io.sockets.on('connection', function (socket) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
             if (smp_session_id) {
-                var sql = 'SELECT * FROM screenshots WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
-  			    global.con.query(sql, (err, rows) => {
-                    rows.forEach((row) => {
-                        var screenshot_time = row.screenshot_time;
-                        var flow_name = row.flow_name;
-                        var step_name = row.step_name;
-                        var image_data = row.image_data;
-                        socket.emit('Get ScreenShots', {
-                            screenshot_time: screenshot_time,
-                            flow_name: flow_name,
-                            step_name: step_name,
-                            image_data: image_data
+                var sql = 'SELECT *, SEC_TO_TIME(elapsed_seconds) AS elapsed, CONCAT(last_name, ", ", first_name) as agent_name FROM duration_log_session WHERE smp_session_id="' + smp_session_id + '"';
+                global.con.query(sql, (err, rows) => {
+                    if (err === null && rows.length > 0) {
+                        var session_id = rows[0].smp_session_id;
+                        var start_time = rows[0].start_time;
+                        var stop_time = rows[0].stop_time;
+                        var elapsed_seconds = rows[0].elapsed;
+                        var att_uid = rows[0].att_uid;
+                        var agent_name = rows[0].agent_name;
+                        var manager_id = rows[0].manager_id;
+                        var work_source = rows[0].work_source;
+                        var business_line = rows[0].business_line;
+                        var task_type = rows[0].task_type;
+                        socket.emit('Update Header', {
+                            session_id: session_id,
+                            start_time: start_time,
+                            stop_time: stop_time,
+                            elapsed_seconds: elapsed_seconds,
+                            attuid: att_uid,
+                            agent_name: agent_name,
+                            manager_id: manager_id,
+                            work_source: work_source,
+                            business_line: business_line,
+                            task_type: task_type,
+                            test: 'test'
                         });
-                    });
+                    }
+                });
+                var sql = 'SELECT * FROM screenshots  WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
+  			    global.con.query(sql, (err, rows) => {
+                    if (err === null) {
+                        rows.forEach((row) => {
+                            var screenshot_time = row.screenshot_time;
+                            var flow_name = row.flow_name;
+                            var step_name = row.step_name;
+                            var image_data = row.image_data;
+                            socket.emit('Get ScreenShots', {
+                                screenshot_time: screenshot_time,
+                                flow_name: flow_name,
+                                step_name: step_name,
+                                image_data: image_data
+                            });
+                        });
+                    }
                     socket.emit('Screenshots Delivered');
                 });
             }
