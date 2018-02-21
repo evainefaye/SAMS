@@ -127,7 +127,7 @@ $(document).ready(function () {
 
 
 
-/*
+    /*
     // call the tablesorter plugin
     $('table#selectRow').tablesorter({
         theme: 'blue',
@@ -262,7 +262,7 @@ $(document).ready(function () {
         }
 
     });
-*/
+    */
 
 
 
