@@ -132,13 +132,8 @@ $(document).ready(function () {
         sessionStartTime = toLocalTime(sessionStartTime);
         // If there is no row matching the row your about to add, then go ahead and add it
         if (!$('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
-            if (vars.env) {
-                var href= '../screenshots/index.html?env=' + vars.env + '&id=' + UserInfo.SmpSessionId + '&connection=' + UserInfo.ConnectionId;
-            } else {
-                href = '../screenshots/index.html?id=' + UserInfo.SmpSessionId + '&connection=' + UserInfo.ConnectionId;
-            }
             var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'			
-                + '<td class="text-centers"><a href="' + href + '" target="_blank">' + attUID + '</a></td>'
+                + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-center">' + sessionStartTime + '</td>'
                 + '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '"></div></td>'
@@ -168,13 +163,13 @@ $(document).ready(function () {
             //      return;
             //  }
             var id = $(this).attr('connectionId');
+            Cookies.set('connectionId',id);
             var winName = 'window_' + id;
             if (typeof windowManager[winName] != 'undefined') {
                 var win = windowManager[winName];
                 win.close();
             }
-            var environment = $('select#environment').find(':selected').val();
-            windowManager[winName] = window.open('../popup/index.html?env=' + environment + '&id=' + id, winName);
+            windowManager[winName] = window.open('../detail/index.html', winName);
         });
     });
 
@@ -254,13 +249,8 @@ $(document).ready(function () {
             sessionStartTime = toLocalTime(sessionStartTime);
             var stepStartTimestamp = new Date(stepStartTime);
             stepStartTime = toLocalTime(stepStartTime);
-            if (vars.env) {
-                var href= '../screenshots/index.html?env=' + vars.env + '&id=' + UserInfo.SmpSessionId  + '&connection=' + UserInfo.ConnectionId;
-            } else {
-                href = '../screenshots/index.html?id=' + UserInfo.SmpSessionId  + '&connection=' + UserInfo.ConnectionId;
-            }
             row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers"><a href="' + href + '" target="_blank">' + attUID + '</a></td>'
+                + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-left">' + workType + '</td>'
                 + '<td class="text-center">' + taskType + '</td>'								
@@ -277,13 +267,8 @@ $(document).ready(function () {
             $('table.' + skillGroup).trigger('update').trigger('applyWidgetId','zebra');
 
             // Also add to All Sessions tab.  New row defined here as that includes SkillGroup
-            if (vars.env) {
-                var href= '../screenshots/index.html?env=' + vars.env + '&id=' + UserInfo.SmpSessionId  + '&connection=' + UserInfo.ConnectionId;
-            } else {
-                href = '../screenshots/index.html?id=' + UserInfo.SmpSessionId  + '&connection=' + UserInfo.ConnectionId;
-            }
             row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers"><a href="' + href + '" target="_blank">' + attUID + '</a></td>'
+                + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-center">' + workType + '</td>'				
                 + '<td class="text-center">' + taskType + '</td>'												
@@ -336,7 +321,7 @@ $(document).ready(function () {
                 var win = windowManager[winName];
                 win.close();
             }
-            windowManager[winName] = window.open('../popup/index.html');
+            windowManager[winName] = window.open('../detail/index.html');
         });
     });
 
@@ -440,13 +425,8 @@ $(document).ready(function () {
             if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
                 skillGroup = 'UNKNOWN';
             }
-            if (vars.env) {
-                var href= '../screenshots/index.html?env=' + vars.env + '&id=' + UserInfo.SmpSessionId + '&connection=' + UserInfo.ConnectionId;
-            } else {
-                href = '../screenshots/index.html?id=' + UserInfo.SmpSessionId  + '&connection=' + UserInfo.ConnectionId;
-            }
             var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers"><a href="' + href + '" target="_blank">' + attUID + '</a></td>'
+                + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-left">' + workType + '</td>'				
                 + '<td class="text-left">' + taskType + '</td>'

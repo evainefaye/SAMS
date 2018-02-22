@@ -10,10 +10,12 @@ $(document).ready(function () {
     if (typeof connectionId == 'undefined' || typeof environment == 'undefined') {
         $('body').empty();
         $('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MAIN</span></div>');
-        socket.disconnect();
+        if (typeof socket != 'undefined') {
+            socket.disconnect();
+        }
         setTimeout(function() { window.close(); }, AutoRefresh * 1000);
         Cookies.remove('connectionId');
-        throw new Error();
+        throw new Error('No Environment or Connection Id set');
     }
     Cookies.remove('connectionId');
 
@@ -159,7 +161,42 @@ $(document).ready(function () {
         },2000);
         getSkillGroupInfo(skillGroup);
         showFlowHistory(UserInfo);
+        console.log(smpSessionId);
+        socket.emit('Join Detail View Room', {
+            SmpSessionId: smpSessionId
+        });
+        socket.emit('Get ScreenShots', {
+            smp_session_id: smpSessionId,
+            view: 'detail'
+        });
     });
+
+
+    socket.on('Get ScreenShots', function (data) {
+        $('div#slides').hide();
+        var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
+        var flow_name = data.flow_name;
+        var step_name = data.step_name;
+        var image_data = data.image_data;
+        var html = '<li><img src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        $('ul.slides').append(html);
+
+    });
+
+    socket.on('Screenshots Delivered', function() {
+        $('.flexslider').flexslider({
+            controlsContainer: '.flexslider',
+            animation: 'slide',
+            animationLoop: false,
+            slideshow: false,
+            directionNav: true,
+            prevText: 'Previous',
+            nextText: 'Next'
+        });
+        $('div.flexslider').show();
+    });
+
+
 
     socket.on('Update Flow and Step Info', function (data) {
         var connectionId = data.ConnectionId;
@@ -216,6 +253,15 @@ $(document).ready(function () {
                 onTick: checkTimerStylingStep
             });
         }
+    });
+
+    socket.on('Update Screenshot History', function(data) {
+        var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
+        var flow_name = data.flow_name;
+        var step_name = data.step_name;
+        var image_data = data.image_data;
+        var html = '<li><img src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        $('.flexslider').data('flexslider').addSlide(html);        
     });
 
     socket.on('No Such Client', function () {

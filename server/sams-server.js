@@ -264,6 +264,13 @@ io.sockets.on('connection', function (socket) {
         socket.join(userInfo.State);
         socket.join(userInfo.Zip);
         socket.join(userInfo.Manager);
+        socket.join(userInfo.SmpSessionId);
+        var roomCount = io.nsps['/'].adapter.rooms[userInfo.SmpSessionId];
+        if (!roomCount) {
+            console.log('none');
+        } else {
+            console.log(roomCount.length);
+        }
         var attUID = userInfo.AttUID;
         if (typeof sessionCounter[attUID] == 'undefined') {
             sessionCounter[attUID] = 0;
@@ -277,7 +284,20 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
-	
+    
+    socket.on('Join Detail View Room', function(data) {
+        console.log('joining');
+        var SmpSessionId = data.SmpSessionId;
+        socket.join(SmpSessionId);
+        var roomCount = io.nsps['/'].adapter.rooms[SmpSessionId];
+        if (roomCount) {
+            var count = roomCount.length;
+            if (count >1) {
+
+            }
+        }
+    });
+
     socket.on('Register Monitor User', function() {
         socket.join('monitor');
     });
@@ -605,6 +625,19 @@ io.sockets.on('connection', function (socket) {
                     var sql = 'INSERT INTO screenshots (GUID, smp_session_id, screenshot_time, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
                     global.con.query(sql);
                 }
+                var roomCount = io.nsps['/'].adapter.rooms[smpSessionId];
+                if (roomCount) {
+                    var count = roomCount.length;
+                    if (count >1) {
+                        io.in(smpSessionId).emit('Update Screenshot History', {
+                            screenshot_time: currentTime,
+                            flow_name: flowName,
+                            step_name: stepName,
+                            image_data: imageURL
+                        });
+                    }
+                }
+                        
             }
         }
     });
@@ -637,34 +670,35 @@ io.sockets.on('connection', function (socket) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
             if (smp_session_id) {
-                var sql = 'SELECT *, SEC_TO_TIME(elapsed_seconds) AS elapsed, CONCAT(last_name, ", ", first_name) as agent_name FROM duration_log_session WHERE smp_session_id="' + smp_session_id + '"';
-                global.con.query(sql, (err, rows) => {
-                    if (err === null && rows.length > 0) {
-                        var session_id = rows[0].smp_session_id;
-                        var start_time = rows[0].start_time;
-                        var stop_time = rows[0].stop_time;
-                        var elapsed_seconds = rows[0].elapsed;
-                        var att_uid = rows[0].att_uid;
-                        var agent_name = rows[0].agent_name;
-                        var manager_id = rows[0].manager_id;
-                        var work_source = rows[0].work_source;
-                        var business_line = rows[0].business_line;
-                        var task_type = rows[0].task_type;
-                        socket.emit('Update Header', {
-                            session_id: session_id,
-                            start_time: start_time,
-                            stop_time: stop_time,
-                            elapsed_seconds: elapsed_seconds,
-                            attuid: att_uid,
-                            agent_name: agent_name,
-                            manager_id: manager_id,
-                            work_source: work_source,
-                            business_line: business_line,
-                            task_type: task_type,
-                            test: 'test'
-                        });
-                    }
-                });
+                if (typeof data.view == 'undefined') {
+                    var sql = 'SELECT *, SEC_TO_TIME(elapsed_seconds) AS elapsed, CONCAT(last_name, ", ", first_name) as agent_name FROM duration_log_session WHERE smp_session_id="' + smp_session_id + '"';
+                    global.con.query(sql, (err, rows) => {
+                        if (err === null && rows.length > 0) {
+                            var session_id = rows[0].smp_session_id;
+                            var start_time = rows[0].start_time;
+                            var stop_time = rows[0].stop_time;
+                            var elapsed_seconds = rows[0].elapsed;
+                            var att_uid = rows[0].att_uid;
+                            var agent_name = rows[0].agent_name;
+                            var manager_id = rows[0].manager_id;
+                            var work_source = rows[0].work_source;
+                            var business_line = rows[0].business_line;
+                            var task_type = rows[0].task_type;
+                            socket.emit('Update Header', {
+                                session_id: session_id,
+                                start_time: start_time,
+                                stop_time: stop_time,
+                                elapsed_seconds: elapsed_seconds,
+                                attuid: att_uid,
+                                agent_name: agent_name,
+                                manager_id: manager_id,
+                                work_source: work_source,
+                                business_line: business_line,
+                                task_type: task_type
+                            });
+                        }
+                    });
+                }
                 var sql = 'SELECT * FROM screenshots  WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
   			    global.con.query(sql, (err, rows) => {
                     if (err === null) {

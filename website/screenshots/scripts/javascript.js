@@ -247,6 +247,7 @@ $(document).ready(function () {
         $('.flexslider').flexslider({
             controlsContainer: '.flexslider',
             animation: 'slide',
+            animationLoop: false,
             slideshow: false,
             directionNav: true,
             prevText: 'Previous',
