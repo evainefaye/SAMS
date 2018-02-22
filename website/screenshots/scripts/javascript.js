@@ -41,10 +41,15 @@ $(document).ready(function () {
         window.location.reload();
     });
 
-    $('div.flexslider').hide();
-    $('input#closeBtn').off('click').on('click', function() {
+    $(document).off('click.closebtn').on('click.closebtn', 'input#closeBtn', function() {
+        $('table#header').hide();
+        $('table#selectRow').show();
+        $('div#selectRowHeader').show();
         $('div.flexslider').html('<input id="closeBtn" type="button" class="btn btn-warning" value="X"><table id="header"></table><ul class="slides"></ul>');
     });
+
+
+    $('div.flexslider').hide();
 
     $('input:radio[name=searchtype]').change(function() {
         $('#searchtype > label.active').removeClass('btn-primary').addClass('btn-info');
@@ -118,6 +123,8 @@ $(document).ready(function () {
             label: label
         });
         $('div#select').html('');			
+        $('div#noData').hide();
+        $('table#header').hide();
         $('.overlay').show();
     });
 
@@ -146,7 +153,7 @@ $(document).ready(function () {
     socket.on('disconnect', function () {
         $('div#main').hide();
         $('div#overlay').show();
-        $('div.initializationScreen').html('CONNECTION LOST. ATTEMTPING TO RECONNECT...').show();                
+        $('div.initializationScreen').html('CONNECTION INTERRUPTED...').show();                
         $('#daterange').val('');
         $('div#select').html('');
         $('div.initializationScreen').show();
@@ -161,7 +168,7 @@ $(document).ready(function () {
             var queryData = new Object();
         }
         if (queryData.length > 0) {
-            var html = '<div class="text-center">DOUBLE CLICK ON A ROW TO LOAD THAT SESSION\'S SCREENSHOTS"></div><table id="selectRow" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SMP SESSION ID</th><th class="text-center">FLOW STARTED</th><th class="text-center">FLOW COMPLETED</th><th class="text-center">ELAPSED<br />TIME</th><th class="filter-select text-center">AGENT<br />ATT UID</th><th class="filter-select text-center">AGENT NAME</th><th class="filter-select text-center">MANAGER<br />ATT UID</th></thead><tbody>';
+            var html = '<div id="selectRowHeader" class="text-center">DOUBLE CLICK ON A ROW TO LOAD THAT SESSION\'S SCREENSHOTS</div><table id="selectRow" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SMP SESSION ID</th><th class="text-center">FLOW STARTED</th><th class="text-center">FLOW COMPLETED</th><th class="text-center">ELAPSED<br />TIME</th><th class="filter-select text-center">AGENT<br />ATT UID</th><th class="filter-select text-center">AGENT NAME</th><th class="filter-select text-center">MANAGER<br />ATT UID</th></thead><tbody>';
             $.each( queryData, function (key, value) {
                 var smp_session_id = value.smp_session_id;
                 var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -189,28 +196,13 @@ $(document).ready(function () {
                 sortList: [[1,0]],
                 sortReset: true,
                 ignoreCase: true,
-                filter_saveFilters : true,
-                filter_searchDelay : 300,
-                filter_startsWith  : false,                
-                widgets: ['zebra', 'filter'],
-
-
-                filter_functions : {
-
-                    // Add select menu to this column
-                    // set the column value to true, and/or add "filter-select" class name to header
-                    // '.first-name' : true,
-            
-                    // Exact match only
-                    5 : function(e, n, f, i, $r, c, data) {
-                        return e === f;
-                    }
-                }
-
+                widgets: ['zebra', 'filter']
             });
 
             $('div#noData').hide();
             $('table#selectRow tr').off('dblclick').on('dblclick', function() {
+                $('table#selectRow').hide();
+                $('div#selectRowHeader').hide();
                 $('.flexslider').remove();
                 $('div.flex-container').append('<div class="flexslider"><input id="closeBtn" type="button" class="btn btn-warning" value="X"><table id="header"></table><ul class="slides"></ul></div>');
                 var smp_session_id = $(this).children().first().html();
@@ -229,6 +221,7 @@ $(document).ready(function () {
                 $('div#noData').html('<h3>NO DATA LOCATED FOR ' + label.toUpperCase() + '</h3>').show();
             }
             $('#selectRecord').hide();
+            $('table#header').hide();
         }
     });
 
@@ -275,6 +268,6 @@ $(document).ready(function () {
         if (task_type.trim().length > 0) {
             html = html + '<tr><td class="label">TASK TYPE:</td><td>' + task_type + '</td></tr>';
         }
-        $('table#header').append(html);
+        $('table#header').append(html);        
     });
 });

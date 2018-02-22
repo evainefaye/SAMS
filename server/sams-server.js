@@ -688,7 +688,7 @@ io.sockets.on('connection', function (socket) {
                                 start_time: start_time,
                                 stop_time: stop_time,
                                 elapsed_seconds: elapsed_seconds,
-                                attuid: att_uid,
+                                att_uid: att_uid,
                                 agent_name: agent_name,
                                 manager_id: manager_id,
                                 work_source: work_source,
@@ -701,7 +701,6 @@ io.sockets.on('connection', function (socket) {
                 var sql = 'SELECT * FROM screenshots  WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
   			    global.con.query(sql, (err, rows) => {
                     if (err === null) {
-                        console.log('screenshots: ' + rows.length);
                         rows.forEach((row) => {
                             var screenshot_time = row.screenshot_time;
                             var flow_name = row.flow_name;
