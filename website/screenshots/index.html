@@ -24,10 +24,12 @@
         <script src="scripts/tablesorter/jquery.tablesorter.combined.js"></script>
         <!-- End Add tablesorter -->
 
-
         <script type="text/javascript" src="scripts/jquery.flexslider.js"></script>
         <link rel="stylesheet" type="text/css" media="all" href="stylesheets/flexslider.css" />   
 
+        <!-- Begin Add Cookie -->
+        <script src="scripts/js.cookie.js" type="text/javascript"></script>
+        <!-- End Add cookie -->
 
         <!-- Begin Add Socket.io -->
         <script src="scripts/socket.io.js"></script>
@@ -40,8 +42,22 @@
         <div class="overlay">
             <div id="loading-img"></div>
         </div>
+
+
+
+        <div class="col-sm-12">
+            <div class="col-sm-10 col-sm-offset-1 text-center"><b>SERVER ENVIRONMENT</b><br />
+                <select id="environment">
+                    <option value='fde'>DEVELOPMENT</option>
+                    <option value="pre-prod">BETA</option>
+                    <option value="prod">PRODUCTION</option>
+                </select>
+            </div>
+        </div>
+        <br />
+        <br />
         <div class="initializationScreen">
-            INITIALIZING....
+            ATTEMPTING TO CONNECT TO&nbsp;<b><span id="environment"></span></b>&nbsp;ENVIRONMENT....
         </div>
         <div id='main'>
             <p>

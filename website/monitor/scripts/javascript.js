@@ -14,7 +14,6 @@ $(document).ready(function () {
     }
     $('select#environment option[value=' + environment + ']').prop('selected', 'selected').change();
 
-    var vars = getURLVars(); // Get Parameters from URL
     switch (environment) {
     // Set Node.js port and version description based on environment variable.  Default loads production 
     case 'fde':
@@ -726,18 +725,6 @@ let addCustomTabs = function () {
     // When tab is clicked, it should resort the table for it
 
     handleGroupChange();
-};
-
-// Read a page's GET URL variables and return them as an associative array.
-let getURLVars = function () {
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for (var i = 0; i < hashes.length; i++) {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
 };
 
 let handleGroupChange = function () {

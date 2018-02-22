@@ -2,34 +2,44 @@ $(document).ready(function () {
     $('div#main').hide();
     // Set the location of the Node.JS server
     var serverAddress = 'http://108.226.174.227';
-    var vars = getURLVars();
-    var env = vars.env;
-    switch (env) {
+
+    var environment = Cookies.get('environmentScreenshots');
+    if (typeof environment == 'undefined') {
+        environment = Cookies.get('environment');
+        if (typeof environment == 'undefined') {
+            environment = 'prod';
+        }
+        Cookies.set('environmentScreenshots','prod');
+    }
+    $('select#environment option[value=' + environment + ']').prop('selected', 'selected').change();
+
+    switch (environment) {
     case 'fde':
         var socketURL = serverAddress + ':5510';
-        var version = 'FDE (FLOW DEVELOPMENT ENVIRONMENT)';
-        break;
-    case 'dev':
-        var socketURL = serverAddress + ':5510';
-        var version = 'FDE (FLOW DEVELOPMENT ENVIRONMENT)';
-        break;
-    case 'beta':
-        var socketURL = serverAddress + ':5520';
-        version = 'BETA (PRE-PROD)';
+        var version = 'DEVELOPMENT';
         break;
     case 'pre-prod':
         var socketURL = serverAddress + ':5520';
-        version = 'BETA (PRE-PROD)';
+        version = 'BETA';
         break;
     case 'prod':
         var socketURL = serverAddress + ':5530';
         version = 'PRODUCTION';
         break;
     default:
+        environment = 'prod';
+        Cookies.set('environmentScreenshots','prod');
         var socketURL = serverAddress + ':5530';
-        version = 'DEFAULT (PRODUCTION)';
+        version = 'PRODUCTION';
         break;
     }
+
+
+    $('select#environment').off('change').on('change', function () {
+        environment = $(this).find(':selected').val();
+        Cookies.set('environmentScreenshots',environment);
+        window.location.reload();
+    });
 
     $('div.flexslider').hide();
     $('input#closeBtn').off('click').on('click', function() {
@@ -120,157 +130,6 @@ $(document).ready(function () {
 
     document.title = 'SAMS - ' + version + ' SCREENSHOT DATA';
 
-
-
-
-
-
-
-
-    /*
-    // call the tablesorter plugin
-    $('table#selectRow').tablesorter({
-        theme: 'blue',
-
-        // hidden filter input/selects will resize the columns, so try to minimize the change
-        widthFixed : true,
-
-        // initialize zebra striping and filter widgets
-        widgets: ['zebra', 'filter'],
-
-        ignoreCase: false,
-
-        widgetOptions : {
-
-            // filter_anyMatch options was removed in v2.15; it has been replaced by the filter_external option
-
-            // If there are child rows in the table (rows with class name from "cssChildRow" option)
-            // and this option is true and a match is found anywhere in the child row, then it will make that row
-            // visible; default is false
-            filter_childRows : false,
-
-            // if true, filter child row content by column; filter_childRows must also be true
-            filter_childByColumn : false,
-
-            // if true, include matching child row siblings
-            filter_childWithSibs : true,
-
-            // if true, a filter will be added to the top of each table column;
-            // disabled by using -> headers: { 1: { filter: false } } OR add class="filter-false"
-            // if you set this to false, make sure you perform a search using the second method below
-            filter_columnFilters : true,
-
-            // if true, allows using "#:{query}" in AnyMatch searches (column:query; added v2.20.0)
-            filter_columnAnyMatch: true,
-
-            // extra css class name (string or array) added to the filter element (input or select)
-            filter_cellFilter : '',
-
-            // extra css class name(s) applied to the table row containing the filters & the inputs within that row
-            // this option can either be a string (class applied to all filters) or an array (class applied to indexed filter)
-            filter_cssFilter : '', // or []
-
-            // add a default column filter type "~{query}" to make fuzzy searches default;
-            // "{q1} AND {q2}" to make all searches use a logical AND.
-            filter_defaultFilter : {},
-
-            // filters to exclude, per column
-            filter_excludeFilter : {},
-
-            // jQuery selector (or object) pointing to an input to be used to match the contents of any column
-            // please refer to the filter-any-match demo for limitations - new in v2.15
-            filter_external : '',
-
-            // class added to filtered rows (rows that are not showing); needed by pager plugin
-            filter_filteredRow : 'filtered',
-
-            // ARIA-label added to filter input/select; {{label}} is replaced by the column header
-            // "data-label" attribute, if it exists, or it uses the column header text
-            filter_filterLabel : 'Filter "{{label}}" column by...',
-
-            // add custom filter elements to the filter row
-            // see the filter formatter demos for more specifics
-            filter_formatter : null,
-
-            // add custom filter functions using this option
-            // see the filter widget custom demo for more specifics on how to use this option
-            filter_functions : null,
-
-            // hide filter row when table is empty
-            filter_hideEmpty : true,
-
-            // if true, filters are collapsed initially, but can be revealed by hovering over the grey bar immediately
-            // below the header row. Additionally, tabbing through the document will open the filter row when an input gets focus
-            // in v2.26.6, this option will also accept a function
-            filter_hideFilters : true,
-
-            // Set this option to false to make the searches case sensitive
-            filter_ignoreCase : true,
-
-            // if true, search column content while the user types (with a delay).
-            // In v2.27.3, this option can contain an
-            // object with column indexes or classnames; "fallback" is used
-            // for undefined columns
-            filter_liveSearch : true,
-
-            // global query settings ('exact' or 'match'); overridden by "filter-match" or "filter-exact" class
-            filter_matchType : { 'input': 'exact', 'select': 'exact' },
-
-            // a header with a select dropdown & this class name will only show available (visible) options within that drop down.
-            filter_onlyAvail : 'filter-onlyAvail',
-
-            // default placeholder text (overridden by any header "data-placeholder" setting)
-            filter_placeholder : { search : '', select : '' },
-
-            // jQuery selector string of an element used to reset the filters
-            filter_reset : 'button.reset',
-
-            // Reset filter input when the user presses escape - normalized across browsers
-            filter_resetOnEsc : true,
-
-            // Use the $.tablesorter.storage utility to save the most recent filters (default setting is false)
-            filter_saveFilters : true,
-
-            // Delay in milliseconds before the filter widget starts searching; This option prevents searching for
-            // every character while typing and should make searching large tables faster.
-            filter_searchDelay : 300,
-
-            // allow searching through already filtered rows in special circumstances; will speed up searching in large tables if true
-            filter_searchFiltered: true,
-
-            // include a function to return an array of values to be added to the column filter select
-            filter_selectSource  : null,
-
-            // if true, server-side filtering should be performed because client-side filtering will be disabled, but
-            // the ui and events will still be used.
-            filter_serversideFiltering : false,
-
-            // Set this option to true to use the filter to find text from the start of the column
-            // So typing in "a" will find "albert" but not "frank", both have a's; default is false
-            filter_startsWith : false,
-
-            // Filter using parsed content for ALL columns
-            // be careful on using this on date columns as the date is parsed and stored as time in seconds
-            filter_useParsedData : false,
-
-            // data attribute in the header cell that contains the default filter value
-            filter_defaultAttrib : 'data-value',
-
-            // filter_selectSource array text left of the separator is added to the option value, right into the option text
-            filter_selectSourceSeparator : '|'
-
-        }
-
-    });
-    */
-
-
-
-
-
-
-
-
     // Initialize variables
     window.socket = io.connect(socketURL);
 	
@@ -302,7 +161,7 @@ $(document).ready(function () {
             var queryData = new Object();
         }
         if (queryData.length > 0) {
-            var html = '<table id="selectRow" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SMP SESSION ID</th><th class="text-center">FLOW STARTED</th><th class="text-center">FLOW COMPLETED</th><th class="text-center">ELAPSED<br />TIME</th><th class="text-center">AGENT<br />ATT UID</th><th class="text-center">AGENT NAME</th><th class="text-center">MANAGER<br />ATT UID</th></thead><tbody>';
+            var html = '<div class="text-center">DOUBLE CLICK ON A ROW TO LOAD THAT SESSION\'S SCREENSHOTS"></div><table id="selectRow" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SMP SESSION ID</th><th class="text-center">FLOW STARTED</th><th class="text-center">FLOW COMPLETED</th><th class="text-center">ELAPSED<br />TIME</th><th class="filter-select text-center">AGENT<br />ATT UID</th><th class="filter-select text-center">AGENT NAME</th><th class="filter-select text-center">MANAGER<br />ATT UID</th></thead><tbody>';
             $.each( queryData, function (key, value) {
                 var smp_session_id = value.smp_session_id;
                 var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -313,7 +172,7 @@ $(document).ready(function () {
                 var last_name = value.last_name;
                 var manager_id = value.manager_id;
                 html = html + '<tr>';
-                html = html + '<td class="col-sm-2">' + smp_session_id + '</td>';
+                html = html + '<td class="col-sm-3">' + smp_session_id + '</td>';
                 html = html + '<td class="col-sm-1 text-center">' + start_time + '</td>';                
                 html = html + '<td class="col-sm-1 text-center">' + stop_time + '</td>';
                 html = html + '<td class="col-sm-1 text-center">' + elapsed_seconds + '</td>';
@@ -324,6 +183,32 @@ $(document).ready(function () {
             });
             html = html + '</tbody></table>';
             $('div#selectRecord').html(html).show();
+            
+            $('table#selectRow').tablesorter({
+                theme: 'custom',
+                sortList: [[1,0]],
+                sortReset: true,
+                ignoreCase: true,
+                filter_saveFilters : true,
+                filter_searchDelay : 300,
+                filter_startsWith  : false,                
+                widgets: ['zebra', 'filter'],
+
+
+                filter_functions : {
+
+                    // Add select menu to this column
+                    // set the column value to true, and/or add "filter-select" class name to header
+                    // '.first-name' : true,
+            
+                    // Exact match only
+                    5 : function(e, n, f, i, $r, c, data) {
+                        return e === f;
+                    }
+                }
+
+            });
+
             $('div#noData').hide();
             $('table#selectRow tr').off('dblclick').on('dblclick', function() {
                 $('.flexslider').remove();
@@ -333,7 +218,6 @@ $(document).ready(function () {
                 socket.emit('Get ScreenShots', {
                     smp_session_id: smp_session_id
                 });
-
             });
         } else {
             var startDate = moment($('#daterange').data('daterangepicker').startDate._d).format('MM/DD/YY HH:mm');
@@ -392,25 +276,4 @@ $(document).ready(function () {
         }
         $('table#header').append(html);
     });
-	
-    if (vars.id) {
-        if (vars.connection) {
-            $('body').html('<div id="retain">Screenshots are normally discarded upon completion of the flow.  As long as your SASHA session has not completed, you may click <button id="retainScreenshots">HERE</button> to request retention.</div><div id="screenshotdata"></div>');
-            socket.emit('Get ScreenShots', {
-                smpSessionId: vars.id
-            });
-        }
-    }	
 });
-
-// Read a page's GET URL variables and return them as an associative array.
-let getURLVars = function () {
-    var vars = [], hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    for (var i = 0; i < hashes.length; i++) {
-        hash = hashes[i].split('=');
-        vars.push(hash[0]);
-        vars[hash[0]] = hash[1];
-    }
-    return vars;
-};
