@@ -26,6 +26,10 @@ table tr, td {
     max-width: 100%;
 }
 
+.setHeight {
+    height: 451px;
+}
+
 .screenshotInfo {
     float: left;
     position: absolute;
@@ -87,6 +91,7 @@ table tr, td {
     background-repeat: no-repeat;
     background-position: center;
 }
+
 
 .header {
     padding: 3em 3em 1em 3em;
@@ -221,9 +226,7 @@ a.fancybox img {
     bottom: 0;
     background: rgba(0,0,0,.5);
     color: #fff;
-    text-shadow: 0 -1px 0 rgba(0,0,0,.3);
-    font-size: 14px;
-    line-height: 18px;
+    text-shadow: 0 -1px 0 rgba(214, 32, 32, 0.3);
   }
 
   .flexslider .slides > li {
@@ -246,14 +249,13 @@ a.fancybox img {
     zoom: 1;
     padding: 2px;
     background: #000000;
- 
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
  
     -webkit-box-shadow: 0px 1px 1px rgba(0,0,0, .2);
     -moz-box-shadow: 0px 1px 1px rgba(0,0,0, .2);
-    box-shadow: 0px 1px 1px rgba(0,0,0, .2);
+    box-shadow: 0px 1px 1px rgba(0,0,0, .2); 
 }
 
 .flex-container {
@@ -267,4 +269,8 @@ a.fancybox img {
 table#header {
     width: 100%;
     color: #ffffff;
+}
+
+img#SashaScreenShot {
+    width: 100%;
 }

@@ -49,9 +49,9 @@ $(document).ready(function () {
 
     $('img.fancybox').each(function(){
         var src = $(this).attr('src');
-        var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+        var a = $('<a href="#" class="fancybox current"></a>').attr('href', src);
         $(this).wrap(a);
-        $('a.fancybox').fancybox({
+        $('a.fancybox.current').fancybox({
             titlePositon: 'inside'
         });
     });
@@ -161,7 +161,6 @@ $(document).ready(function () {
         },2000);
         getSkillGroupInfo(skillGroup);
         showFlowHistory(UserInfo);
-        console.log(smpSessionId);
         socket.emit('Join Detail View Room', {
             SmpSessionId: smpSessionId
         });
@@ -174,12 +173,19 @@ $(document).ready(function () {
 
     socket.on('Get ScreenShots', function (data) {
         $('div#slides').hide();
+        if ($('.flexcontainer').hasClass('pending')) {
+            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+            $('.flexcontainer').removeClass('pending setHeight');
+        }
         var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
-        var html = '<li><img src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
         $('ul.slides').append(html);
+//        $('a.fancybox').attr('href',image_data);
+//        $('img.fancybox-image').attr('src', image_data);
+        
 
     });
 
@@ -193,6 +199,22 @@ $(document).ready(function () {
             prevText: 'Previous',
             nextText: 'Next'
         });
+        $('img.makefancybox').not('.current').each(function(){
+            var src = $(this).attr('src');
+            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+            $(this).wrap(a);
+            $('a.fancybox').fancybox({
+                titlePositon: 'inside'
+            });
+            $(this).removeClass('makefancybox');
+        });
+        $('img.fancybox').off('click').on('click',function () {
+            var src = $(this).attr('src');
+            $('img.fancybox-image').attr('src',src);
+        });
+        if (typeof $('.flexslider').data('flexslider') == 'object') {
+            $('.flexslider.pending').removeClass('pending');
+        }
         $('div.flexslider').show();
     });
 
@@ -261,8 +283,36 @@ $(document).ready(function () {
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
-        var html = '<li><img src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
-        $('.flexslider').data('flexslider').addSlide(html);        
+        var html = '<li><img class="makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        if (typeof $('.flexslider').data('flexslider') == 'undefined') {
+            var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+            $('ul.slides').append(html);
+            $('.flexslider').flexslider({
+                controlsContainer: '.flexslider',
+                animation: 'slide',
+                animationLoop: false,
+                slideshow: false,
+                directionNav: true,
+                prevText: 'Previous',
+                nextText: 'Next'
+            });
+        } else {
+            $('.flexslider').data('flexslider').addSlide(html);
+        }
+        $('.flexslider.pending').removeClass('pending');
+        $('img.makefancybox').not('.current').each(function(){
+            var src = $(this).attr('src');
+            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+            $(this).wrap(a);
+            $('a.fancybox').fancybox({
+                titlePositon: 'inside'
+            });
+            $(this).removeClass('makefancybox');
+        });
+        $('img.fancybox').off('click').on('click',function () {
+            var src = $(this).attr('src');
+            $('img.fancybox-image').attr('src',src);
+        });
     });
 
     socket.on('No Such Client', function () {
@@ -276,12 +326,12 @@ $(document).ready(function () {
         var ImageURL = data.ImageURL;
         $('img#SASHAScreenshot').attr('src', ImageURL).show();
         $('img#SASHAScreenshot').parent().css('background-image', 'none');
-        $('a.fancybox').attr('href',ImageURL);
-        $('img.fancybox-image').attr('src', ImageURL);
+        $('a.fancybox.current').attr('href',ImageURL);
+//        $('img.fancybox-image').attr('src', ImageURL);
         var screenshotTime = new Date().toString();
         screenshotTime = toLocalTime(screenshotTime);
         $('div.screenshotInfo').html(screenshotTime).removeClass('hidden');
-        $('div.screenshot').removeClass('pending');
+        $('div.screenshotDiv').removeClass('pending');
         // Request fresh screenshot every xx seconds
         screenshotTimer = setTimeout(function () {
             socket.emit('Request SASHA ScreenShot from Server', {

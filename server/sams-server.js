@@ -265,12 +265,6 @@ io.sockets.on('connection', function (socket) {
         socket.join(userInfo.Zip);
         socket.join(userInfo.Manager);
         socket.join(userInfo.SmpSessionId);
-        var roomCount = io.nsps['/'].adapter.rooms[userInfo.SmpSessionId];
-        if (!roomCount) {
-            console.log('none');
-        } else {
-            console.log(roomCount.length);
-        }
         var attUID = userInfo.AttUID;
         if (typeof sessionCounter[attUID] == 'undefined') {
             sessionCounter[attUID] = 0;
@@ -286,7 +280,6 @@ io.sockets.on('connection', function (socket) {
     });
     
     socket.on('Join Detail View Room', function(data) {
-        console.log('joining');
         var SmpSessionId = data.SmpSessionId;
         socket.join(SmpSessionId);
         var roomCount = io.nsps['/'].adapter.rooms[SmpSessionId];
@@ -615,11 +608,17 @@ io.sockets.on('connection', function (socket) {
             if (typeof sashaUsers[connectionId] != 'undefined') {
                 var userInfo = sashaUsers[connectionId];
                 var imageURL = data.ImageURL;
+                if (typeof data.flowName != 'undefined') {
+                    var flowName = data.flowName;
+                } else {
+                    var flowName = 'Flow Not Available';
+                }
+                if (typeof data.stepName != 'undefined') {
+                    var stepName = data.stepName;
+                } else {
+                    var stepName = 'Step Not Available';
+                }
                 var smpSessionId = userInfo.SmpSessionId;
-                var flowName = userInfo.FlowHistory.reverse()[1];
-                var stepName = userInfo.StepHistory.reverse()[1];
-                // var flowName = userInfo.FlowName;
-                //  var stepName = userInfo.StepName;
                 var currentTime = new Date().toISOString();
                 if (smpSessionId) {
                     var sql = 'INSERT INTO screenshots (GUID, smp_session_id, screenshot_time, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
@@ -702,6 +701,7 @@ io.sockets.on('connection', function (socket) {
                 var sql = 'SELECT * FROM screenshots  WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
   			    global.con.query(sql, (err, rows) => {
                     if (err === null) {
+                        console.log('screenshots: ' + rows.length);
                         rows.forEach((row) => {
                             var screenshot_time = row.screenshot_time;
                             var flow_name = row.flow_name;
@@ -714,7 +714,7 @@ io.sockets.on('connection', function (socket) {
                                 image_data: image_data
                             });
                         });
-                    }
+                    } 
                     socket.emit('Screenshots Delivered');
                 });
             }
