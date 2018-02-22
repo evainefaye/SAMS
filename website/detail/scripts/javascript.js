@@ -255,6 +255,7 @@ $(document).ready(function () {
         }
     });
 
+    
     socket.on('Update Screenshot History', function(data) {
         var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
         var flow_name = data.flow_name;
