@@ -202,7 +202,7 @@ io.sockets.on('connection', function (socket) {
 							mysql.escape(oldFlowName) + ',' +
 							mysql.escape(oldStepName) +	 ',' +
 							mysql.escape('N') + ',';
-                        if (elapsedTime > 30) {
+                        if (elapsedTime >= 30) {
                             sql = sql + mysql.escape('Y') + ')';
                         } else {
                             sql = sql + mysql.escape('N') + ')';
@@ -226,7 +226,7 @@ io.sockets.on('connection', function (socket) {
 							mysql.escape(oldFlowName) + ',' +
 							mysql.escape(oldStepName) +
                             mysql.escape('N') + ',';
-                        if (elapsedTime > 300) {
+                        if (elapsedTime >= 300) {
                             sql = sql + mysql.escape('Y');
                         } else {
                             sql = sql + mysql.escape('N');
@@ -404,8 +404,8 @@ io.sockets.on('connection', function (socket) {
 						mysql.escape(oldFlowName) + ',' +
 						mysql.escape(oldStepName) + ',' +
                         mysql.escape('Y') + ',';
-                    if (elapsedTime > 30) {
-                        sql = sql + ',' + mysql.escape('Y');
+                    if (elapsedTime >= 30) {
+                        sql = sql + mysql.escape('Y');
                     } else {
                         sql = sql + mysql.escape('N');
                     }
@@ -429,7 +429,7 @@ io.sockets.on('connection', function (socket) {
 						mysql.escape(oldFlowName) + ',' +
 						mysql.escape(oldStepName) + ',' +
 						mysql.escape('Y') + ',';
-                    if (elapsedTime > 300) {
+                    if (elapsedTime >= 300) {
                         sql = sql + mysql.escape('Y');
                     } else {
                         sql = sql + mysql.escape('N');
