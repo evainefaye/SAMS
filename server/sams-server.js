@@ -6,13 +6,13 @@ var stepTimersInstance = new Object;
 var flowTimers = new Object;
 var flowTimersInstance = new Object;
 var sessionCounter = new Object;
-
+ 
 var notifyStalledStepTime = 300000;
 var notifyStalledFlowTime = 1200000;
-
+ 
 var db_config = {};
 global.con = '';
-
+ 
 var argv = require('minimist')(process.argv.slice(2));
 var env = argv.e;
 switch(env) {
@@ -52,7 +52,7 @@ default:
     var database = 'sams_prod';
     break;
 }
-
+ 
 if (useDB) {
     var mysql = require('mysql');
     var db_config = {
@@ -105,17 +105,17 @@ if (useDB) {
     };
     connectDB(db_config);
 }
-
+ 
 // Create Socket.IO Server listening on port designated by instance
 var io = require('socket.io').listen(port);
 console.log(new Date().toString(), 'SAMS ' + instance + ' opened on port ' + port);
 io.origins('*:*');
 io.sockets.on('connection', function (socket) {
-
+ 
     // *** ITEMS TO DO WHEN CONNECTING ***
     // Store the socket ID, and store the connection in ActivityHistory
     socket.connectionId = socket.id;
-
+ 
     // Request the connected client to announce its connection.
     // On the client side this function will share names but have different
     // functions based on it being a SASHA client, Monitor Client, or SASHA Detail Client
@@ -123,7 +123,7 @@ io.sockets.on('connection', function (socket) {
         ConnectionId: socket.connectionId,
         ServerStartTime: serverStartTime
     });
-
+ 
     // Perform when any user disconnects
     socket.on('disconnect', function() {
         var connectionId = socket.connectionId;
@@ -157,16 +157,16 @@ io.sockets.on('connection', function (socket) {
                 var elapsedTime = (Date.parse(flowStopTime)-Date.parse(flowStartTime))/1000;
                 if (!isNaN(elapsedTime)) {
                     var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' +
-						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(new Date(flowStartTime).toISOString()) + ',' +
-						mysql.escape(new Date(flowStopTime).toISOString()) + ',' +
-						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(userInfo.AttUID) + ',' +
-						mysql.escape(userInfo.FirstName) + ',' +
-						mysql.escape(userInfo.LastName) + ',' +
-						mysql.escape(userInfo.Manager) + ',' +
-						mysql.escape(userInfo.SAMSWorkType) + ',' +
-						mysql.escape(userInfo.SkillGroup) + ',' +
+                        mysql.escape(userInfo.SmpSessionId) + ',' +
+                        mysql.escape(new Date(flowStartTime).toISOString()) + ',' +
+                        mysql.escape(new Date(flowStopTime).toISOString()) + ',' +
+                        mysql.escape(elapsedTime) + ',' +
+                        mysql.escape(userInfo.AttUID) + ',' +
+                        mysql.escape(userInfo.FirstName) + ',' +
+                        mysql.escape(userInfo.LastName) + ',' +
+                        mysql.escape(userInfo.Manager) + ',' +
+                        mysql.escape(userInfo.SAMSWorkType) + ',' +
+                        mysql.escape(userInfo.SkillGroup) + ',' +
                         mysql.escape(userInfo.TaskType) + ',';
                     if (elapsedTime > notifyStalledFlowTime / 1000) {
                         sql = sql + mysql.escape('Y');
@@ -188,20 +188,20 @@ io.sockets.on('connection', function (socket) {
                         oldStepStartTime = new Date(oldStepStartTime).toISOString();
                         stepStopTime = new Date(stepStopTime).toISOString();
                         var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
-							mysql.escape(userInfo.SmpSessionId) + ',' +
-							mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
-							mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
-							mysql.escape(elapsedTime) + ',' +
-							mysql.escape(userInfo.AttUID) + ',' +
-							mysql.escape(userInfo.FirstName) + ',' +
-							mysql.escape(userInfo.LastName) + ',' +
-							mysql.escape(userInfo.Manager) + ',' +
-							mysql.escape(userInfo.SAMSWorkType) + ',' +
-							mysql.escape(userInfo.SkillGroup) + ',' +
-							mysql.escape(userInfo.TaskType) + ',' +
-							mysql.escape(oldFlowName) + ',' +
-							mysql.escape(oldStepName) +	 ',' +
-							mysql.escape('N') + ',';
+                            mysql.escape(userInfo.SmpSessionId) + ',' +
+                            mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+                            mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
+                            mysql.escape(elapsedTime) + ',' +
+                            mysql.escape(userInfo.AttUID) + ',' +
+                            mysql.escape(userInfo.FirstName) + ',' +
+                            mysql.escape(userInfo.LastName) + ',' +
+                            mysql.escape(userInfo.Manager) + ',' +
+                            mysql.escape(userInfo.SAMSWorkType) + ',' +
+                            mysql.escape(userInfo.SkillGroup) + ',' +
+                            mysql.escape(userInfo.TaskType) + ',' +
+                            mysql.escape(oldFlowName) + ',' +
+                            mysql.escape(oldStepName) + ',' +
+                            mysql.escape('N') + ',';
                         if (elapsedTime >= 30) {
                             sql = sql + mysql.escape('Y') + ')';
                         } else {
@@ -213,18 +213,18 @@ io.sockets.on('connection', function (socket) {
                         stepStopTime = new Date(stepStopTime).toISOString();
                         var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
                             mysql.escape(userInfo.SmpSessionId) + ',' +
-							mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
-							mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
-							mysql.escape(elapsedTime) + ',' +
-							mysql.escape(userInfo.AttUID) + ',' +
-							mysql.escape(userInfo.FirstName) + ',' +
-							mysql.escape(userInfo.LastName) + ',' +
-							mysql.escape(userInfo.Manager) + ',' +
-							mysql.escape(userInfo.SAMSWorkType) + ',' +
-							mysql.escape(userInfo.SkillGroup) + ',' +
-							mysql.escape(userInfo.TaskType) + ',' +
-							mysql.escape(oldFlowName) + ',' +
-							mysql.escape(oldStepName) +
+                            mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+                            mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
+                            mysql.escape(elapsedTime) + ',' +
+                            mysql.escape(userInfo.AttUID) + ',' +
+                            mysql.escape(userInfo.FirstName) + ',' +
+                            mysql.escape(userInfo.LastName) + ',' +
+                            mysql.escape(userInfo.Manager) + ',' +
+                            mysql.escape(userInfo.SAMSWorkType) + ',' +
+                            mysql.escape(userInfo.SkillGroup) + ',' +
+                            mysql.escape(userInfo.TaskType) + ',' +
+                            mysql.escape(oldFlowName) + ',' +
+                            mysql.escape(oldStepName) +
                             mysql.escape('N') + ',';
                         if (elapsedTime >= 300) {
                             sql = sql + mysql.escape('Y');
@@ -244,7 +244,7 @@ io.sockets.on('connection', function (socket) {
             }
         }
     });
-
+ 
     // Store SASHA User Information in SashaUsers Object
     // Add User to sasha room
     // Add User to list of SASHA users on monitor clients
@@ -278,7 +278,7 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
-    
+   
     socket.on('Join Detail View Room', function(data) {
         var SmpSessionId = data.SmpSessionId;
         socket.join(SmpSessionId);
@@ -286,15 +286,15 @@ io.sockets.on('connection', function (socket) {
         if (roomCount) {
             var count = roomCount.length;
             if (count >1) {
-
+ 
             }
         }
     });
-
+ 
     socket.on('Register Monitor User', function() {
         socket.join('monitor');
     });
-
+ 
     socket.on('Notify Server Received Skill Group', function(data) {
         var connectionId = socket.connectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -327,10 +327,10 @@ io.sockets.on('connection', function (socket) {
         }
         sashaUsers[connectionId] = userInfo;
         io.sockets.in('monitor').emit('Notify Monitor Begin SASHA Flow', {
-    	    ConnectionId: connectionId,
-     	    UserInfo: userInfo
+            ConnectionId: connectionId,
+            UserInfo: userInfo
         });
-		
+                               
         flowTimersInstance[connectionId] = 0;
         flowTimers[connectionId] = setInterval(function () {
             flowTimersInstance[connectionId]++;
@@ -366,7 +366,7 @@ io.sockets.on('connection', function (socket) {
             });
         }, notifyStalledStepTime);
     });
-
+ 
     socket.on('Send SAMS Flow and Step', function(data) {
         var connectionId = socket.connectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -390,19 +390,19 @@ io.sockets.on('connection', function (socket) {
                     oldStepStartTime = new Date(oldStepStartTime).toISOString();
                     stepStopTime = new Date(stepStopTime).toISOString();
                     var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
-						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
-						mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
-						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(userInfo.AttUID) + ',' +
-						mysql.escape(userInfo.FirstName) + ',' +
-						mysql.escape(userInfo.LastName) + ',' +
-						mysql.escape(userInfo.Manager) + ',' +
-						mysql.escape(userInfo.SAMSWorkType) + ',' +
-						mysql.escape(userInfo.SkillGroup) + ',' +
-						mysql.escape(userInfo.TaskType) + ',' +
-						mysql.escape(oldFlowName) + ',' +
-						mysql.escape(oldStepName) + ',' +
+                        mysql.escape(userInfo.SmpSessionId) + ',' +
+                        mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+                        mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
+                        mysql.escape(elapsedTime) + ',' +
+                        mysql.escape(userInfo.AttUID) + ',' +
+                        mysql.escape(userInfo.FirstName) + ',' +
+                        mysql.escape(userInfo.LastName) + ',' +
+                        mysql.escape(userInfo.Manager) + ',' +
+                        mysql.escape(userInfo.SAMSWorkType) + ',' +
+                        mysql.escape(userInfo.SkillGroup) + ',' +
+                        mysql.escape(userInfo.TaskType) + ',' +
+                        mysql.escape(oldFlowName) + ',' +
+                        mysql.escape(oldStepName) + ',' +
                         mysql.escape('Y') + ',';
                     if (elapsedTime >= 30) {
                         sql = sql + mysql.escape('Y');
@@ -415,20 +415,20 @@ io.sockets.on('connection', function (socket) {
                     oldStepStartTime = new Date(oldStepStartTime).toISOString();
                     stepStopTime = new Date(stepStopTime).toISOString();
                     var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
-						mysql.escape(userInfo.SmpSessionId) + ',' +
-						mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
-						mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
-						mysql.escape(elapsedTime) + ',' +
-						mysql.escape(userInfo.AttUID) + ',' +
-						mysql.escape(userInfo.FirstName) + ',' +
-						mysql.escape(userInfo.LastName) + ',' +
-						mysql.escape(userInfo.Manager) + ',' +
-						mysql.escape(userInfo.SAMSWorkType) + ',' +
-						mysql.escape(userInfo.SkillGroup) + ',' +
-						mysql.escape(userInfo.TaskType) + ',' +
-						mysql.escape(oldFlowName) + ',' +
-						mysql.escape(oldStepName) + ',' +
-						mysql.escape('Y') + ',';
+                        mysql.escape(userInfo.SmpSessionId) + ',' +
+                        mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
+                        mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
+                        mysql.escape(elapsedTime) + ',' +
+                        mysql.escape(userInfo.AttUID) + ',' +
+                        mysql.escape(userInfo.FirstName) + ',' +
+                        mysql.escape(userInfo.LastName) + ',' +
+                        mysql.escape(userInfo.Manager) + ',' +
+                        mysql.escape(userInfo.SAMSWorkType) + ',' +
+                        mysql.escape(userInfo.SkillGroup) + ',' +
+                        mysql.escape(userInfo.TaskType) + ',' +
+                        mysql.escape(oldFlowName) + ',' +
+                        mysql.escape(oldStepName) + ',' +
+                        mysql.escape('Y') + ',';
                     if (elapsedTime >= 300) {
                         sql = sql + mysql.escape('Y');
                     } else {
@@ -477,7 +477,7 @@ io.sockets.on('connection', function (socket) {
             }, notifyStalledStepTime);
         }
     });
-    
+   
     socket.on('Alert Server of Stalled Session', function(data) {
         var connectionId = data.ConnectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -488,7 +488,7 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
-
+ 
     socket.on('Request Current Connection Data', function(data) {
         var connectionId = socket.connectionId;
         var activeTab = data.ActiveTab;
@@ -512,7 +512,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-
+ 
     socket.on('Request Client Detail from Server', function(data) {
         var clientId = data.ConnectionId;
         socket.join(clientId);
@@ -525,14 +525,14 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
-
+ 
     socket.on('Request SASHA ScreenShot from Server', function(data) {
         var connectionId = data.connectionId;
         io.emit('Request SASHA ScreenShot from SASHA', {
             ConnectionId: connectionId
         });
     });
-
+ 
     socket.on('Send SASHA ScreenShot to Server', function(data) {
         var imageURL = data.ImageURL;
         var connectionId = socket.connectionId;
@@ -540,14 +540,14 @@ io.sockets.on('connection', function (socket) {
             ImageURL: imageURL
         });
     });
-
+ 
     socket.on('Request SASHA Dictionary from Server', function(data) {
         var connectionId = data.connectionId;
         io.emit('Request SASHA Dictionary from SASHA', {
             ConnectionId: connectionId
         });
     });
-
+ 
     socket.on('Send SASHA Dictionary to Server', function(data) {
         var dictionary = data.Dictionary;
         var connectionId = socket.connectionId;
@@ -555,7 +555,7 @@ io.sockets.on('connection', function (socket) {
             Dictionary: dictionary
         });
     });
-
+ 
     socket.on('Request SASHA Skill Group Info from Server', function(data) {
         var connectionId = data.ConnectionId;
         var requestValue = data.RequestValue;
@@ -564,7 +564,7 @@ io.sockets.on('connection', function (socket) {
             ConnectionId: connectionId
         });
     });
-
+ 
     socket.on('Send SASHA Skill Group Info to Server', function(data) {
         var resultValue = data.ResultValue;
         var connectionId = socket.connectionId;
@@ -572,7 +572,7 @@ io.sockets.on('connection', function (socket) {
             ResultValue: resultValue
         });
     });
-
+ 
     socket.on('Send Agent Inputs to SAMS', function(data) {
         var connectionId = socket.connectionId;
         var output = data.Output;
@@ -585,7 +585,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-
+ 
     socket.on('Send User Message to Server', function(data) {
         var connectionId = data.ConnectionId;
         var broadcastText = data.BroadcastText;
@@ -596,12 +596,12 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-
+ 
     socket.on('Notify Server Session Closed', function (data) {
         var connectionId = data.ConnectionId;
         io.in(connectionId).emit('Notify Popup Session Closed');
     });
-	
+               
     socket.on('Save Screenshot', function(data) {
         if (useDB) {
             var connectionId = socket.connectionId;
@@ -636,11 +636,11 @@ io.sockets.on('connection', function (socket) {
                         });
                     }
                 }
-                        
+                       
             }
         }
     });
-
+ 
     socket.on('Get Listing', function (data) {
         if (useDB) {
             var includeInProgress = data.includeInProgress;
@@ -664,7 +664,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
-
+ 
     socket.on('Get ScreenShots', function(data) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
@@ -699,7 +699,7 @@ io.sockets.on('connection', function (socket) {
                     });
                 }
                 var sql = 'SELECT * FROM screenshots  WHERE smp_session_id="' + smp_session_id + '" ORDER BY recorded ASC';
-  			    global.con.query(sql, (err, rows) => {
+                global.con.query(sql, (err, rows) => {
                     if (err === null) {
                         rows.forEach((row) => {
                             var screenshot_time = row.screenshot_time;
@@ -713,10 +713,55 @@ io.sockets.on('connection', function (socket) {
                                 image_data: image_data
                             });
                         });
-                    } 
+                    }
                     socket.emit('Screenshots Delivered');
                 });
             }
         }
-    });	
+    });      
+               
+    socket.on('Request Report', function(data) {
+        var reportType = data.reportType;
+        var startDate = data.startDate;
+        var endDate = data.endDate;
+        var sessionThreshold = data.sessionThreshold;
+        var automationStepThreshold = data.automationStepThreshold;
+        var manualStepThreshold = data.manualStepThreshold;
+        var managerId = data.managerId;
+        var agentId = data.agentId;
+        if (managerId != '') {
+            var managerCondition = ' AND manager_id = "' + managerId + '" ';
+        } else {
+            var managerCondition = '';
+        }
+        if (agentId != '') {
+            var agentCondition = ' AND att_uid = "' + agentId + '" ';
+        } else {
+            var agentCondition = '';
+        }
+        switch(reportType) {
+        case 'AllAutomation':
+            var sql = 'SELECT smp_session_id AS "SESSION ID", start_time AS "START TIME", stop_time AS "COMPLETION TIME", SEC_TO_TIME(elapsed_seconds) AS "AUTOMATION STEP DURATION", att_uid AS "ATT UID", CONCAT(last_name, ", ", first_name) AS "AGENT NAME", IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS "MANAGER ATT UID", IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS "WORK TYPE", IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS "BUSINESS LINE", IF(task_type IS NULL, "", task_type) AS "TASK TYPE", flow_name AS "FLOW NAME CONTAINING AUTOMATION STEP" FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
+            break;
+        case 'AutomationSummary':
+            var sql = 'SELECT mainQuery.flow_name AS "FLOW NAME CONTAINING SLOW AUTOMATION STEP", COUNT(*) AS "COUNT OF SLOW RUN AUTOMATION INSTANCES", SEC_TO_TIME(elapsed_seconds) AS "AVERAGE DURATION FOR SLOW AUTOMATION INSTANCES", (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS "COUNT OF ALL AUTOMATION INSTANCES", (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) FROM duration_log_step_automation subQuery2 WHERE subQuery2.flow_name = mainQuery.flow_name AND in_progress = "N" AND elapsed_seconds < "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS "AVERGE DURATION STANDARD AUTOMATION INSTANCES" FROM duration_log_step_automation mainQuery WHERE in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) GROUP BY flow_name ORDER BY flow_name';
+            break;
+        case 'AllManual':
+            var sql = 'SELECT smp_session_id AS "SESSION ID", start_time AS "START TIME", stop_time AS "COMPLETION TIME", SEC_TO_TIME(elapsed_seconds) AS "MANUAL STEP DURATION", att_uid AS "ATT UID", CONCAT(last_name, ", ", first_name) AS "AGENT NAME", IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS "MANAGER ATT UID", IF(work_source IS NULL, "NOT AVAILALBLE", work_source) AS "WORK TYPE", IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS "BUSINESS LINE", IF(task_type IS NULL, "", task_type) AS "TASK TYPE", flow_name AS "FLOW NAME", step_name as "MANUAL STEP NAME" FROM duration_log_step_manual WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';        
+            break;
+        case 'SlowAutomation':
+            var sql = 'SELECT smp_session_id AS "SESSION ID", start_time AS "START TIME", stop_time AS "COMPLETION TIME", SEC_TO_TIME(elapsed_seconds) AS "MANUAL STEP DURATION", att_uid AS "ATT UID", CONCAT(last_name, ", ", first_name) AS "AGENT NAME", IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS "MANAGER ATT UID", IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS "WORK TYPE", IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS "BUSINESS LINE", IF(task_type IS NULL, "", task_type) AS "TASK TYPE", flow_name AS "FLOW NAME", step_name as "SLOW MANUAL STEP NAME" FROM duration_log_step_manual WHERE in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
+            break;
+        case 'SlowManual':
+            var sql = 'SELECT smp_session_id AS "SESSION ID", start_time AS "START TIME", stop_time AS "COMPLETION TIME", SEC_TO_TIME(elapsed_seconds) AS "MANUAL STEP DURATION", att_uid AS "ATT UID", CONCAT(last_name, ", ", first_name) AS "AGENT NAME", IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS "MANAGER ATT UID", IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS "WORK TYPE", IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS "BUSINESS LINE", IF(task_type IS NULL, "", task_type) AS "TASK TYPE", flow_name AS "FLOW NAME", step_name as "SLOW MANUAL STEP NAME" FROM duration_log_step_manual WHERE in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '"  AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
+            break;
+        case 'AgentSummary':
+            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS "AGENTNAME", att_uid AS "ATT UID", manager_id AS "MANAGER ATT UID", COUNT(*) AS "COUNT OF FLOWS COMPLETED", (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT OF LONG DURATION WORKFLOWS", SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS "AVERAGE WORKFLOW DURATION", (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT SLOW AUTOMATION STEPS", (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT SLOW MANUAL STEPS" FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' GROUP BY att_uid ORDER BY AGENTNAME';            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS "AGENTNAME", att_uid AS "ATT UID", manager_id AS "MANAGER ATT UID", COUNT(*) AS "COUNT OF FLOWS COMPLETED", (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT OF LONG DURATION WORKFLOWS", SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS "AVERAGE WORKFLOW DURATION", (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT SLOW AUTOMATION STEPS", (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT SLOW MANUAL STEPS" FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' GROUP BY att_uid ORDER BY AGENTNAME';            var sql = "SELECT CONCAT(last_name, ', ', first_name) AS 'AGENTNAME', att_uid AS 'ATT UID', manager_id AS 'MANAGER ATT UID', COUNT(') AS 'COUNT OF FLOWS COMPLETED', (SELECT COUNT(') FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= '" + sessionThreshold + "' AND (start_time BETWEEN('" + startDate + "') AND ('" + endDate + "')) ) AS 'COUNT OF LONG DURATION WORKFLOWS', SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS 'AVERAGE WORKFLOW DURATION', (SELECT COUNT(') FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = 'N' AND elapsed_seconds >= '" + automationStepThreshold + "' AND (start_time BETWEEN('" + startDate + "') AND ('" + endDate + "')) ) AS 'COUNT SLOW AUTOMATION STEPS', (SELECT COUNT(') FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = 'N' AND elapsed_seconds >= '" + manualStepThreshold + "' AND (start_time BETWEEN('" + startDate + "') AND ('" + endDate + "')) ) AS 'COUNT SLOW MANUAL STEPS' FROM duration_log_session mainQuery WHERE (start_time BETWEEN('" + startDate + "') AND ('" + endDate + "'))" + managerCondition + agentCondition + ' GROUP BY att_uid ORDER BY AGENTNAME';
+            break;
+        case 'AgentDetail':
+            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS "AGENTNAME", att_uid AS "ATT UID", manager_id AS "MANAGER ATT UID", SEC_TO_TIME(elapsed_seconds) AS "FLOW DURATION", (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0),SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "SLOW AUTOMATION STEP TIME", (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "AUTOMATION STEP TIME", start_time AS "START TIME", stop_time AS "COMPLETION TIME", (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT OF SLOW AUTOMATION STEPS", (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS "COUNT OF SLOW MANUAL STEPS", IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS "WORK TYPE", IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS "BUSINESS LINE", IF(task_type IS NULL, "", task_type) AS "TASK TYPE", smp_session_id AS "SESSION ID" FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY AGENTNAME';
+            break;
+        }
+        console.log(sql);
+    });
 });
