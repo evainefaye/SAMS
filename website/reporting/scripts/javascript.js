@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('div#main').hide();
     // Set the location of the Node.JS server
-    var serverAddress = 'http://10.100.49.77';
+    var serverAddress = 'http://127.0.0.1';
  
     var environment = Cookies.get('environmentReporting');
     if (typeof environment == 'undefined') {
@@ -113,6 +113,7 @@ $(document).ready(function () {
         if (agentId != '') {
         }
         socket.emit('Request Report', {
+            label: label,
             startDate: startDate,
             endDate: endDate,
             reportType: reportType,
@@ -159,12 +160,100 @@ $(document).ready(function () {
         $('div.initializationScreen').show();
     });
 
-    socket.on('Receive Report', function(data) {
+    socket.on('Send Report Data To Client', function(data) {
         $('.overlay').hide();
+        var reportType = data.reportType;
         if (typeof data.queryData != 'undefined') {
             var queryData = data.queryData;
         } else {
             var queryData = new Object();
         }
+        if (queryData.length > 0) {
+            var header = '';
+            var html = '';
+            $.each( queryData, function (key, value) {
+                switch (reportType) {
+                case 'AllAutomation':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.smp_session_id + '</td><td>' + start_time + '</td><td>' + stop_time + '</td><td>' + value.automation_step_duration + '</td><td>' + value.att_uid + '</td><td>' + value.agent_name + '</td><td>' + value.manager_id + '</td><td>' + value.work_source + '</td><td>' + value.business_line + '</td><td>' + value.task_type + '</td><td>' + value.flow_name + '</td></tr>';
+                    break;
+                case 'AutomationSummary':
+                    if (value.standard_count >0) {
+                        var slow_percentage = ((value.slow_count / value.standard_count) * 100).toFixed(2);
+                        var slow_percentage = slow_percentage + '%';
+                    } else {
+                        slow_percentage = '100.00%';
+                    }
+                    html = html + '<tr><td>' + value.flow_name + '</td><td>' + value.slow_count + '</td><td>' + value.slow_average_duration + '</td><td>' + value.standard_count + '</td><td>' + value.standard_average_duration + '<td><td>' + slow_percentage + '</td></tr>';
+                    break;
+                case 'AllManual':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.smp_session_id + '</td><td>' + start_time + '</td><td>' + stop_time + '</td><td>' + value.manual_step_duration + '</td><td>' + value.att_uid + '</td><td>' + value.agent_name + '</td><td>' + value.manager_id + '</td><td>' + value.work_source + '</td><td>' + value.business_line + '</td><td>' + value.task_type + '</td><td>' + value.flow_name + '</td><td>' + value.step_name + '</td></tr>';
+                    break;
+                case 'SlowAutomation':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.smp_session_id + '</td><td>' + start_time + '</td><td>' + stop_time + '</td><td>' + value.automation_step_duration + '</td><td>' + value.att_uid + '</td><td>' + value.agent_name + '</td><td>' + value.manager_id + '</td><td>' + value.work_source + '</td><td>' + value.business_line + '</td><td>' + value.task_type + '</td><td>' + value.flow_name + '</td></tr>';
+                    break;
+                case 'SlowManual':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.smp_session_id + '</td><td>' + start_time + '</td><td>' + stop_time + '</td><td>' + value.manual_step_duration + '</td><td>' + value.att_uid + '</td><td>' + value.agent_name + '</td><td>' + value.manager_id + '</td><td>' + value.work_source + '</td><td>' + value.business_line + '</td><td>' + value.task_type + '</td><td>' + value.flow_name + '</td><td>' + value.step_name + '</td></tr>';
+                    break;
+                case 'AgentSummary':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td>' + value.manager_id + '</td><td>' + value.count_completed + '</td><td>' + value.count_slow + '</td><td>' + value.session_average + '</td><td>' + value.count_slow_automation + '</td><td>' + value.count_slow_manual + '</td></tr>';
+                    break;
+                case 'AgentDetail':
+                    var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                    html = html + '<tr><td>' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td>' + value.manager_id + '</td><td>' + value.workflow_duration + '</td><td>' + value.slow_automation_duration + '</td><td>' + value.slow_manual_duration + '</td><td>' + start_time + '</td><td>' + stop_time + '</td><td>' + value.count_slow_automation + '</td><td>' + value.count_slow_manual + '</td><td>' + value.work_source + '</td><td>' + value.business_line + '</td><td>' + value.task_type + '</td><td>' + value.session_id + '</td></tr>';
+                    console.log(html);
+                    break;
+                }
+            });
+        } else {
+            alert('no data');
+        }
+        switch (reportType) {
+        case 'AllAutomation':
+            header = '<table><thead><tr><th>SESSION ID</th><th>START TIME</th><th>COMPLETION TIME</th><th>AUTOMATION STEP DURATION</th><th>ATT UID</th><th>AGENT NAME</th><th>MANAGER ATT UID</th><th>WORK TYPE</th><th>BUSINESS LINE</th><th>TASK TYPE</th><th>FLOW NAME</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        case 'AutomationSummary':
+            header = '<table><thead><tr><th>FLOW NAME</th><th>SLOW AUTOMATION COUNT</th><th>AVERAGE SLOW AUTOMATION</th><th>STANDARD AUTOMATION COUNT</th><th>AVERAGE STANDARD AUTOMATION</th><th>PERCENTAGE SLOW</th></tr></thead><tbody>';
+            html = header + html + '</tbody><table>';
+            $('div#reportBody').html(html);            
+            break;
+        case 'AllManual':
+            header = '<table><thead><tr><th>SESSION ID</th><th>START TIME</th><th>COMPLETION TIME</th><th>MANUAL STEP DURATION</th><th>ATT UID</th><th>AGENT NAME</th><th>MANAGER ATT UID</th><th>WORK TYPE</th><th>BUSINESS LINE</th><th>TASK TYPE</th><th>FLOW NAME</th><th>STEP NAME</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        case 'SlowAutomation':
+            header = '<table><thead><tr><th>SESSION ID</th><th>START TIME</th><th>COMPLETION TIME</th><th>AUTOMATION STEP DURATION</th><th>ATT UID</th><th>AGENT NAME</th><th>MANAGER ATT UID</th><th>WORK TYPE</th><th>BUSINESS LINE</th><th>TASK TYPE</th><th>FLOW NAME</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        case 'SlowManual':
+            header = '<table><thead><tr><th>SESSION ID</th><th>START TIME</th><th>COMPLETION TIME</th><th>MANUAL STEP DURATION</th><th>ATT UID</th><th>AGENT NAME</th><th>MANAGER ATT UID</th><th>WORK TYPE</th><th>BUSINESS LINE</th><th>TASK TYPE</th><th>FLOW NAME</th><th>STEP NAME</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        case 'AgentSummary':
+            header = '<table><thead><tr><th>AGENT NAME</th><th>MANAGER ATT UID</th><th># OF COMPLETED FLOWS</th><th># OF FLOWS W/ DURATON OVER WORKFLOW THRESHOLD</th><th>AVERAGE WORKFLOW DURATION</th><th># OF INSTANCES OF SLOW AUTOMATION STEPS</th><th># OF INSTANCES OF SLOW MANUAL STEPS</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        case 'AgentDetail':
+            header = '<table><thead><tr><th>AGENT NAME</th><th>MANAGER ATT UID</th><th>WORKFLOW DURATION</th><th>TOTAL SLOW AUTOMATION STEP TIME</th><th>TOTAL SLOW MANUAL STEP TIME</th><th>START TIME</th><th>COMPLETION TIME</th><th># OF SLOW AUTOMATION STEPS</th><th># OF SLOW MANUAL STEPS</th><th>WORK TYPE<th></th><th>BUSINESS LINE</th><th>TASK TYPE</th><th>SESSION ID</th></tr></thead><tbody>';
+            html = header + html + '</tbody></table>';
+            $('div#reportBody').html(html);
+            break;
+        }        
     });
 });
