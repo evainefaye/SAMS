@@ -95,3 +95,12 @@ table#header {
     width: 100%;
     color: #ffffff;
 }
+
+table#results {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+input.filter {
+    display: none;
+}

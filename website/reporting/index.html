@@ -58,35 +58,36 @@
         </div>
         <div id='main'>
             <p>
-                <center><h2>REPORTING</h2></center>
+                <center><h2>SAMS HISTORICAL DATA REPORTING</h2></center>
             </p>
             <br>
-            <div class='row'>
-                <div class='col-md-4 col-md-offset-4 text-center'>
-                    SELECT REPORT TYPE: <SELECT id='ReportType'>
-                        <option value='AllAutomation'>All Automation Step Data</option>
-                        <option value='AutomationSummary'>Slow Automation Step Summary</option>
-                        <option value='AllManual'>ALL Manual Step Data</option>
+            <div class='col-md-12'>
+                <div class='col-md-3 col-md-offset-1'>
+                    <SELECT id='ReportType'>
+                        <option value='SlowAutomationSummary'>AUTOMATION STEPS OVER XXX (BY FLOWNAME)</option>
+                        <option value='AllAutomation'>ALL AUTOMATION STEP DATA</option>
+                        <option value='AllManual'>ALL MANUAL STEP DATA</option>
                         <option value='SlowAutomation'>Slow Automation Step Data</option>
                         <option value='SlowManual'>Slow Manual Step Data</option>
                         <option value='AgentSummary'>Agent Summary Data</option>
                         <option value='AgentDetail'>Agent Detail Data</option>
                     </select>
                 </div>
-            </div>
-            Automation Step Threshold: <input type='text' id ='AutomationStepThreshold' value='30' />
-            Session Threshold: <input type='text' id ='SessionThreshold' value='1200' />                                      
-            Manual Step Step Threshold: <input type='text' id ='ManualStepThreshold' value='300' />
-            Manager ID: <input type='text' id='ManagerId' PLACEHOLDER='OPTIONAL MANAGER ID' />
-            Agent ID: <input type='text' id='AgentId' placeholder='OPTIONAL AGENT ID' />
-            <br />
-            <div class='row'>                                 
-                <div class='col-md-4 col-md-offset-4 calendar'>
-                    <input type='text' id='daterange' class='form-control' placeholder='SELECT DATE RANGE TO SEARCH' />
-                    <i class='glyphicon glyphicon-calendar fa fa-calendar'></i>                               
+                <div class='col-md-2 calendar'>
+                        <input type='text' id='daterange' class='form-control' placeholder='SELECT DATE RANGE TO SEARCH' />
+                        <i class='glyphicon glyphicon-calendar fa fa-calendar'></i>                               
+                </div>
+                <div class='col-md-4'>
+                    <input class='filter' type='text' id ='AutomationStepThreshold' placeholder='AUTOMATION THRESHOLD (SECONDS)' size='35' />
+                    <input class='filter' type='text' id ='SessionThreshold' placeholer='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT 1200' size='35') />
+                    <input class='filter' type='text' id='ManualStepThreshold'placeholder='MANUAL STEPS THRESHOLD IN SECONDS (DEFAULT 300)' size='35' />
+                    <input class='filter' type='text' id='AttUID' placeholder='(OPTIONAL) SUPERVISOR / AGENT ATTUID' size='35' />
+                </div>
+                <div clas='col-sm-1'>
+                    <input class='btn btn-primary' type='button' id='RequestReport' value='REQUEST REPORT' />
                 </div>
             </div>
-            <br />       
+            <br />
             <br />
         </div>
         <div id='reportBody'></div>
