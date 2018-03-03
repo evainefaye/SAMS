@@ -15,9 +15,6 @@ $databaseUser = 'sams';
 $databasePW = 'develop';
 $databaseName = 'sams_prod';
 
-
-// $sql = "select * from duration_log_session WHERE manager_id='dh2428'";
-
 // Connect to database provide error if it fails
 $mysqli = new mysqli($databaseIP, $databaseUser, $databasePW, $databaseName);
 

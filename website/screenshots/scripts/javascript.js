@@ -1,7 +1,7 @@
 $(document).ready(function () {
     $('div#main').hide();
     // Set the location of the Node.JS server
-    var serverAddress = 'http://108.226.174.227';
+    var serverAddress = 'http://10.100.49.77';
 
     var environment = Cookies.get('environmentScreenshots');
     if (typeof environment == 'undefined') {
@@ -190,7 +190,7 @@ $(document).ready(function () {
             });
             html = html + '</tbody></table>';
             $('div#selectRecord').html(html).show();
-            
+			$('table#selectRow').stickyTableHeaders();
             $('table#selectRow').tablesorter({
                 theme: 'custom',
                 sortList: [[1,0]],

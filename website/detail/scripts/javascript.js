@@ -19,7 +19,7 @@ $(document).ready(function () {
     }
     Cookies.remove('connectionId');
 
-    var serverAddress = 'http://108.226.174.227';
+    var serverAddress = 'http://10.100.49.77';
     switch (environment) {
     case 'fde':
         var socketURL = serverAddress + ':5510';

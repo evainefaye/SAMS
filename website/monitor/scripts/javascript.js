@@ -4,8 +4,7 @@ var windowManager = new Object(); // Create Object for storing information about
 window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
-    var serverAddress = 'http://10.100.49.104';     // Set the location of the Node.js server
-    var serverAddress = 'http://108.226.174.227';     // Set the location of the Node.js server    
+    var serverAddress = 'http://10.100.49.77';     // Set the location of the Node.js server
 
     var environment = Cookies.get('environment');
     if (typeof environment == 'undefined') {
@@ -234,6 +233,7 @@ $(document).ready(function () {
             // Sort Tabs in Alphabetical order
             sortTabs('ul#Tabs');
             //  Make the added table sortable
+			$('table.' + skillGroup).stickyTableHeaders();
             $('table.' + skillGroup).tablesorter({
                 theme: 'custom',
                 sortList: [[5,1]],
@@ -620,6 +620,7 @@ let addCustomTabs = function () {
     $('.nav-tabs a[skillGroup="ALLSESSIONS"]').tab('show');
     $('table.ALLSESSIONS').trigger('update').trigger('applyWidgetId','zebra');
     // Make table sortable
+	$('table.ALLSESSIONS').stickyTableHeaders();
     $('table.ALLSESSIONS').tablesorter({
         theme: 'custom',
         sortReset: true,
@@ -654,6 +655,7 @@ let addCustomTabs = function () {
         '</div>';
     $('div#Contents').append(row);
     // Make Table Sortable
+	$('table.INACTIVESESSIONS').stickyTableHeaders();
     $('table.INACTIVESESSIONS').tablesorter({
         theme: 'custom',
         sortList: [[5,1]],
@@ -696,6 +698,7 @@ let addCustomTabs = function () {
         '</div>';
     $('div#Contents').append(row);
     // Make Table Sortable
+	$('table.STALLEDSESSIONS').stickyTableHeaders();
     $('table.STALLEDSESSIONS').tablesorter({
         theme: 'custom',
         sortList: [[5,1]],

@@ -151,7 +151,7 @@ io.sockets.on('connection', function (socket) {
                     global.con.query(sql);
                 }
             }
-            if (useDB) {
+            if (useDB && userInfo.SAMSWorkType != '') {
                 var flowStartTime = userInfo['SessionStartTime'];
                 var flowStopTime = new Date().toUTCString();
                 var elapsedTime = (Date.parse(flowStopTime)-Date.parse(flowStartTime))/1000;
@@ -376,8 +376,8 @@ io.sockets.on('connection', function (socket) {
         var stepName = data.StepName;
         var stepType = data.StepType;
         var formName = data.FormName;
-        if (useDB) {
-            var userInfo = sashaUsers[connectionId];
+        var userInfo = sashaUsers[connectionId];		
+        if (useDB && userInfo.SAMSWorkType != '') {
             var oldFlowName = userInfo.FlowName;
             var oldStepName = userInfo.StepName;
             var oldStepStartTime = userInfo.StepStartTime;
@@ -719,62 +719,11 @@ io.sockets.on('connection', function (socket) {
             }
         }
     });      
-               
-    socket.on('Request Report', function(data) {
-        if (typeof data.label != 'undefined') {
-            var label = data.label;
-        } else {
-            var label = 'Custom Range';
-        }
-        var reportType = data.reportType;
-        var startDate = data.startDate;
-        var endDate = data.endDate;
-        var sessionThreshold = data.sessionThreshold;
-        var automationStepThreshold = data.automationStepThreshold;
-        var manualStepThreshold = data.manualStepThreshold;
-        var managerId = data.managerId;
-        var agentId = data.agentId;
-        if (managerId != '') {
-            var managerCondition = ' AND manager_id = "' + managerId + '" ';
-        } else {
-            var managerCondition = '';
-        }
-        if (agentId != '') {
-            var agentCondition = ' AND att_uid = "' + agentId + '" ';
-        } else {
-            var agentCondition = '';
-        }
-        switch(reportType) {
-        case 'AllAutomation':
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS manager_id, IF(work_source IS NULL, "NOT AVAILABLE", work_source) as work_source, IF(business_line IS NULL, "NOT AVAILABLE", business_line) as business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
-            break;
-        case 'AutomationSummary':
-            var sql = 'SELECT mainQuery.flow_name AS flow_name, COUNT(*) AS slow_count, SEC_TO_TIME(elapsed_seconds) AS slow_average_duration, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS standard_count, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) FROM duration_log_step_automation subQuery2 WHERE subQuery2.flow_name = mainQuery.flow_name AND in_progress = "N" AND elapsed_seconds < "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS standard_average_duration FROM duration_log_step_automation mainQuery WHERE in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) GROUP BY flow_name ORDER BY flow_name';
-            break;
-        case 'AllManual':
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS manager_id, IF(work_source IS NULL, "NOT AVAILALBLE", work_source) AS work_source, IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name AS flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
-            break;
-        case 'SlowAutomation':
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) AS manager_id, IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS work_source, IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
-            break;
-        case 'SlowManual':
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds)AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "NOT AVAILABLE", manager_id) manager_id, IF(work_source IS NULL, "NOT AVAILABLE", work_source) work_source, IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '"  AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY start_time';
-            break;
-        case 'AgentSummary':
-            console.log('here');
-            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS agent_name, att_uid, manager_id, COUNT(*) AS count_completed, (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow, SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS session_average, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_automation, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_manual FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' GROUP BY att_uid ORDER BY agent_name';
-            break;
-        case 'AgentDetail':
-            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS agent_name, att_uid, manager_id, SEC_TO_TIME(elapsed_seconds) workflow_duration, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0),SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS slow_automation_duration, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS slow_manual_duration, start_time, stop_time, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_automation, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_manual, IF(work_source IS NULL, "NOT AVAILABLE", work_source) AS work_source, IF(business_line IS NULL, "NOT AVAILABLE", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, smp_session_id AS session_id FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + managerCondition + agentCondition + ' ORDER BY agent_name';
-            break;
-        }
-        console.log(reportType + ', ' + sql);
-        global.con.query(sql, (err, rows) => {
-            socket.emit('Send Report Data To Client', {
-                reportType: reportType,
-                queryData: rows,
-                label: label
-            });
-        });        
-    });
+
+	socket.on('Request DB Config', function() {
+		socket.emit('Return DB Config', {
+			dbConfig: db_config
+		});
+	});
+
 });

@@ -31,6 +31,8 @@
         <script src="scripts/js.cookie.js" type="text/javascript"></script>
         <!-- End Add cookie -->
 
+        <script src="scripts/jquery.stickytableheaders"></script>		
+		
         <!-- Begin Add Socket.io -->
         <script src="scripts/socket.io.js"></script>
         <!-- End Add Socket.io -->
@@ -42,18 +44,16 @@
         <div class="overlay">
             <div id="loading-img"></div>
         </div>
-
-
-
-        <div class="col-sm-12">
-            <div class="col-sm-10 col-sm-offset-1 text-center"><b>SERVER ENVIRONMENT</b><br />
+        <div class="col-sm-12 text-center"><b>SERVER ENVIRONMENT</b></div>
+			<div class='col-sm-12 text-center'>
+            <div class='styled-select-environment blue semi-square'>
                 <select id="environment">
                     <option value='fde'>DEVELOPMENT</option>
                     <option value="pre-prod">BETA</option>
                     <option value="prod">PRODUCTION</option>
                 </select>
             </div>
-        </div>
+			</div>
         <br />
         <br />
         <div class="initializationScreen">
