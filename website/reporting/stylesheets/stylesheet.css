@@ -145,7 +145,7 @@ input.hideFilter {
    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
    height: 29px;
    overflow: hidden;
-   width: 420px;
+   width: 460px;
    margin:auto;
 }
 .styled-select-report select {
@@ -154,7 +154,7 @@ input.hideFilter {
    font-size: 14px;
    height: 29px;
    padding: 5px; /* If you add too much padding here, the options won't show in IE */
-   width: 448px;
+   width: 488px;
 }
 
 .semi-square {

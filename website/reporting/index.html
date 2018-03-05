@@ -68,13 +68,13 @@
                 <div class='col-md-3 col-md-offset-1'>
 					<div class='styled-select-report blue semi-square'>
                     <select id='ReportType' >
-                        <option value='SlowAutomationSummary'>AUTOMATION STEPS OVER XXX (BY FLOWNAME)</option>
-                        <option value='SlowManualSummary'>MANUAL STEPS OVER XXX (BY FLOWNAME/STEPNAME)</option>						
-                        <option value='AllAutomation'>AUTOMATION STEP DETAIL DATA</option>
-                        <option value='AllManual'>MANUAL STEP DETAIL DATA</option>
-                        <option value='AllWorkflow'>WORKFLOW SESSION DATA</option>						
-                        <option value='AgentSummary'>Agent Summary Data</option>
-                        <option value='AgentDetail'>Agent Detail Data</option>
+                        <option value='SlowAutomationSummary'>SUMMARY AUTOMATION STEPS OVER XXX (BY FLOWNAME)</option>
+                        <option value='SlowManualSummary'>SUMMARY MANUAL STEPS OVER XXX (BY FLOWNAME/STEPNAME)</option>						
+                        <option value='AgentSummary'>SUMMARY AGENT WORKFLOW PERFORMANCE (BY AGENT)</option>
+                        <option value='AgentPerformance'>DETAIL AGENT WORKFLOW PERFORMANCE</option>
+                        <option value='AllAutomation'>DETAIL AUTOMATION STEP DATA</option>
+                        <option value='AllManual'>DETAIL MANUAL STEP DATA</option>
+                        <option value='AllWorkflow'>DETAIL WORKFLOW SESSION DATA</option>						
                     </select>
 					</div>
                 </div>
@@ -84,7 +84,7 @@
                 </div>
                 <div class='col-md-4'>
                     <input class='hideFilter' type='text' id ='AutomationStepThreshold' data-ph='AUTOMATION STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) AUTOMATION STEP TIME THRESHOLD IN SECONDS' size='35' />
-                    <input class='hideFilter' type='text' id ='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' size='35') />
+                    <input class='hideFilter' type='text' id ='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT: 1200)' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' size='35') />
                     <input class='hideFilter' type='text' id='ManualStepThreshold' data-ph='MANUAL STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) MANUAL STEP THRESHOLD IN SECONDS' size='35' />
                     <input class='hideFilter' type='text' id='AttUID' data-ph='SUPERVISOR OR AGENT ATTUID' data-opt-ph='(OPTIONAL) SUPERVISOR OR AGENT ATTUID' size='35' />
                 </div>

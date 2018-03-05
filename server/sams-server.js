@@ -94,12 +94,19 @@ if (useDB) {
                 });
                 console.log(new Date().toString(),'Database Connection successful');
                 console.log(new Date().toString(),'Database: ' + database);
-                var sql = 'DELETE FROM duration_log_step_automation WHERE in_progress = "Y"';
-                global.con.query(sql);
-                var sql = 'DELETE FROM duration_log_step_manual WHERE in_progress = "Y"';
-                global.con.query(sql);
+                console.log(new Date().toString(),'Checking for invalid database records...');
+                var sql = 'DELETE FROM duration_log_step_automation WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
+                global.con.query(sql, function(err, result,fields) {
+                    console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_automation table');
+                });
+                var sql = 'DELETE FROM duration_log_step_manual WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
+                global.con.query(sql, function(err, result,fields) {
+                    console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_manual table');
+                });
                 var sql = 'DELETE FROM screenshots WHERE in_progress = "Y"';
-                global.con.query(sql);
+                global.con.query(sql, function(err, result,fields) {
+                    console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from screenshots table');
+                });
             }
         });
     };
@@ -720,10 +727,9 @@ io.sockets.on('connection', function (socket) {
         }
     });      
 
-	socket.on('Request DB Config', function() {
-		socket.emit('Return DB Config', {
-			dbConfig: db_config
-		});
-	});
-
+    socket.on('Request DB Config', function() {
+        socket.emit('Return DB Config', {
+            dbConfig: db_config
+        });
+    });
 });
