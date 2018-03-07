@@ -47,6 +47,10 @@ $(document).ready(function () {
         window.location.reload();
     });
  
+    $('select.showFilter').off('change').on('change', function() {
+        $('ReportType').trigger('change');
+    });
+
     $('#ReportType').off('change').on('change', function() {
         $('.optional, .required').removeClass('optional required');
         switch ($('#ReportType :selected').val()) {
