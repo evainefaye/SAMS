@@ -20,8 +20,8 @@ img {
     opacity: 0.5;
 }
 
-.calendar { position: relative; }
-.calendar i { position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer; }
+.calendarinput { position: relative; }
+.calendarinput i { position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer; }
 
 .initializationScreen {
     margin: auto;
