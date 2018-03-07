@@ -2,6 +2,7 @@ $(document).ready(function () {
     $('div#main').hide();
     // Set the location of the Node.JS server
     var serverAddress = 'http://10.100.49.77';
+    var serverAddress = 'http://108.226.174.227';
 
     var environment = Cookies.get('environmentScreenshots');
     if (typeof environment == 'undefined') {
@@ -141,6 +142,7 @@ $(document).ready(function () {
     window.socket = io.connect(socketURL);
 	
     socket.on('connect', function () {
+	    socket.emit('Request DB Config');
         $('div#main').show();
         $('div#overlay').hide();        
         $('div.initializationScreen').hide();
@@ -159,6 +161,12 @@ $(document).ready(function () {
         $('div.initializationScreen').show();
     });
 
+    socket.on('Return DB Config', function (data) {
+        dbHost = data.dbConfig.host;
+        dbUser = data.dbConfig.user;
+        dbPassword = data.dbConfig.password;
+        dbName = data.dbConfig.database;
+    });
 
     socket.on('Receive Listing', function(data) {
         $('.overlay').hide();
