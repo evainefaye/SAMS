@@ -8,10 +8,6 @@ $(document).ready(function () {
     // Set the location of the Node.JS server
     var serverAddress = 'http://10.100.49.77';
     var serverAddress = 'http://108.226.174.227';    
-    var dbHost = 'localhost';
-    var dbUser = 'sams';
-    var dbPassword = 'develop';
-    var dbName = 'sams_prod';
 
     var environment = Cookies.get('environmentReporting');
     if (typeof environment == 'undefined') {
@@ -58,69 +54,54 @@ $(document).ready(function () {
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
-            $('input#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional').val('');
-            $('input#BusinessLine').removeClass('showFilter').addClass('hideFilter optional');
-            $('input#WorkSource').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional').val('');
+            $('select#BusinessLineSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#WorkSourceSel').removeClass('showFilter').addClass('hideFilter optional');
             break;
         case 'SlowAutomationSummary':
 	    	var phText = $('input#AutomationStepThreshold').attr('data-ph');
             $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
-		    var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
         case 'SlowManualSummary':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#ManualStepThreshold').attr('data-ph');
             $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
-		    var phText = $('input#AttUID').attr('data-opt-ph');
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
         case 'AllAutomation':
 		    var phText = $('input#AutomationStepThreshold').attr('data-opt-ph');
             $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
-		    var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
         case'AllManual':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter').val('');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#ManualStepThreshold').attr('data-opt-ph');
 		    $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-		    var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
 	    case 'AllWorkflow':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#SessionThreshold').attr('data-opt-ph');
 		    $('input#SessionThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
-		    var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
 		    break;
         case 'AgentSummary':
             var phText = $('input#AutiomationStepThreshold').attr('data-ph');        
@@ -129,12 +110,9 @@ $(document).ready(function () {
             $('input#SessionThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
             var phText = $('input#ManualStepThreshold').attr('data-ph');
             $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
-            var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('selectAttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
         case 'AgentPerformance':
             var phText = $('input#AutiomationStepThreshold').attr('data-ph');        
@@ -142,12 +120,9 @@ $(document).ready(function () {
             $('input#SessionThreshold').removeClass('showFilter optional').addClass('hideFilter');
             var phText = $('input#ManualStepThreshold').attr('data-ph');
             $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
-            var phText = $('input#AttUID').attr('data-opt-ph');			
-            $('input#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#BusinessLine').attr('data-opt-ph');			
-            $('input#BusinessLine').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-            var phText = $('input#WorkSource').attr('data-opt-ph');			
-            $('input#WorkSource').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             break;
         }
     });
@@ -232,12 +207,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    valid = true;
             }
-		    var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
 		    break;
 	    case 'SlowManualSummary':
 		    var element = $('input#ManualStepThreshold');
@@ -252,12 +221,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    valid = true;
             }
-		    var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
 		    break;
     	case 'AllAutomation':
 		    var element = $('input#AutomationStepThreshold');
@@ -271,12 +234,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    valid = true;
 		    }
-		    var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
 		    break;
 	    case 'AllManual':
 		    var element = $('input#ManualStepThreshold');
@@ -290,12 +247,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    valid = true;
 		    }
-		    var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
 		    break;
 	    case 'AllWorkflow':
 		    var element = $('input#SessionThreshold');
@@ -309,8 +260,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    valid = true;
 		    }
-		    var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
 		    break;
         case 'AgentSummary':
             var element = $('input#AutomationStepThreshold');
@@ -349,12 +298,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    var valid3 = true;
 		    }
-		    var element = $('input#AttUID');
-            $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
             if (valid1 && valid2 && valid3) {
                 valid = true;
             }
@@ -384,12 +327,6 @@ $(document).ready(function () {
 			    $(element).val($(element).val().trim());
 			    var valid2 = true;
             }
-            var element = $('input#AttUID');
-		    $(element).val($(element).val().trim());
-            var element = $('input#BusinessLine');
-		    $(element).val($(element).val().trim());
-            var element = $('input#WorkSource');
-		    $(element).val($(element).val().trim());
             if (valid1 && valid2) {
                 valid = true;
             }
@@ -446,26 +383,51 @@ $(document).ready(function () {
 			    break;
 		    case 'AttUIDSel':
 			    if ($(element).val() != '') {
-				    attUIDFilter = 'AND (manager_id = "' + $(element).val() + '" || att_uid = "' + $(element).val() + '") ';					
-				    attUID = $(element).val();
+                    attUIDFilter = 'AND (';
+                    $.each($(element).val(), function (key,value) {
+                        attUID = attUID + ' ' + attUID;
+                        if (key == 0) {
+                            attUIDFilter = attUIDFilter + '(manager_id = "' + value + '" || att_uid = "' + value + '")';
+                        } else {
+                            attUIDFilter = attUIDFilter + ' OR (manager_id = "' + value + '" || att_uid = "' + value + '")';
+                        }
+                    });
+                    attUID = attUID.trim();
+				    attUIDFilter = attUIDFilter + ') ';
 			    } else {
 				    attUIDFilter = '';
 				    attUID =  '';
 			    }
 			    break;
-		    case 'BusinessLine':
+		    case 'BusinessLineSel':
 			    if ($(element).val() != '') {
-				    businessLineFilter = 'AND business_line LIKE "%' + $(element).val() + '%" ';					
-				    businessLine = $(element).val();
+                    businessLineFilter = 'AND (';
+                    businessLine = $(element).val();
+                    $.each(businessLine, function (key,value) {
+                        if (key == 0) {
+                            businessLineFilter = businessLineFilter + 'business_line LIKE "%' + value + '%" ';
+                        } else {
+                            businessLineFilter = businessLineFilter + ' OR business_line LIKE "%' + value + '%"';
+                        }
+                    });
+				    businessLineFilter = businessLineFilter + ') ';
 			    } else {
 				    businessLineFilter = '';
 				    businessLine =  '';
 			    }
 			    break;
-		    case 'WorkSource':
+		    case 'WorkSourceSel':
 			    if ($(element).val() != '') {
-				    workSourceFilter = 'AND work_source LIKE "%' + $(element).val() + '%" ';
-				    workSource = $(element).val();
+                    workSourceFilter = 'AND (';
+                    workSource = $(element).val();
+                    $.each(workSource, function (key,value) {
+                        if (key == 0) {
+                            workSourceFilter = workSourceFilter + 'work_source LIKE "%' + value + '%"';
+                        } else {
+                            workSourceFilter = workSourceFilter + ' OR work_source LIKE "%' + value + '%"';
+                        }
+                    });
+				    workSourceFilter = workSourceFilter + ') ';
 			    } else {
 				    workSourceFilter = '';
 				    workSource =  '';
@@ -709,14 +671,25 @@ $(document).ready(function () {
 	    socket.emit('Request DB Config');
         $('div#main').show();
         $('div#overlay').hide();
-        $('select#AttUIDSel.chosen').chosen({
-            width: '100%',
-            allow_single_deselect: true
-        });
         $('select#ReportType.chosen').chosen({
             width: '100%',
             allow_single_deselect: true,
             disable_search: true
+        });
+        $('select#AttUIDSel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
+        });
+        $('select#BusinessLineSel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
+        });
+        $('select#WorkSourceSel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
         });
         $('div.initializationScreen').hide();
         $('#searchtype > label:first').addClass('active');
@@ -731,7 +704,7 @@ $(document).ready(function () {
         dbUser = data.dbConfig.user;
         dbPassword = data.dbConfig.password;
         dbName = data.dbConfig.database;
-    	var sql = 'SELECT DISTINCT(att_uid) AS ID, CONCAT(last_name, ", ", first_name," (", UCASE(att_uid), ")") AS NAME FROM duration_log_session UNION SELECT DISTINCT(manager_id), CONCAT(" MANAGER - ", UCASE(manager_id)) FROM duration_log_session ORDER BY NAME';
+    	var sql = 'SELECT DISTINCT(att_uid) AS Id, CONCAT(last_name, ", ", first_name," (", UCASE(att_uid), ")") AS Name FROM duration_log_session UNION SELECT DISTINCT(manager_id), CONCAT(" MANAGER - ", UCASE(manager_id)) FROM duration_log_session ORDER BY NAME';
 
         $.ajax({
             type: 'post',
@@ -748,16 +721,72 @@ $(document).ready(function () {
             if (!data.hasOwnProperty('ERROR')) {
 			    $.each(data, function (key, value) {
 			    	$('#AttUIDSel').append($('<option>', { 
-			    		value: value.ID,
-			    		text : value.NAME 
+			    		value: value.Id,
+			    		text : value.Name 
 			    	}));
 		    	});
 	    		$('select#AttUIDSel.chosen').trigger('chosen:updated');
 	    	} else {
 	    		$('select#AttUIDSel').remove();
 	    	}
-    	}).fail(function(data) {
+    	}).fail(function() {
     		$('select#AttUIDSel').remove();
+        });
+
+    	var sql = 'SELECT DISTINCT(business_line) AS BusinessLine FROM duration_log_session ORDER BY BusinessLine';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function(data) {
+            if (!data.hasOwnProperty('ERROR')) {
+			    $.each(data, function (key, value) {
+			    	$('#BusinessLineSel').append($('<option>', { 
+			    		value: value.BusinessLine,
+			    		text : value.BusinessLine 
+                    }));
+		    	});
+	    		$('select#BusinessLineSel.chosen').trigger('chosen:updated');
+	    	} else {
+	    		$('select#BusinessLineSelSel').remove();
+	    	}
+    	}).fail(function() {
+    		$('select#BusinessLineSel').remove();
+        });
+
+        var sql = 'SELECT DISTINCT(work_source) AS WorkType FROM duration_log_session ORDER BY WorkType';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function(data) {
+            if (!data.hasOwnProperty('ERROR')) {
+			    $.each(data, function (key, value) {
+			    	$('#WorkSourceSel').append($('<option>', { 
+			    		value: value.WorkType,
+			    		text : value.WorkType
+                    }));
+		    	});
+	    		$('select#WorkSourceSel.chosen').trigger('chosen:updated');
+	    	} else {
+	    		$('select#WorkSourceSel').remove();
+	    	}
+    	}).fail(function() {
+    		$('select#WorkSourceSel').remove();
     	});
     });
 		
