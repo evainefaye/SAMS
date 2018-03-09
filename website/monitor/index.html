@@ -15,6 +15,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" type="text/javascript" crossorigin="anonymous"></script>
     <!-- End Add Bootstrap -->
 
+	<!-- Begin Add chosen -->
+    <link href="stylesheets/chosen.css" rel="stylesheet" type="text/css" />   
+    <script src="scripts/chosen.jquery.js"></script>
+	<!-- end Add chosen -->
+
     <!-- Begin Add countdown -->
     <link href="stylesheets/jquery.countdown.css" rel="stylesheet"  type="text/css" />    
     <script src="scripts/jquery.plugin.min.js" type="text/javascript"></script>
@@ -41,15 +46,20 @@
     <script src="scripts/javascript.js" type="text/javascript"></script>
 </head>
 <body>
+    <div class='col-sm-12 text-center'>
+        <select id="environment">
+            <option value='fde'>DEVELOPMENT</option>
+            <option value="pre-prod">BETA</option>
+            <option value="prod">PRODUCTION</option>
+        </select>
+    </div>
+    <div class="initializationScreen">
+            ATTEMPTING TO CONNECT TO&nbsp;<b><span id="environment"></span></b>&nbsp;ENVIRONMENT....
+    </div>
+    
     <div class="col-sm-12">
         <div class="col-sm-3 col-sm-offset-1 text-center"><b>SERVER CREATED</b><br /><span id="serverStartTime">UNAVAILABLE (NOT CONNECTED)</span></div>
-        <div class="col-sm-4 text-center"><b>SERVER ENVIRONMENT</b><br />
-            <select id="environment">
-                <option value='fde'>DEVELOPMENT</option>
-                <option value="pre-prod">BETA</option>
-                <option value="prod">PRODUCTION</option>
-            </select>
-        </div>
+        <div class="col-sm-4">&nbsp;</div>
         <div id="supervisorFilter" style="display: none;" class="col-sm-4 text-center">
             <span><small><b>FILTER DISPLAY TO SUPERVISOR ATT UID'S BELOW</b></small></span><br />
             <input type=text name="SupervisorList" id="SupervisorList" size="60" style="color: black;">
@@ -57,10 +67,6 @@
     </div>
     <br />
     <br />
-    <br />
-    <div class="initializationScreen">
-        ATTEMPTING TO CONNECT TO&nbsp;<b><span id="environment"></span></b>&nbsp;ENVIRONMENT....
-    </div>
     <div class="mainScreen">
         <br class="clearfix" />
         <br />

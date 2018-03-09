@@ -71,7 +71,7 @@ $(document).ready(function () {
     });
 
     $('button#storeInfoButton').off('click.storeInfo').on('click.StoreInfo', function () {
-        var headerData = $('div[class="headerInfo"]').html();		
+        var headerData = $('div[class="headerInfo"]').html();
         var stepHistory = $('div[class="flowHistoryWrapper"]').html();
         var imageTimestamp = $('div.screenshotInfo').html();
         var imageData = $('img#SASHAScreenshot').prop('src');
@@ -91,8 +91,8 @@ $(document).ready(function () {
             dictionaryTimestamp: dictionaryTimestamp,
             dictionaryData: dictionaryData,
         });
-    });	
-	
+    });
+
     $('button#keepScreenshots').off('click.keepScreenshots').on('click.keepScreenshots', function () {
         socket.emit('Retain Screenshot Remote', {
             connectionId: window.SASHAClientId
@@ -183,9 +183,9 @@ $(document).ready(function () {
         var image_data = data.image_data;
         var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
         $('ul.slides').append(html);
-//        $('a.fancybox').attr('href',image_data);
-//        $('img.fancybox-image').attr('src', image_data);
-        
+        // $('a.fancybox').attr('href',image_data);
+        // $('img.fancybox-image').attr('src', image_data);
+
 
     });
 
@@ -244,8 +244,8 @@ $(document).ready(function () {
         stepDurationSeconds = ('00' + stepDurationSeconds).slice(-2);
         var stepDurationString = stepDurationHours + stepDurationMinutes + stepDurationSeconds;
         var html = '';
-        
-        if (FlowName != lastFlowName) {        
+
+        if (FlowName != lastFlowName) {
             html = html + '<tr><td class="flow text-left">' + FlowName + '</td>';
         } else {
             html = html + '<tr><td class="flow text-left">&nbsp</td>';
@@ -253,7 +253,7 @@ $(document).ready(function () {
         html = html + '<td class="step text-left">' + StepName + '</td>';
         html = html + '<td class="type text-left">' + StepType + '</td>';
         html = html + '<td class="formname text-left">' + FormName + '</td>';
-        html = html + '<td class="output text-left">&nbsp;</td>';        
+        html = html + '<td class="output text-left">&nbsp;</td>';
         lastFlowName = FlowName;
         html = html + '<td class="duration text-right">&nbsp</td></tr>';
         $('table#flowHistoryTable tbody td:last').html(stepDurationString);
@@ -277,7 +277,6 @@ $(document).ready(function () {
         }
     });
 
-    
     socket.on('Update Screenshot History', function(data) {
         var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
         var flow_name = data.flow_name;
@@ -327,7 +326,7 @@ $(document).ready(function () {
         $('img#SASHAScreenshot').attr('src', ImageURL).show();
         $('img#SASHAScreenshot').parent().css('background-image', 'none');
         $('a.fancybox.current').attr('href',ImageURL);
-//        $('img.fancybox-image').attr('src', ImageURL);
+        //$('img.fancybox-image').attr('src', ImageURL);
         var screenshotTime = new Date().toString();
         screenshotTime = toLocalTime(screenshotTime);
         $('div.screenshotInfo').html(screenshotTime).removeClass('hidden');
@@ -391,7 +390,7 @@ $(document).ready(function () {
     socket.on('Send Agent Inputs to Monitor', function(data) {
         var Output = data.Output;
         var html = '<table class="table-bordered">';
-        Object.keys(Output).forEach(function (key) { 
+        Object.keys(Output).forEach(function (key) {
             html += '<tr>';
             html += '<td style="padding: 3px;">' + key + '</td>';
             html += '<td style="padding: 3px;">' + Output[key] + '</td>';
@@ -462,7 +461,7 @@ let getSkillGroupInfo = function (skillGroup) {
     switch (skillGroup) {
     case 'TSC':
         // You may use the below to have an empty column space if desired:
-        // requestValue["blank"] == ''; 
+        // requestValue["blank"] == '';
         requestValue['VenueCode'] = 'Venue Code:';
         requestValue['VenueName'] = 'Venue Name:';
         requestValue['TicketNum'] = 'Ticket Number:';
@@ -515,7 +514,7 @@ let showFlowHistory = function(UserInfo) {
         var Output = outputHistory[0];
         var outputhtml = '<table class="table-bordered">';
         outputhtml += '<tr>';
-        Object.keys(Output).forEach(function (key) { 
+        Object.keys(Output).forEach(function (key) {
             outputhtml += '<td style="padding: 3px;">' + key + '</td>';
             outputhtml += '<td style="padding: 3px;">' + Output[key] + '</td>';
         });
@@ -546,11 +545,11 @@ let showFlowHistory = function(UserInfo) {
             var Output = outputHistory[i];
             var outputhtml = '<table class="table-bordered">';
 
-            Object.keys(Output).forEach(function (key) { 
-                outputhtml += '<tr>';                            
+            Object.keys(Output).forEach(function (key) {
+                outputhtml += '<tr>';
                 outputhtml += '<td style="padding: 3px;">' + key + '</td>';
                 outputhtml += '<td style="padding: 3px;">' + Output[key] + '</td>';
-                outputhtml += '</tr>';                
+                outputhtml += '</tr>';
             });
             outputhtml += '</table>';
         }
@@ -573,7 +572,7 @@ let showFlowHistory = function(UserInfo) {
             html += '<td class="step text-left">' + stepName + '</td>';
             html += '<td class="type text-left">' + stepType + '</td>';
             html += '<td class="formname text-left">' + formName + '</td>';
-            html += '<td class="output text-left">' + outputhtml + '</td>';            
+            html += '<td class="output text-left">' + outputhtml + '</td>';
             lastFlowName = flowName;
         }
     }

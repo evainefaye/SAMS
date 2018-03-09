@@ -6,13 +6,13 @@ var stepTimersInstance = new Object;
 var flowTimers = new Object;
 var flowTimersInstance = new Object;
 var sessionCounter = new Object;
- 
+
 var notifyStalledStepTime = 300000;
 var notifyStalledFlowTime = 1200000;
- 
+
 var db_config = {};
 global.con = '';
- 
+
 var argv = require('minimist')(process.argv.slice(2));
 var env = argv.e;
 switch(env) {
@@ -52,7 +52,7 @@ default:
     var database = 'sams_prod';
     break;
 }
- 
+
 if (useDB) {
     var mysql = require('mysql');
     var db_config = {
@@ -96,15 +96,15 @@ if (useDB) {
                 console.log(new Date().toString(),'Database: ' + database);
                 console.log(new Date().toString(),'Checking for invalid database records...');
                 var sql = 'DELETE FROM duration_log_step_automation WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
-                global.con.query(sql, function(err, result,fields) {
+                global.con.query(sql, function(err, result) {
                     console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_automation table');
                 });
                 var sql = 'DELETE FROM duration_log_step_manual WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
-                global.con.query(sql, function(err, result,fields) {
+                global.con.query(sql, function(err, result) {
                     console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_manual table');
                 });
                 var sql = 'DELETE FROM screenshots WHERE in_progress = "Y"';
-                global.con.query(sql, function(err, result,fields) {
+                global.con.query(sql, function(err, result) {
                     console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from screenshots table');
                 });
             }
@@ -112,17 +112,17 @@ if (useDB) {
     };
     connectDB(db_config);
 }
- 
+
 // Create Socket.IO Server listening on port designated by instance
 var io = require('socket.io').listen(port);
 console.log(new Date().toString(), 'SAMS ' + instance + ' opened on port ' + port);
 io.origins('*:*');
 io.sockets.on('connection', function (socket) {
- 
+
     // *** ITEMS TO DO WHEN CONNECTING ***
     // Store the socket ID, and store the connection in ActivityHistory
     socket.connectionId = socket.id;
- 
+
     // Request the connected client to announce its connection.
     // On the client side this function will share names but have different
     // functions based on it being a SASHA client, Monitor Client, or SASHA Detail Client
@@ -130,7 +130,7 @@ io.sockets.on('connection', function (socket) {
         ConnectionId: socket.connectionId,
         ServerStartTime: serverStartTime
     });
- 
+
     // Perform when any user disconnects
     socket.on('disconnect', function() {
         var connectionId = socket.connectionId;
@@ -251,7 +251,7 @@ io.sockets.on('connection', function (socket) {
             }
         }
     });
- 
+
     // Store SASHA User Information in SashaUsers Object
     // Add User to sasha room
     // Add User to list of SASHA users on monitor clients
@@ -285,7 +285,7 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
-   
+
     socket.on('Join Detail View Room', function(data) {
         var SmpSessionId = data.SmpSessionId;
         socket.join(SmpSessionId);
@@ -293,15 +293,15 @@ io.sockets.on('connection', function (socket) {
         if (roomCount) {
             var count = roomCount.length;
             if (count >1) {
- 
+
             }
         }
     });
- 
+
     socket.on('Register Monitor User', function() {
         socket.join('monitor');
     });
- 
+
     socket.on('Notify Server Received Skill Group', function(data) {
         var connectionId = socket.connectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -337,7 +337,7 @@ io.sockets.on('connection', function (socket) {
             ConnectionId: connectionId,
             UserInfo: userInfo
         });
-                               
+
         flowTimersInstance[connectionId] = 0;
         flowTimers[connectionId] = setInterval(function () {
             flowTimersInstance[connectionId]++;
@@ -373,7 +373,7 @@ io.sockets.on('connection', function (socket) {
             });
         }, notifyStalledStepTime);
     });
- 
+
     socket.on('Send SAMS Flow and Step', function(data) {
         var connectionId = socket.connectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -383,7 +383,7 @@ io.sockets.on('connection', function (socket) {
         var stepName = data.StepName;
         var stepType = data.StepType;
         var formName = data.FormName;
-        var userInfo = sashaUsers[connectionId];		
+        var userInfo = sashaUsers[connectionId];
         if (useDB && userInfo.SAMSWorkType != '') {
             var oldFlowName = userInfo.FlowName;
             var oldStepName = userInfo.StepName;
@@ -484,7 +484,7 @@ io.sockets.on('connection', function (socket) {
             }, notifyStalledStepTime);
         }
     });
-   
+
     socket.on('Alert Server of Stalled Session', function(data) {
         var connectionId = data.ConnectionId;
         if (typeof sashaUsers[connectionId] == 'undefined') {
@@ -495,7 +495,7 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
- 
+
     socket.on('Request Current Connection Data', function(data) {
         var connectionId = socket.connectionId;
         var activeTab = data.ActiveTab;
@@ -519,7 +519,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
- 
+
     socket.on('Request Client Detail from Server', function(data) {
         var clientId = data.ConnectionId;
         socket.join(clientId);
@@ -532,14 +532,14 @@ io.sockets.on('connection', function (socket) {
             UserInfo: userInfo
         });
     });
- 
+
     socket.on('Request SASHA ScreenShot from Server', function(data) {
         var connectionId = data.connectionId;
         io.emit('Request SASHA ScreenShot from SASHA', {
             ConnectionId: connectionId
         });
     });
- 
+
     socket.on('Send SASHA ScreenShot to Server', function(data) {
         var imageURL = data.ImageURL;
         var connectionId = socket.connectionId;
@@ -547,14 +547,14 @@ io.sockets.on('connection', function (socket) {
             ImageURL: imageURL
         });
     });
- 
+
     socket.on('Request SASHA Dictionary from Server', function(data) {
         var connectionId = data.connectionId;
         io.emit('Request SASHA Dictionary from SASHA', {
             ConnectionId: connectionId
         });
     });
- 
+
     socket.on('Send SASHA Dictionary to Server', function(data) {
         var dictionary = data.Dictionary;
         var connectionId = socket.connectionId;
@@ -562,7 +562,7 @@ io.sockets.on('connection', function (socket) {
             Dictionary: dictionary
         });
     });
- 
+
     socket.on('Request SASHA Skill Group Info from Server', function(data) {
         var connectionId = data.ConnectionId;
         var requestValue = data.RequestValue;
@@ -571,7 +571,7 @@ io.sockets.on('connection', function (socket) {
             ConnectionId: connectionId
         });
     });
- 
+
     socket.on('Send SASHA Skill Group Info to Server', function(data) {
         var resultValue = data.ResultValue;
         var connectionId = socket.connectionId;
@@ -579,7 +579,7 @@ io.sockets.on('connection', function (socket) {
             ResultValue: resultValue
         });
     });
- 
+
     socket.on('Send Agent Inputs to SAMS', function(data) {
         var connectionId = socket.connectionId;
         var output = data.Output;
@@ -592,7 +592,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
- 
+
     socket.on('Send User Message to Server', function(data) {
         var connectionId = data.ConnectionId;
         var broadcastText = data.BroadcastText;
@@ -603,12 +603,12 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
- 
+
     socket.on('Notify Server Session Closed', function (data) {
         var connectionId = data.ConnectionId;
         io.in(connectionId).emit('Notify Popup Session Closed');
     });
-               
+
     socket.on('Save Screenshot', function(data) {
         if (useDB) {
             var connectionId = socket.connectionId;
@@ -643,11 +643,10 @@ io.sockets.on('connection', function (socket) {
                         });
                     }
                 }
-                       
             }
         }
     });
- 
+
     socket.on('Get Listing', function (data) {
         if (useDB) {
             var includeInProgress = data.includeInProgress;
@@ -671,7 +670,7 @@ io.sockets.on('connection', function (socket) {
             });
         }
     });
- 
+
     socket.on('Get ScreenShots', function(data) {
         if (useDB) {
             var smp_session_id = data.smp_session_id;
@@ -725,11 +724,12 @@ io.sockets.on('connection', function (socket) {
                 });
             }
         }
-    });      
+    });
 
     socket.on('Request DB Config', function() {
         socket.emit('Return DB Config', {
-            dbConfig: db_config
+            dbConfig: db_config,
+            useDB: useDB
         });
     });
 });

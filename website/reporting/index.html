@@ -28,7 +28,8 @@
         <link href="stylesheets/chosen.css" rel="stylesheet" type="text/css" />   
         <script src="scripts/chosen.jquery.js"></script>
 		<!-- end Add chosen -->
-
+		
+        <script type="text/javascript" src="scripts/jquery.popupoverlay.js"></script>		
         <script type="text/javascript" src="scripts/jquery.stickytableheaders.js"></script>
 		
         <script type="text/javascript" src="scripts/jquery.flexslider.js"></script>
@@ -46,9 +47,7 @@
         <script src="scripts/javascript.js"></script>
     </head>
     <body>
-        <div class="overlay">overlay
-            <div id="loading-img"></div>
-        </div>
+        <div class="overlay"></div>
 		<div class='col-sm-12 text-center'>
             <select id="environment">
                 <option value='fde'>DEVELOPMENT</option>
@@ -59,20 +58,21 @@
         <div class="initializationScreen">
             ATTEMPTING TO CONNECT TO&nbsp;<b><span id="environment"></span></b>&nbsp;ENVIRONMENT....
         </div>
-        <div id='main'>
-            <p>
-                <center><h2>SAMS HISTORICAL DATA REPORTING</h2></center>
-            </p>
-            <br>
+        <div id='main' class="col-md-12">
+            <p><center><h2>SAMS HISTORICAL DATA REPORTING / SCREENSHOTS</h2></center></p>
+            <br />
             <div class='col-md-12'>
-                <div class='col-md-3 col-md-offset-1'>
-                    <select id='ReportType' class='chosen' data-placeholder='SELECT A REPORT'>
+                <div class='col-md-3'>
+                    <select id='ReportType' class='chosen' data-placeholder='SELECT A REPORT / ACTION'>
 						<option value=''></option>
 						<optgroup label='SUMMARIZATION REPORTS'>
 							<option value='SlowAutomationSummary'>MOTIVE STEPS OVER XXX (BY FLOWNAME)</option>
 							<option value='SlowManualSummary'>AGENT STEPS OVER XXX (BY FLOWNAME/STEPNAME)</option>						
 							<option value='AgentSummary'>AGENT PERFORMANCE (BY AGENT)</option>
 							<option value='AgentPerformance'>AGENT PERFORMANCE (BY SESSION)</option>
+                        </optgroup>
+						<optgroup label='SCREENSHOTS'>
+							<option value='Screenshots'>VIEW SCREENSHOT HISTORY</option>
 						</optgroup>
 						<optgroup label='RAW DATA'>
 							<option value='AllAutomation'>MOTIVE STEP DATA</option>
@@ -81,31 +81,37 @@
 						</optgroup>
                     </select>
                 </div>
-                <div class='col-md-2 calendarinput'>
+                <div class='col-md-3 calendarinput'>
                         <input type='text' id='daterange' class='form-control' placeholder='SELECT DATE RANGE TO SEARCH' />
                         <i class='glyphicon white glyphicon-calendar fa fa-calendar'></i>                               
                 </div>
                 <div class='col-md-4'>
-                    <input class='hideFilter' type='number' id ='AutomationStepThreshold' data-ph='MOTIVE STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) MOTIVE STEP TIME THRESHOLD IN SECONDS' />
-                    <input class='hideFilter' type='number' id ='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT: 1200)' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' ) />
-                    <input class='hideFilter' type='number' id='ManualStepThreshold' data-ph='AGENT STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) AGENT STEP THRESHOLD IN SECONDS' />
+                    <input class='hideFilter' type='text' id ='AutomationStepThreshold' data-ph='MOTIVE STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) MOTIVE STEP TIME THRESHOLD IN SECONDS' />
+                    <input class='hideFilter' type='text' id='ManualStepThreshold' data-ph='AGENT STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) AGENT STEP THRESHOLD IN SECONDS' />
+                    <input class='hideFilter' type='text' id ='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT: 1200)' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' ) />
 					<select id='AttUIDSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE ATTUIDS'>
 						<option value = ''></option>
                     </select>
-					<select id='BusinessLineSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MOREBUSINESS LINES'>
+					<select id='BusinessLineSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE BUSINESS LINES'>
 						<option value = ''></option>
 					</select>
 					<select id='WorkSourceSel' multiple class='chosen showFilteroptional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE WORK TYPES'>
 						<option value = ''></option>
 					</select>
+                    <input class='hideFilter' type='text' id ='SessionId' data-ph='SMP SESSION ID' data-opt-ph='(OPTIONAL) SMP SESSION ID' />
                 </div>
                 <div clas='col-sm-1'>
                     <input class='btn btn-primary' type='button' id='RequestReport' value='REQUEST REPORT' />
                 </div>
             </div>
-            <br />
-            <br />
         </div>
-        <div id='reportBody'></div>
+        <div id='reportBody' class="col-md-12"></div>
+		<div class="container col-md-8 col-md-offset-2">
+			<div class="headerData col-md-12"></div>
+			<div class="flexslider col-md-12">
+				<ul class="slides">
+				</ul>
+			</div>
+		</div>
     </body>
 </html>
