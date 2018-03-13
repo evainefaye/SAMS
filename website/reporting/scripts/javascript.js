@@ -62,57 +62,69 @@ $(document).ready(function () {
             $('select#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional').val('');
             $('select#BusinessLineSel').removeClass('showFilter').addClass('hideFilter optional');
             $('select#WorkSourceSel').removeClass('showFilter').addClass('hideFilter optional');
+			$('select#TaskTypeSel').removeClass('showFilter').addClass('hideFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
         case 'SlowAutomationSummary':
 	    	var phText = $('input#AutomationStepThreshold').attr('data-ph');
-            $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
+            $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter').val('').prop('placeholder', phText);
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
         case 'SlowManualSummary':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#ManualStepThreshold').attr('data-ph');
-            $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter').prop('placeholder', phText).val('');
+            $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter').val('').prop('placeholder', phText);
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
         case 'AllAutomation':
 		    var phText = $('input#AutomationStepThreshold').attr('data-opt-ph');
-            $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+            $('input#AutomationStepThreshold').removeClass('hideFilter').addClass('showFilter optional').val('').prop('placeholder', phText);
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
         case'AllManual':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter').val('');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#ManualStepThreshold').attr('data-opt-ph');
-		    $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+		    $('input#ManualStepThreshold').removeClass('hideFilter').addClass('showFilter optional').val('').prop('placeholder', phText);
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
 	    case 'AllWorkflow':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
 		    var phText = $('input#SessionThreshold').attr('data-opt-ph');
-		    $('input#SessionThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+		    $('input#SessionThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText).val('');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter');
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
 		    break;
         case 'AgentSummary':
             var phText = $('input#AutomationStepThreshold').attr('data-ph');
@@ -124,7 +136,9 @@ $(document).ready(function () {
             $('selectAttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
         case 'AgentPerformance':
             var phText = $('input#AutomationStepThreshold').attr('data-ph');
@@ -135,7 +149,9 @@ $(document).ready(function () {
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
             break;
 	    case 'Screenshots':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
@@ -144,12 +160,24 @@ $(document).ready(function () {
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
+            $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             var phText = $('input#SessionId').attr('data-opt-ph');
             $('input#SessionId').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+            break;
+	    case 'PerformanceSummary':
+            $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
+            $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter optional');
+            $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#BusinessLineSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#WorkSourceSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#TaskTypeSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
+			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').hide();
             break;
         }
     });
-
     $('#daterange').daterangepicker({
         'showDropdowns': true,
         'timePicker': true,
@@ -207,6 +235,7 @@ $(document).ready(function () {
     var attUID = '';
     var BusinessLine = '';
     var WorkSource = '';
+	var TaskType = '';
     var titleText = '';
 
     $('input#RequestReport').off('click.request').on('click.request', function () {
@@ -357,6 +386,9 @@ $(document).ready(function () {
 	    case 'Screenshots':
 		    valid = true;
 		    break;
+		case 'PerformanceSummary':
+			valid = true;
+			break;
 	    }
 	    if (!valid) {
 		    return;
@@ -500,6 +532,31 @@ $(document).ready(function () {
 				    workSource =  '';
 			    }
 			    break;
+			case 'TaskTypeSel':
+			    if ($(element).val() != '') {
+                    taskTypeFilter = 'AND (';
+				    if (parameters == '') {
+					    parameters = 'TASK&nbsp;TYPE: [';
+				    } else {
+					    parameters = parameters + '&nbsp;TASK&nbsp;TYPE:&nbsp;[';
+				    }
+                    taskType = $(element).val();
+                    $.each(taskType, function (key,value) {
+                        if (key == 0) {
+                            taskTypeFilter = taskTypeFilter + 'task_type = "' + value + '"';
+						    parameters = parameters + value;
+                        } else {
+                            taskTypeFilter = taskTypeFilter + ' OR task_type = "' + value + '"';
+						    parameters = parameters + ', ' + value;
+                        }
+                    });
+				    taskTypeFilter = taskTypeFilter + ') ';
+				    parameters = parameters + ']';
+			    } else {
+				    taskTypeFilter = '';
+				    taskType =  '';
+			    }
+			    break;
 		    case 'SessionId':
 			    if ($(element).val() != '') {
                     sessionIdFilter = ' AND smp_session_id LIKE "%' + $(element).val().trim() + '%" ';
@@ -512,11 +569,11 @@ $(document).ready(function () {
         switch(reportType) {
         case 'SlowAutomationSummary':
    		    titleText = 'MOTIVE STEPS THAT HAVE ONE OR MORE MOTIVE STEP TAKING ' + automationStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT mainQuery.flow_name AS flow_name, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_automation mainQuery WHERE in_progress = "N" ' + automationStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter +  ' GROUP BY flow_name ORDER BY flow_name ASC';
+            var sql = 'SELECT mainQuery.flow_name AS flow_name, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_automation mainQuery WHERE in_progress = "N" ' + automationStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY flow_name ORDER BY flow_name ASC';
             break;
         case 'SlowManualSummary':
 	        titleText = 'AGENT STEPS THAT HAVE ONE OR MORE AGENT STEP TAKING ' + manualStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss')  + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT mainQuery.flow_name AS flow_name, mainQuery.step_name,(SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_manual mainQuery WHERE in_progress = "N" ' + manualStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter +  ' GROUP BY CONCAT(flow_name, step_name) ORDER BY flow_name ASC, step_name ASC';
+            var sql = 'SELECT mainQuery.flow_name AS flow_name, mainQuery.step_name,(SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_manual mainQuery WHERE in_progress = "N" ' + manualStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY CONCAT(flow_name, step_name) ORDER BY flow_name ASC, step_name ASC';
             break;
         case 'AllAutomation':
 		    if (parameters == '') {
@@ -524,7 +581,7 @@ $(document).ready(function () {
 		    } else {		
 			    titleText = 'MOTIVE STEPS THAT TAKING ' + automationStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
 		    }
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) as work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + automationStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter +  ' ORDER BY start_time ASC';
+            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) as work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + automationStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' ORDER BY start_time ASC';
             break;
         case 'AllManual':
 		    if (parameters == '') {
@@ -532,7 +589,7 @@ $(document).ready(function () {
 		    } else {
 			    titleText = 'AGENT STEPS TAKING ' + manualStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
 		    }
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + manualStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter +  'ORDER BY start_time';
+            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + manualStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + 'ORDER BY start_time';
             break;
         case 'AllWorkflow':
 		    if (parameters == '') {
@@ -540,20 +597,22 @@ $(document).ready(function () {
 		    } else {
 			    titleText = 'WORKFLOW SESSION DATA FOR SESSIONS TAKING ' + sessionThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss')  + '<br /><small><i>' + parameters + '</i></small>';
 		    }
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Availalble", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionThresholdFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter +  'ORDER BY start_time';
+            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionThresholdFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + 'ORDER BY start_time';
             break;
         case 'AgentSummary':
             titleText = 'WORKFLOW SUMMARY BY AGENT FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS agent_name, att_uid, manager_id, SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS session_average, COUNT(*) AS count_completed, (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_slow_workflow, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_automation, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_manual FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter +  ' GROUP BY att_uid ORDER BY agent_name';
+            var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS agent_name, att_uid, manager_id, SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS session_average, COUNT(*) AS count_completed, (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_slow_workflow, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_automation, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_manual FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY att_uid ORDER BY agent_name';
             break;
         case 'AgentPerformance':
             titleText = 'AGENT PERFORMANCE SUMMARY FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS session_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, manager_id, work_source, business_line, task_type,(SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + automationStepThreshold + '") AS automation_count_within, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + automationStepThreshold + '") AS automation_time_within, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + manualStepThreshold + '") AS manual_count_within, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + manualStepThreshold + '") AS manual_time_within, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + automationStepThreshold + '") AS automation_count_exceeded, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + automationStepThreshold + '") AS automation_time_exceeded, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + manualStepThreshold + '") AS manual_count_exceeded, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + manualStepThreshold + '") AS manual_time_exceeded FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + ' ORDER BY agent_name';
+            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS session_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, manager_id, work_source, business_line, task_type,(SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + automationStepThreshold + '") AS automation_count_within, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + automationStepThreshold + '") AS automation_time_within, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + manualStepThreshold + '") AS manual_count_within, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds <"' + manualStepThreshold + '") AS manual_time_within, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + automationStepThreshold + '") AS automation_count_exceeded, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + automationStepThreshold + '") AS automation_time_exceeded, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + manualStepThreshold + '") AS manual_count_exceeded, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(SUM(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.smp_session_id = mainQuery.smp_session_id AND elapsed_seconds >="' + manualStepThreshold + '") AS manual_time_exceeded FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' ORDER BY agent_name';
             break;
 	    case 'Screenshots':
             titleText = 'WORKFLOW SESSION DATA FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>DOUBLE CLICK ON A ROW FROM THE LIST TO VIEW THE ASSOCIATED SCREENSHOTS</i></small>';
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Availalble", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionIdFilter + attUIDFilter + workSourceFilter + businessLineFilter +  'ORDER BY start_time';
+            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionIdFilter + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' ORDER BY start_time';
 		    break;
+		case 'PerformanceSummary':
+			titleText = 'WORKFLOW COMPLETION COUNT BY CATEGORY FOR WORKFLOWS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');	
         }
         $.ajax({
             type: 'post',
@@ -563,7 +622,10 @@ $(document).ready(function () {
                 databaseUser: dbUser,
                 databasePW: dbPassword,
                 databaseName: dbName,
-                sql: sql
+                sql: sql,
+				startDate: startDate,
+				endDate: endDate,
+				reportType: reportType
             },
             dataType: 'json',
         }).done(function(data) {
@@ -580,6 +642,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=9 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'SlowManualSummary':
 			    var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false"></th><th colspan=2 class="sorter-false text-center border-bottom">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -592,6 +655,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
 			    break;
             case 'AllAutomation':
                 var html ='<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false" >START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">MOTIVE STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th></tr></thead><tbody>';
@@ -604,6 +668,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'AllManual':
 			    var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">AGENT STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th></tr></thead><tbody>';
@@ -616,6 +681,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=12 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'AllWorkflow':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
@@ -628,6 +694,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'AgentSummary':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW<br />DURATION<br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />MOTIVE STEP<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center filter-false">AVG DURATION</th><th class="text-center">COUNT</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -638,6 +705,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'AgentPerformance':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=7 class="text-center sorter-false">WORKFLOW DATA</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />< ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEPS<br />< ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center filter-false">START TIME</th><th class="text-left">AGENT NAME</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -675,6 +743,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=22 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
             case 'Screenshots':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
@@ -687,21 +756,65 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
+				html = html + '</tbody></table>';
                 break;
-
+			case 'PerformanceSummary':
+                if (!data.hasOwnProperty('ERROR')) {
+					var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5>';
+				    $.each(data, function (reportType, reportData) {
+						switch (reportType) {
+						case 'CountByAgent':
+							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY AGENT</th></tr><tr><th class="sorter-false filter-false text-center">AGENT NAME</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
+							break;
+						case 'CountByBusinessLine':
+							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY BUSINESS LINE</th></tr><tr><th class="sorter-false filter-false text-center">BUSINESS LINE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
+							break;
+						case 'CountByWorkSource':
+							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY WORK TYPE</th></tr><tr><th class="sorter-false filter-false text-center">WORK TYPE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
+							break;
+						case 'CountByTaskType':
+							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY TASK TYPE</th></tr><tr><th class="sorter-false filter-false text-center">TASK TYPE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
+							break;
+						}
+						$.each(reportData, function (index, reportRow) {
+							switch (reportType) {
+							case 'TotalCount':
+								html = html + '<div class="text-center"><h3>TOTAL COMPLETED WORKFLOWS: ' + reportRow.count + '</h3></div>';
+								break;
+							case 'CountByAgent':
+								html = html + '<tr><td class="text-right">' + reportRow.agent_name + '</td><td class="text-right">' + reportRow.agent_name_count + '</td></tr>'
+								break;
+							case 'CountByBusinessLine':
+								html = html + '<tr><td class="text-right">' + reportRow.business_line + '</td><td class="text-right">' + reportRow.business_line_count + '</td></tr>'
+								break;
+							case 'CountByWorkSource':
+								html = html + '<tr><td class="text-right">' + reportRow.work_source + '</td><td class="text-right">' + reportRow.work_source_count + '</td></tr>'
+								break;
+							case 'CountByTaskType':
+								html = html + '<tr><td class="text-right">' + reportRow.task_type + '</td><td class="text-right">' + reportRow.task_type_count + '</td></tr>'
+								break;
+							}
+						});
+						if (reportType != 'TotalCount') {
+							html = html + '</tbody></table>';
+						}
+					});
+				} else {
+                    html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
+				}
+				break;
             }
-            html = html + '</tbody></table>';
             $('div#reportBody').html(html);
             $('table#results').stickyTableHeaders();
             if (!data.hasOwnProperty('ERROR')) {
-                $('table#results').tablesorter({
+                $('table#results, table.results').tablesorter({
                     theme: 'custom',
                     sortReset: true,
                     ignoreCase: true,
                     widgets: ['zebra', 'filter']
                 });
             } else {
-                $('table#results').tablesorter({
+                $('table#results, table.results').tablesorter({
                     theme: 'custom',
                     sortReset: true,
                     ignoreCase: true,
@@ -719,7 +832,7 @@ $(document).ready(function () {
 			    subQuery('manual',smp_session_id, compare);
 		    });
 	    }).fail(function () {
-		    alert('Request Timed out');
+		    alert('Request Timed Out');
             $('div.overlay').hide();
             $('input, select').attr('disabled', false);
 	    });
@@ -755,6 +868,11 @@ $(document).ready(function () {
             disable_search_threshold: 10
         });
         $('select#WorkSourceSel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
+        });
+        $('select#TaskTypeSel.chosen').chosen({
             width: '100%',
             allow_single_deselect: true,
             disable_search_threshold: 10
@@ -860,6 +978,33 @@ $(document).ready(function () {
 	    	}
     	}).fail(function() {
     		$('select#WorkSourceSel').remove();
+    	});
+        var sql = 'SELECT DISTINCT(task_type) AS TaskType FROM duration_log_session ORDER BY TaskType';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function(data) {
+            if (!data.hasOwnProperty('ERROR')) {
+			    $.each(data, function (key, value) {
+			    	$('#TaskTypeSel').append($('<option>', {
+			    		value: value.TaskType,
+			    		text : value.TaskType
+                    }));
+		    	});
+	    		$('select#TaskTypeSel.chosen').trigger('chosen:updated');
+	    	} else {
+	    		$('select#TaskTypeSel').remove();
+	    	}
+    	}).fail(function() {
+    		$('select#TaskTypeSel').remove();
     	});
     });
 

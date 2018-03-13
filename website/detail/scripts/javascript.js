@@ -38,6 +38,7 @@ $(document).ready(function () {
     window.socket = io.connect(socketURL);
 
     socket.on('connect', function () {
+	    socket.emit('Request DB Config');
         window.SASHAClientId = window.connectionId;
         socket.emit('Request Client Detail from Server', {
             ConnectionId: window.connectionId
@@ -316,7 +317,7 @@ $(document).ready(function () {
 
     socket.on('No Such Client', function () {
         $('body').empty();
-        $('body').append('<div class="header text-center"><span class="data">SELECTED SASHA FLOW NOT IN PROGRESS</span></div>');
+        $('body').append('<div class="header text-center"><span class="data">SELECTED SASHA SESSION NOT AVAILABLE</span></div>');
         socket.disconnect();
         setTimeout(function() { window.close(); }, AutoRefresh * 1000);
     });
@@ -409,6 +410,54 @@ $(document).ready(function () {
             $('button#dictionary-button').remove();
         }
     });
+
+/*
+    socket.on('Return DB Config', function (data) {
+        dbHost = data.dbConfig.host;
+        dbUser = data.dbConfig.user;
+        dbPassword = data.dbConfig.password;
+        dbName = data.dbConfig.database;
+	    useDB = data.useDB;
+        $('div#slides').hide();
+        if ($('.flexcontainer').hasClass('pending')) {
+            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+            $('.flexcontainer').removeClass('pending setHeight');
+        }
+
+
+	    if (!useDB) {
+        var screenshot_time = moment().format('MM/DD/YYYY HH:mm:ss');
+        var html = '<li><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />NO DATABASE ACCESS.  ONLY FUTURE SCREENSHOTS WILL SHOW HERE<p></li>';
+        $('ul.slides').append(html);
+        $('.flexslider').flexslider({
+            controlsContainer: '.flexslider',
+            animation: 'slide',
+            animationLoop: false,
+            slideshow: false,
+            directionNav: true,
+            prevText: 'Previous',
+            nextText: 'Next'
+        });
+        $('img.makefancybox').not('.current').each(function(){
+            var src = $(this).attr('src');
+            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+            $(this).wrap(a);
+            $('a.fancybox').fancybox({
+                titlePositon: 'inside'
+            });
+            $(this).removeClass('makefancybox');
+        });
+        $('img.fancybox').off('click').on('click',function () {
+            var src = $(this).attr('src');
+            $('img.fancybox-image').attr('src',src);
+        });
+        if (typeof $('.flexslider').data('flexslider') == 'object') {
+            $('.flexslider.pending').removeClass('pending');
+        }
+        $('div.flexslider').show();
+		}
+    });
+*/
 });
 
 let toLocalTime = function (timestamp) {
@@ -584,4 +633,3 @@ let showFlowHistory = function(UserInfo) {
     $('table#flowHistoryTable > tbody > tr:even').addClass('stripe');
     window.lastFlowName = flowName;
 };
-
