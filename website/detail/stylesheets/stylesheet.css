@@ -9,7 +9,8 @@ table {
     width: 100%;
 }
 
-table tr, td {
+table tr,
+td {
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -17,7 +18,7 @@ table tr, td {
 .center {
     margin-left: auto;
     margin-right: auto;
-    }
+}
 
 .screenshot {
     display: block;
@@ -45,7 +46,6 @@ table tr, td {
 .dictionary {
     max-height: 320px;
     overflow-y: auto;
-
 }
 
 .dictionaryInfo {
@@ -65,19 +65,24 @@ table tr, td {
     padding-left: 1em;
 }
 
-.noborder, .noborder tr, .noborder th, .noborder.td {
+.noborder,
+.noborder tr,
+.noborder th,
+.noborder.td {
     border-collapse: collapse;
     border: none;
     width: 100%;
 }
 
 .row {
-    display: flex; /* equal height of the children */
+    display: flex;
+    /* equal height of the children */
     margin: 3px;
 }
 
 .col {
-    flex: 1; /* additionally, equal width */
+    flex: 1;
+    /* additionally, equal width */
     padding: 1em;
     width: 50%;
     max-width: 50%;
@@ -91,7 +96,6 @@ table tr, td {
     background-repeat: no-repeat;
     background-position: center;
 }
-
 
 .header {
     padding: 3em 3em 1em 3em;
@@ -143,7 +147,6 @@ table tr, td {
     font-weight: bold;
 }
 
-
 .flowHistoryWrapper {
     text-transform: uppercase;
     background-color: #0c2577;
@@ -160,11 +163,11 @@ table tr, td {
 }
 
 .stripe {
-	background-color: #0547ac;
+    background-color: #0547ac;
 }
 
 table#flowHistoryTable tbody td {
-	padding: .1em .5em .1em .5em;
+    padding: .1em .5em .1em .5em;
     font-size: 80%;
     vertical-align: top;
 }
@@ -181,7 +184,7 @@ div#autoclosediv {
     left: 5px;
     top: 5px;
     font-size: 80%;
-	width: 100%;
+    width: 100%;
 }
 
 textarea#pushMessage {
@@ -192,53 +195,49 @@ textarea#pushMessage {
     resize: vertical;
 }
 
-
 button#pushMessageButton {
-    float:right;
+    float: right;
     margin: 0 0 2% 0;
-    background-color:  #0547ac;
+    background-color: #0547ac;
 }
 
 button#storeInfoButton {
-	position: absolute;
-	right: 20px;
-    background-color:  #0547ac;
+    position: absolute;
+    right: 20px;
+    background-color: #0547ac;
 }
 
 button#keepScreenshots {
-	position: absolute;
-	right: 20px;
-	top: 25px;
-    background-color:  #0547ac;
+    position: absolute;
+    right: 20px;
+    top: 25px;
+    background-color: #0547ac;
 }
 
 a.fancybox img {
     border: none;
-    box-shadow: 0 1px 7px rgba(0,0,0,0.6);
-} 
-
-
+    box-shadow: 0 1px 7px rgba(0, 0, 0, 0.6);
+}
 
 .flex-caption {
     width: 96%;
     padding: 2%;
     left: 0;
     bottom: 0;
-    background: rgba(0,0,0,.5);
+    background: rgba(0, 0, 0, .5);
     color: #fff;
     text-shadow: 0 -1px 0 rgba(214, 32, 32, 0.3);
-  }
+}
 
-  .flexslider .slides > li {
+.flexslider .slides>li {
     display: none;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 }
- 
+
 .flexslider .slides img {
     width: 100%;
     display: block;
- 
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
@@ -252,10 +251,9 @@ a.fancybox img {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
- 
-    -webkit-box-shadow: 0px 1px 1px rgba(0,0,0, .2);
-    -moz-box-shadow: 0px 1px 1px rgba(0,0,0, .2);
-    box-shadow: 0px 1px 1px rgba(0,0,0, .2); 
+    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .2);
+    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .2);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, .2);
 }
 
 .flex-container {
@@ -263,8 +261,10 @@ a.fancybox img {
     min-width: 150px;
     max-width: 1200px;
 }
- 
-.flexslider .slides { zoom: 1; }
+
+.flexslider .slides {
+    zoom: 1;
+}
 
 table#header {
     width: 100%;
@@ -275,67 +275,79 @@ img#SashaScreenShot {
     width: 100%;
 }
 
-
 .styled-select-environment {
-   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-   height: 29px;
-   overflow: hidden;
-   width: 130px;
-   margin:auto;
+    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
+    height: 29px;
+    overflow: hidden;
+    width: 130px;
+    margin: auto;
 }
+
 .styled-select-environment select {
-   background: transparent;
-   border: none;
-   font-size: 14px;
-   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE */
-   width: 158px;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    height: 29px;
+    padding: 5px;
+    /* If you add too much padding here, the options won't show in IE */
+    width: 158px;
 }
+
 .styled-select-report {
-   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
-   height: 29px;
-   overflow: hidden;
-   width: 380px;
-   margin:auto;
+    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
+    height: 29px;
+    overflow: hidden;
+    width: 380px;
+    margin: auto;
 }
+
 .styled-select-report select {
-   background: transparent;
-   border: none;
-   font-size: 14px;
-   height: 29px;
-   padding: 5px; /* If you add too much padding here, the options won't show in IE */
-   width: 408px;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    height: 29px;
+    padding: 5px;
+    /* If you add too much padding here, the options won't show in IE */
+    width: 408px;
 }
 
 .semi-square {
-   -webkit-border-radius: 5px;
-   -moz-border-radius: 5px;
-   border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
+
 .blue {
-	background-color: #3b8ec2;
+    background-color: #3b8ec2;
 }
+
 .blue select {
-	color: #fff;
+    color: #fff;
 }
 
-::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-	font-size: 8px;
-	color: black;
-}
-::-moz-placeholder { /* Firefox 19+ */
-	font-size: 8px;
-	color: black;	
-}
-:-ms-input-placeholder { /* IE 10+ */
-	font-size: 8px;
-	color: black;	
-}
-:-moz-placeholder { /* Firefox 18- */
-	font-size: 8px;
-	color: black;
+::-webkit-input-placeholder {
+    /* Chrome/Opera/Safari */
+    font-size: 8px;
+    color: black;
 }
 
+::-moz-placeholder {
+    /* Firefox 19+ */
+    font-size: 8px;
+    color: black;
+}
+
+:-ms-input-placeholder {
+    /* IE 10+ */
+    font-size: 8px;
+    color: black;
+}
+
+:-moz-placeholder {
+    /* Firefox 18- */
+    font-size: 8px;
+    color: black;
+}
 
 div.footerData {
     margin-top: 5px;

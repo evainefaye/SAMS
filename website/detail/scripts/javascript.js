@@ -15,7 +15,9 @@ $(document).ready(function () {
         if (typeof socket != 'undefined') {
             socket.disconnect();
         }
-        setTimeout(function() { window.close(); }, AutoRefresh * 1000);
+        setTimeout(function () {
+            window.close();
+        }, AutoRefresh * 1000);
         Cookies.remove('connectionId');
         throw new Error('No Environment or Connection Id set');
     }
@@ -23,34 +25,33 @@ $(document).ready(function () {
 
     var serverAddress = 'http://10.100.49.77';
     switch (environment) {
-    case 'fde':
-        var socketURL = serverAddress + ':5510';
-        break;
-    case 'pre-prod':
-        var socketURL = serverAddress + ':5520';
-        break;
-    case 'prod':
-        var socketURL = serverAddress + ':5530';
-        break;
-    default:
-        var socketURL = serverAddress + ':5530';
-        break;
+        case 'fde':
+            var socketURL = serverAddress + ':5510';
+            break;
+        case 'pre-prod':
+            var socketURL = serverAddress + ':5520';
+            break;
+        case 'prod':
+            var socketURL = serverAddress + ':5530';
+            break;
+        default:
+            var socketURL = serverAddress + ':5530';
+            break;
     }
     // Initialize variables
     window.socket = io.connect(socketURL);
 
     socket.on('connect', function () {
-	    socket.emit('Request DB Config');
+        socket.emit('Request DB Config');
         window.SASHAClientId = window.connectionId;
         socket.emit('Request Client Detail from Server', {
             ConnectionId: window.connectionId
         });
     });
 
-    socket.on('disconnect', function () {
-    });
+    socket.on('disconnect', function () {});
 
-    $('img.fancybox').each(function(){
+    $('img.fancybox').each(function () {
         var src = $(this).attr('src');
         var a = $('<a href="#" class="fancybox current"></a>').attr('href', src);
         $(this).wrap(a);
@@ -60,9 +61,9 @@ $(document).ready(function () {
     });
 
     $('button#dictionary-button').off('click').on('click', function () {
-	    $('div.dictionary').html('<ul id="dict" class="treeview-black"></ul>');
-	    $('#dictionary-button').addClass('hidden');
-	    $('div.dictionaryInfo').addClass('hidden');
+        $('div.dictionary').html('<ul id="dict" class="treeview-black"></ul>');
+        $('#dictionary-button').addClass('hidden');
+        $('div.dictionaryInfo').addClass('hidden');
         reloadDictionary();
     });
 
@@ -112,7 +113,7 @@ $(document).ready(function () {
         var attUID = UserInfo.AttUID;
         var agentName = UserInfo.FullName;
         var smpSessionId = UserInfo.SmpSessionId;
-	    requestHistoricalImages(smpSessionId);
+        requestHistoricalImages(smpSessionId);
         var skillGroup = UserInfo.SkillGroup;
         var sessionStartTime = UserInfo.SessionStartTime;
         var flowName = UserInfo.FlowName;
@@ -239,10 +240,10 @@ $(document).ready(function () {
         var flowHistory = UserInfo.FlowHistory;
         var stepTime = UserInfo.StepTime;
         var itemCount = flowHistory.length;
-        var StepType = UserInfo.StepTypeHistory[itemCount-1];
-        var FormName = UserInfo.FormNameHistory[itemCount-1];
-        var lastFlowName = flowHistory[itemCount-2];
-        var stepDuration = stepTime[itemCount-1] - stepTime[itemCount-2];
+        var StepType = UserInfo.StepTypeHistory[itemCount - 1];
+        var FormName = UserInfo.FormNameHistory[itemCount - 1];
+        var lastFlowName = flowHistory[itemCount - 2];
+        var stepDuration = stepTime[itemCount - 1] - stepTime[itemCount - 2];
         var stepDurationHours = Math.floor(stepDuration / 3600);
         stepDuration = stepDuration - stepDurationHours * 3600;
         var stepDurationMinutes = Math.floor(stepDuration / 60);
@@ -286,7 +287,7 @@ $(document).ready(function () {
         }
     });
 
-    socket.on('Update Screenshot History', function(data) {
+    socket.on('Update Screenshot History', function (data) {
         var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
         var flow_name = data.flow_name;
         var step_name = data.step_name;
@@ -308,7 +309,7 @@ $(document).ready(function () {
             $('.flexslider').data('flexslider').addSlide(html);
         }
         $('.flexslider.pending').removeClass('pending');
-        $('img.makefancybox').not('.current').each(function(){
+        $('img.makefancybox').not('.current').each(function () {
             var src = $(this).attr('src');
             var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
             $(this).wrap(a);
@@ -327,7 +328,9 @@ $(document).ready(function () {
         $('body').empty();
         $('body').append('<div class="header text-center"><span class="data">SELECTED SASHA SESSION NOT AVAILABLE</span></div>');
         socket.disconnect();
-        setTimeout(function() { window.close(); }, AutoRefresh * 1000);
+        setTimeout(function () {
+            window.close();
+        }, AutoRefresh * 1000);
     });
 
     socket.on('Send SASHA ScreenShot to Monitor', function (data) {
@@ -350,45 +353,46 @@ $(document).ready(function () {
 
     socket.on('Send SASHA Dictionary to Monitor', function (data) {
         var Dictionary = data.Dictionary;
-	    $('button#showDict').attr('disabled', false);
+        $('button#showDict').attr('disabled', false);
         $('ul#dict').html(Dictionary.trim());
-	    var dictionaryTime = new Date().toString();
-	    dictionaryTime = toLocalTime(dictionaryTime);
-	    $('div.dictionaryInfo').html(dictionaryTime);
-	    if ($('button#showDict').length > 0) {
-	    	dictionaryTimer = setTimeout(function () {
-	    		socket.emit('Request SASHA Dictionary from Server', {
-	    			ConnectionId: window.SASHAClientId
-	    		});
-	    	}, AutoRefresh * 4000);
-	    }
-	    if (window.dictionaryReload) {
-		    window.dictionaryReload = false;
-		    $('ul#dict').treeview({
-		    	collapsed: true,
-		    });
-		    $('div.dictionaryInfo').removeClass('hidden');
-		    $('#dictionary-button').removeClass('hidden');
-	    	$('div.dictionary').removeClass('hidden');
-	    	$('button#dictionary-button').removeClass('hidden');
-	    }
-	    $('button#showDict').off('click').on('click', function () {
-	    	$('button#showDict').remove();
-	    	clearTimeout(dictionaryTimer);
-	    	dictionaryTimer = false;
-	    	setTimeout(function() { $('ul#dict').treeview({
-	    			collapsed: true,
-	    		});
-	    		$('div.dictionaryInfo').removeClass('hidden');
-	    		$('#dictionary-button').removeClass('hidden');
-	    		$('div.dictionary').removeClass('hidden');
-	    		$('button#dictionary-button').removeClass('hidden');
-	    	}, 500);
-	    });
+        var dictionaryTime = new Date().toString();
+        dictionaryTime = toLocalTime(dictionaryTime);
+        $('div.dictionaryInfo').html(dictionaryTime);
+        if ($('button#showDict').length > 0) {
+            dictionaryTimer = setTimeout(function () {
+                socket.emit('Request SASHA Dictionary from Server', {
+                    ConnectionId: window.SASHAClientId
+                });
+            }, AutoRefresh * 4000);
+        }
+        if (window.dictionaryReload) {
+            window.dictionaryReload = false;
+            $('ul#dict').treeview({
+                collapsed: true,
+            });
+            $('div.dictionaryInfo').removeClass('hidden');
+            $('#dictionary-button').removeClass('hidden');
+            $('div.dictionary').removeClass('hidden');
+            $('button#dictionary-button').removeClass('hidden');
+        }
+        $('button#showDict').off('click').on('click', function () {
+            $('button#showDict').remove();
+            clearTimeout(dictionaryTimer);
+            dictionaryTimer = false;
+            setTimeout(function () {
+                $('ul#dict').treeview({
+                    collapsed: true,
+                });
+                $('div.dictionaryInfo').removeClass('hidden');
+                $('#dictionary-button').removeClass('hidden');
+                $('div.dictionary').removeClass('hidden');
+                $('button#dictionary-button').removeClass('hidden');
+            }, 500);
+        });
     });
 
     // Display Skill Group Dictionary Call out Data
-    socket.on('Send SASHA Skill Group Info to Monitor', function(data) {
+    socket.on('Send SASHA Skill Group Info to Monitor', function (data) {
         var resultValue = data.ResultValue;
         var column = 1;
         var items = 0;
@@ -422,7 +426,7 @@ $(document).ready(function () {
         $('div#skillGroupInfoDisplay table tbody:last').append(row);
     });
 
-    socket.on('Send Agent Inputs to Monitor', function(data) {
+    socket.on('Send Agent Inputs to Monitor', function (data) {
         var Output = data.Output;
         var html = '<table class="table-bordered">';
         Object.keys(Output).forEach(function (key) {
@@ -439,7 +443,7 @@ $(document).ready(function () {
         if (!$('input#autoclose').is(':checked')) {
             clearTimeout(skillgroupInfoTimer);
             clearTimeout(screenshotTimer);
-		    clearTimeout(dictionaryTimer);
+            clearTimeout(dictionaryTimer);
             $('button#dictionary-button').off('click');
             $('input#autoclose').closest('div').removeClass('text-left').addClass('data text-center').html('SESSION CLOSED');
             $('button#dictionary-button').remove();
@@ -452,117 +456,117 @@ $(document).ready(function () {
         dbUser = data.dbConfig.user;
         dbPassword = data.dbConfig.password;
         dbName = data.dbConfig.database;
-	    useDB = data.useDB;
+        useDB = data.useDB;
     });
 });
 
-let requestHistoricalImages = function(smpSessionId) {
+let requestHistoricalImages = function (smpSessionId) {
     $('div#slides').hide();
     if (!useDB) {
-	    if ($('.flexcontainer').hasClass('pending')) {
-		    $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-		    $('.flexcontainer').removeClass('pending setHeight');
-	    }
-	    var html = '<li><img class="fancybox makefancybox" src="images/No Database.png" /></li>';
-	    $('ul.slides').append(html);
-	    $('.flexslider').flexslider({
-	    	controlsContainer: '.flexslider',
-	    	animation: 'slide',
-	    	animationLoop: false,
-	    	slideshow: false,
-	    	directionNav: true,
-	    	prevText: 'Previous',
-	    	nextText: 'Next'
-	    });
+        if ($('.flexcontainer').hasClass('pending')) {
+            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+            $('.flexcontainer').removeClass('pending setHeight');
+        }
+        var html = '<li><img class="fancybox makefancybox" src="images/No Database.png" /></li>';
+        $('ul.slides').append(html);
+        $('.flexslider').flexslider({
+            controlsContainer: '.flexslider',
+            animation: 'slide',
+            animationLoop: false,
+            slideshow: false,
+            directionNav: true,
+            prevText: 'Previous',
+            nextText: 'Next'
+        });
     } else {
-    	var sql = 'SELECT screenshot_time, flow_name, step_name, image_data FROM screenshots WHERE smp_session_id = "' + smpSessionId + '" ORDER BY recorded ASC';
-    	$.ajax({
-    		type: 'post',
-    		url: 'ajax/getinfo.php',
-    		data: {
-    			databaseIP: dbHost,
-    			databaseUser: dbUser,
-    			databasePW: dbPassword,
-    			databaseName: dbName,
-    			sql: sql
-    		},
-    		dataType: 'json',
-    	}).done(function(data) {
-    		if (data.hasOwnProperty('ERROR')) {
-    			switch(data.ERROR) {
-    				case 'NO RECORDS RETURNED MATCHING REQUEST':
-    				break;
-    			default:
-    				if ($('.flexcontainer').hasClass('pending')) {
-    					$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-    					$('.flexcontainer').removeClass('pending setHeight');
-    				}
-    				var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
-    				$('ul.slides').append(html);
-    				$('.flexslider').flexslider({
-    					controlsContainer: '.flexslider',
-    					animation: 'slide',
-    					animationLoop: false,
-    					slideshow: false,
-    					directionNav: true,
-    					prevText: 'Previous',
-    					nextText: 'Next'
-    				});
-    				break;
-    			}
-    		} else {
-    			if ($('.flexcontainer').hasClass('pending')) {
-    				$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-    				$('.flexcontainer').removeClass('pending setHeight');
-    			}
-    			$.each(data, function(key, row) {
-    				var screenshotTime = moment(new Date(row.screenshot_time)).format('MM/DD/YYYY HH:mm:ss');
-    				var flowName = row.flow_name;
-    				var stepName = row.step_name;
-    				var imageData = row.image_data;
-    				var html = '<li><img class="fancybox makefancybox" src="' + imageData + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + screenshotTime + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + flowName + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + stepName + '</div></div></li>';
-    				$('ul.slides').append(html);
-    			});
-    			$('.flexslider').flexslider({
-    				controlsContainer: '.flexslider',
-    				animation: 'slide',
-    				animationLoop: false,
-    				slideshow: false,
-    				directionNav: true,
-    				prevText: 'Previous',
-    				nextText: 'Next'
-    			});
-    			$('img.makefancybox').not('.current').each(function(){
-    				var src = $(this).attr('src');
-    				var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
-    				$(this).wrap(a);
-    				$('a.fancybox').fancybox({
-    					titlePositon: 'inside'
-    				});
-    				$(this).removeClass('makefancybox');
-    			});
-    			$('img.fancybox').off('click').on('click', function () {
-    				var src = $(this).attr('src');
-    				$('img.fancybox-image').attr('src', src);
-    			});
-    		}
-    	}).fail(function () {
-    		if ($('.flexcontainer').hasClass('pending')) {
-    			$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-    			$('.flexcontainer').removeClass('pending setHeight');
-    		}
-    		var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
-    		$('ul.slides').append(html);
-    		$('.flexslider').flexslider({
-    			controlsContainer: '.flexslider',
-    			animation: 'slide',
-    			animationLoop: false,
-    			slideshow: false,
-    			directionNav: true,
-    			prevText: 'Previous',
-    			nextText: 'Next'
-    		});
-    	});
+        var sql = 'SELECT screenshot_time, flow_name, step_name, image_data FROM screenshots WHERE smp_session_id = "' + smpSessionId + '" ORDER BY recorded ASC';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function (data) {
+            if (data.hasOwnProperty('ERROR')) {
+                switch (data.ERROR) {
+                    case 'NO RECORDS RETURNED MATCHING REQUEST':
+                        break;
+                    default:
+                        if ($('.flexcontainer').hasClass('pending')) {
+                            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+                            $('.flexcontainer').removeClass('pending setHeight');
+                        }
+                        var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
+                        $('ul.slides').append(html);
+                        $('.flexslider').flexslider({
+                            controlsContainer: '.flexslider',
+                            animation: 'slide',
+                            animationLoop: false,
+                            slideshow: false,
+                            directionNav: true,
+                            prevText: 'Previous',
+                            nextText: 'Next'
+                        });
+                        break;
+                }
+            } else {
+                if ($('.flexcontainer').hasClass('pending')) {
+                    $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+                    $('.flexcontainer').removeClass('pending setHeight');
+                }
+                $.each(data, function (key, row) {
+                    var screenshotTime = moment(new Date(row.screenshot_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var flowName = row.flow_name;
+                    var stepName = row.step_name;
+                    var imageData = row.image_data;
+                    var html = '<li><img class="fancybox makefancybox" src="' + imageData + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + screenshotTime + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + flowName + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + stepName + '</div></div></li>';
+                    $('ul.slides').append(html);
+                });
+                $('.flexslider').flexslider({
+                    controlsContainer: '.flexslider',
+                    animation: 'slide',
+                    animationLoop: false,
+                    slideshow: false,
+                    directionNav: true,
+                    prevText: 'Previous',
+                    nextText: 'Next'
+                });
+                $('img.makefancybox').not('.current').each(function () {
+                    var src = $(this).attr('src');
+                    var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+                    $(this).wrap(a);
+                    $('a.fancybox').fancybox({
+                        titlePositon: 'inside'
+                    });
+                    $(this).removeClass('makefancybox');
+                });
+                $('img.fancybox').off('click').on('click', function () {
+                    var src = $(this).attr('src');
+                    $('img.fancybox-image').attr('src', src);
+                });
+            }
+        }).fail(function () {
+            if ($('.flexcontainer').hasClass('pending')) {
+                $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+                $('.flexcontainer').removeClass('pending setHeight');
+            }
+            var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
+            $('ul.slides').append(html);
+            $('.flexslider').flexslider({
+                controlsContainer: '.flexslider',
+                animation: 'slide',
+                animationLoop: false,
+                slideshow: false,
+                directionNav: true,
+                prevText: 'Previous',
+                nextText: 'Next'
+            });
+        });
     }
 };
 
@@ -610,20 +614,20 @@ let getSkillGroupInfo = function (skillGroup) {
     // set skillGroup Specic Data Requests
     var requestValue = new Object();
     switch (skillGroup) {
-    case 'TSC':
-        // You may use the below to have an empty column space if desired:
-        // requestValue["blank"] == '';
-        requestValue['VenueCode'] = 'Venue Code:';
-        requestValue['VenueName'] = 'Venue Name:';
-        requestValue['TicketNum'] = 'Ticket Number:';
-        requestValue['MAC'] = 'MAC Address:';
-        requestValue['IP'] = 'IP Address:';
-        requestValue['DeviceRole'] = 'Device Type:';
-        break;
-    case 'UNKNOWN':
-        requestValue['userName'] = 'ATT UID:';
-    default:
-        break;
+        case 'TSC':
+            // You may use the below to have an empty column space if desired:
+            // requestValue["blank"] == '';
+            requestValue['VenueCode'] = 'Venue Code:';
+            requestValue['VenueName'] = 'Venue Name:';
+            requestValue['TicketNum'] = 'Ticket Number:';
+            requestValue['MAC'] = 'MAC Address:';
+            requestValue['IP'] = 'IP Address:';
+            requestValue['DeviceRole'] = 'Device Type:';
+            break;
+        case 'UNKNOWN':
+            requestValue['userName'] = 'ATT UID:';
+        default:
+            break;
     }
     if (Object.keys(requestValue).length == 0) {
         $('div.skillGroup').hide();
@@ -634,10 +638,12 @@ let getSkillGroupInfo = function (skillGroup) {
             RequestValue: requestValue
         });
     }
-    skillgroupInfoTimer = setTimeout(function () { getSkillGroupInfo(skillGroup); }, AutoRefresh * 1000);
+    skillgroupInfoTimer = setTimeout(function () {
+        getSkillGroupInfo(skillGroup);
+    }, AutoRefresh * 1000);
 };
 
-let showFlowHistory = function(UserInfo) {
+let showFlowHistory = function (UserInfo) {
     var flowHistory = UserInfo.FlowHistory;
     var stepHistory = UserInfo.StepHistory;
     var stepTypeHistory = UserInfo.StepTypeHistory;
@@ -671,14 +677,13 @@ let showFlowHistory = function(UserInfo) {
         });
         outputhtml += '</tr>';
         outputhtml += '</table>';
-    }
-    catch(err) {
+    } catch (err) {
         outputhtml = '';
     }
     html += '<td class="output text-left">' + outputhtml + '</td>';
     var lastFlowName = flowHistory[0];
     for (var i = 1; i < flowHistory.length; i++) {
-        var stepDuration = stepTime[i] - stepTime[i-1];
+        var stepDuration = stepTime[i] - stepTime[i - 1];
         var stepDurationHours = Math.floor(stepDuration / 3600);
         stepDuration = stepDuration - stepDurationHours * 3600;
         var stepDurationMinutes = Math.floor(stepDuration / 60);
@@ -703,8 +708,7 @@ let showFlowHistory = function(UserInfo) {
                 outputhtml += '</tr>';
             });
             outputhtml += '</table>';
-        }
-        catch (err) {
+        } catch (err) {
             outputhtml = '';
         }
         if (flowName == lastFlowName) {

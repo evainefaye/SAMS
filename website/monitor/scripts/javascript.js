@@ -1,10 +1,8 @@
-
-
 var windowManager = new Object(); // Create Object for storing information about Open Popup Detail windows
 window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
-    var serverAddress = 'http://10.100.49.77';     // Set the location of the Node.js server
+    var serverAddress = 'http://10.100.49.77'; // Set the location of the Node.js server
 
     $('select#environment').chosen({
         width: '100%',
@@ -23,25 +21,25 @@ $(document).ready(function () {
     $('select#environment').val(environment).trigger('chosen:updated');
 
     switch (environment) {
-    // Set Node.js port and version description based on environment variable.  Default loads production
-    case 'fde':
-        var socketURL = serverAddress + ':5510';
-        var version = 'DEVELOPMENT';
-        break;
-    case 'pre-prod':
-        var socketURL = serverAddress + ':5520';
-        version = 'BETA';
-        break;
-    case 'prod':
-        var socketURL = serverAddress + ':5530';
-        version = 'PRODUCTION';
-        break;
-    default:
-        environment = 'prod';
-        Cookies.set('environment', 'prod');
-        var socketURL = serverAddress + ':5530';
-        version = 'PRODUCTION';
-        break;
+        // Set Node.js port and version description based on environment variable.  Default loads production
+        case 'fde':
+            var socketURL = serverAddress + ':5510';
+            var version = 'DEVELOPMENT';
+            break;
+        case 'pre-prod':
+            var socketURL = serverAddress + ':5520';
+            version = 'BETA';
+            break;
+        case 'prod':
+            var socketURL = serverAddress + ':5530';
+            version = 'PRODUCTION';
+            break;
+        default:
+            environment = 'prod';
+            Cookies.set('environment', 'prod');
+            var socketURL = serverAddress + ':5530';
+            version = 'PRODUCTION';
+            break;
     }
 
     $('select#environment').off('change').on('change', function () {
@@ -59,13 +57,13 @@ $(document).ready(function () {
 
 
     // Define Event for enabling / disabling the supervisors list for filtering
-    $('#SupervisorList').off('keyup').on('keyup', function() {
+    $('#SupervisorList').off('keyup').on('keyup', function () {
         Cookies.set('SupervisorList', $('#SupervisorList').val().trim());
         if ($('#SupervisorList').val().trim().length > 0) {
             var supervisorList = $('#SupervisorList').val().trim();
             supervisorList = supervisorList.replace(/[;|: ,]+/g, ',');
             var supervisorListArray = supervisorList.split(',');
-            $.each(supervisorListArray, function(index, value) {
+            $.each(supervisorListArray, function (index, value) {
                 if (index == 0) {
                     window.filter = '[supervisorId~="' + value + '"]';
                 } else {
@@ -81,7 +79,7 @@ $(document).ready(function () {
             $('table').trigger('update').trigger('applyWidgetId', 'zebra');
         }
     });
-    $('span#environment').html(version);  // Display the Monitor version on page
+    $('span#environment').html(version); // Display the Monitor version on page
     window.socket = io.connect(socketURL); // Connect to socket.io
 
     // Define function to autoclose detail windows opened by monitor window when appropriate
@@ -122,7 +120,7 @@ $(document).ready(function () {
         addCustomTabs();
     });
 
-    socket.on('Request Connection Type', function(data) {
+    socket.on('Request Connection Type', function (data) {
         var ServerStartTime = data.ServerStartTime;
         ServerStartTime = toLocalDateTime(ServerStartTime);
         $('span#serverStartTime').html(ServerStartTime);
@@ -130,7 +128,7 @@ $(document).ready(function () {
     });
 
     // Add a SASHA User Row to Monitor for a Connecting Client
-    socket.on('Add SASHA Connection to Monitor', function(data) {
+    socket.on('Add SASHA Connection to Monitor', function (data) {
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
         var attUID = UserInfo.AttUID;
@@ -140,17 +138,17 @@ $(document).ready(function () {
         sessionStartTime = toLocalTime(sessionStartTime);
         // If there is no row matching the row your about to add, then go ahead and add it
         if (!$('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
-            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers">' + attUID + '</a></td>'
-                + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-center">' + sessionStartTime + '</td>'
-                + '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '"></div></td>'
-                + '</tr>';
+            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+                '<td class="text-centers">' + attUID + '</a></td>' +
+                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+                '<td class="text-center">' + sessionStartTime + '</td>' +
+                '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '"></div></td>' +
+                '</tr>';
             $('table.INACTIVESESSIONS tbody:last').append(row);
             doGroup('INACTIVESESSION');
             if (window.filter.length) {
-			    $('tbody tr').show();
-			    $('tbody tr').not(window.filter).hide();
+                $('tbody tr').show();
+                $('tbody tr').not(window.filter).hide();
             }
             $('table.INACTIVESESSIONS').trigger('applyWidgetId', 'zebra');
             // Initialize Counters for the connection just added
@@ -183,7 +181,7 @@ $(document).ready(function () {
 
 
     // Add a SASHA User Row to Monitor for a Connecting Client
-    socket.on('Notify Monitor Begin SASHA Flow', function(data) {
+    socket.on('Notify Monitor Begin SASHA Flow', function (data) {
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
         // Remove timer associated with connection before removing row to prevent a javascript error
@@ -242,10 +240,12 @@ $(document).ready(function () {
             // Sort Tabs in Alphabetical order
             sortTabs('ul#Tabs');
             //  Make the added table sortable
-		    $('table.' + skillGroup).stickyTableHeaders();
+            $('table.' + skillGroup).stickyTableHeaders();
             $('table.' + skillGroup).tablesorter({
                 theme: 'custom',
-                sortList: [[5, 1]],
+                sortList: [
+                    [5, 1]
+                ],
                 sortReset: true,
                 widgets: ['zebra']
             });
@@ -258,39 +258,39 @@ $(document).ready(function () {
             sessionStartTime = toLocalTime(sessionStartTime);
             var stepStartTimestamp = new Date(stepStartTime);
             stepStartTime = toLocalTime(stepStartTime);
-            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers">' + attUID + '</a></td>'
-                + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-left">' + workType + '</td>'
-                + '<td class="text-center">' + taskType + '</td>'
-                + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
-                + '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
-                + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
-                + '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>'
-                + '</tr>';
+            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+                '<td class="text-centers">' + attUID + '</a></td>' +
+                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+                '<td class="text-left">' + workType + '</td>' +
+                '<td class="text-center">' + taskType + '</td>' +
+                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
+                '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
+                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+                '</tr>';
             $('table.' + skillGroup + ' tbody:last').append(row);
             if (window.filter.length) {
-			    $('tbody tr').show();
-			    $('tbody tr').not(window.filter).hide();
+                $('tbody tr').show();
+                $('tbody tr').not(window.filter).hide();
             }
             $('table.' + skillGroup).trigger('update').trigger('applyWidgetId', 'zebra');
 
             // Also add to All Sessions tab.  New row defined here as that includes SkillGroup
-            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers">' + attUID + '</a></td>'
-                + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-center">' + workType + '</td>'
-                + '<td class="text-center">' + taskType + '</td>'
-                + '<td class="text-left">' + skillGroup + '</td>'
-                + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
-                + '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
-                + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
-                + '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>'
-                + '</tr>';
+            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+                '<td class="text-centers">' + attUID + '</a></td>' +
+                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+                '<td class="text-center">' + workType + '</td>' +
+                '<td class="text-center">' + taskType + '</td>' +
+                '<td class="text-left">' + skillGroup + '</td>' +
+                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
+                '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
+                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+                '</tr>';
             $('table.ALLSESSIONS tbody:last').append(row);
             if (window.filter.length) {
-			    $('tbody tr').show();
-			    $('tbody tr').not(window.filter).hide();
+                $('tbody tr').show();
+                $('tbody tr').not(window.filter).hide();
             }
             // Initialize Counters for the connection just added
             $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
@@ -336,7 +336,7 @@ $(document).ready(function () {
 
 
     // Remove a SASHA User Row for a disconnected SASHA User from Monitor
-    socket.on('Remove SASHA Connection from Monitor', function(data) {
+    socket.on('Remove SASHA Connection from Monitor', function (data) {
         var connectionId = data.ConnectionId;
         var UserInfo = data.UserInfo;
         var skillGroup = UserInfo.SkillGroup;
@@ -376,7 +376,7 @@ $(document).ready(function () {
         doGroup(skillGroup);
     });
 
-    socket.on('Update Flow and Step Info', function(data) {
+    socket.on('Update Flow and Step Info', function (data) {
         var connectionId = data.ConnectionId;
         var UserInfo = data.UserInfo;
         var flowName = UserInfo.FlowName;
@@ -404,7 +404,7 @@ $(document).ready(function () {
     });
 
     // Restore the Active Tab
-    socket.on('Reset Active Tab', function(data) {
+    socket.on('Reset Active Tab', function (data) {
         var activeTab = data.ActiveTab;
         $('a[skillGroup="' + activeTab + '"]').click();
         $('table.' + activeTab).trigger('update').trigger('applyWidgetId', 'zebra');
@@ -412,7 +412,7 @@ $(document).ready(function () {
 
 
     // Stalled Session detected, add an entry under STALLEDSESSIONS
-    socket.on('Alert Monitor of Stalled Session', function(data) {
+    socket.on('Alert Monitor of Stalled Session', function (data) {
         // If it isn't already in stalled sessions then add it
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
@@ -434,21 +434,21 @@ $(document).ready(function () {
             if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
                 skillGroup = 'UNKNOWN';
             }
-            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
-                + '<td class="text-centers">' + attUID + '</a></td>'
-                + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-left">' + workType + '</td>'
-                + '<td class="text-left">' + taskType + '</td>'
-                + '<td class="text-center">' + skillGroup + '</td>'
-                + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
-                + '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
-                + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
-                + '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>'
-                + '</tr>';
+            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+                '<td class="text-centers">' + attUID + '</a></td>' +
+                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+                '<td class="text-left">' + workType + '</td>' +
+                '<td class="text-left">' + taskType + '</td>' +
+                '<td class="text-center">' + skillGroup + '</td>' +
+                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
+                '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
+                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+                '</tr>';
             $('table.STALLEDSESSIONS tbody:last').append(row);
             if (window.filter.length) {
-			    $('tbody tr').show();
-			    $('tbody tr').not(window.filter).hide();
+                $('tbody tr').show();
+                $('tbody tr').not(window.filter).hide();
             }
             // initialize Countdown
             $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
@@ -521,7 +521,7 @@ let toLocalTime = function (timestamp) {
 let toLocalDateTime = function (timestamp) {
     if (timestamp !== null) {
         timestamp = new Date(timestamp);
-        var month = timestamp.getMonth()+1;
+        var month = timestamp.getMonth() + 1;
         var date = timestamp.getDate();
         var year = timestamp.getFullYear();
         var hours = '0' + timestamp.getHours();
@@ -633,7 +633,9 @@ let addCustomTabs = function () {
     $('table.ALLSESSIONS').tablesorter({
         theme: 'custom',
         sortReset: true,
-        sortList: [[5, 1]],
+        sortList: [
+            [5, 1]
+        ],
         widgets: ['zebra'],
     });
     // Add FLOW NOT STARTED Tab
@@ -667,7 +669,9 @@ let addCustomTabs = function () {
     $('table.INACTIVESESSIONS').stickyTableHeaders();
     $('table.INACTIVESESSIONS').tablesorter({
         theme: 'custom',
-        sortList: [[5, 1]],
+        sortList: [
+            [5, 1]
+        ],
         sortReset: true,
         widgets: ['zebra'],
     });
@@ -710,7 +714,9 @@ let addCustomTabs = function () {
     $('table.STALLEDSESSIONS').stickyTableHeaders();
     $('table.STALLEDSESSIONS').tablesorter({
         theme: 'custom',
-        sortList: [[5, 1]],
+        sortList: [
+            [5, 1]
+        ],
         sortReset: true,
         widgets: ['zebra'],
     });
@@ -725,36 +731,40 @@ let handleGroupChange = function () {
         $('table.' + target).trigger('update').trigger('applyWidgetId', 'zebra');
     });
     $('table').trigger('update');
-    setTimeout(function() {
+    setTimeout(function () {
         $('input[type=radio].groupOption').off('change.groupOption').on('change.groupOption', function () {
             var name = $(this).attr('name');
             var val = $(this).val();
             switch (val) {
-            case 'none':
-                $('table.' + name).trigger('sortReset');
-                $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('applyWidgetId', 'zebra');
-                break;
-            case 'agentname':
-                $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('removeWidget', 'zebra');
-                var sortOrder = [[1, 0]];
-                $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
-                $('table.' + name).trigger('applyWidgetId', 'zebra');
-                $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [1];
-                $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
-                $('table.' + name).trigger('applyWidgetId', 'group');
-                break;
-            case 'skillgroup':
-                $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('removeWidget', 'zebra');
-                var sortOrder = [[4, 0]];
-                $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
-                $('table.' + name).trigger('applyWidgetId', 'zebra');
-                $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [4];
-                $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
-                $('table.' + name).trigger('applyWidgetId', 'group');
-                break;
+                case 'none':
+                    $('table.' + name).trigger('sortReset');
+                    $('table.' + name).trigger('removeWidget', 'group');
+                    $('table.' + name).trigger('applyWidgetId', 'zebra');
+                    break;
+                case 'agentname':
+                    $('table.' + name).trigger('removeWidget', 'group');
+                    $('table.' + name).trigger('removeWidget', 'zebra');
+                    var sortOrder = [
+                        [1, 0]
+                    ];
+                    $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
+                    $('table.' + name).trigger('applyWidgetId', 'zebra');
+                    $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [1];
+                    $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
+                    $('table.' + name).trigger('applyWidgetId', 'group');
+                    break;
+                case 'skillgroup':
+                    $('table.' + name).trigger('removeWidget', 'group');
+                    $('table.' + name).trigger('removeWidget', 'zebra');
+                    var sortOrder = [
+                        [4, 0]
+                    ];
+                    $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
+                    $('table.' + name).trigger('applyWidgetId', 'zebra');
+                    $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [4];
+                    $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
+                    $('table.' + name).trigger('applyWidgetId', 'group');
+                    break;
             }
         });
     }, 300);
@@ -763,30 +773,34 @@ let handleGroupChange = function () {
 let doGroup = function (skillGroup) {
     var val = $('input[name=' + skillGroup + ']:checked').val();
     switch (val) {
-    case 'none':
-        $('table.' + skillGroup).trigger('sortReset');
-        $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-        break;
-    case 'agentname':
-        $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('removeWidget', 'zebra');
-        var sortOrder = [[1, 0]];
-        $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-        $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [1];
-        $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
-        $('table.' + skillGroup).trigger('applyWidgetId', 'group');
-        break;
-    case 'skillgroup':
-        $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('removeWidget', 'zebra');
-        var sortOrder = [[4, 0]];
-        $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-        $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [4];
-        $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
-        $('table.' + skillGroup).trigger('applyWidgetId', 'group');
-        break;
+        case 'none':
+            $('table.' + skillGroup).trigger('sortReset');
+            $('table.' + skillGroup).trigger('removeWidget', 'group');
+            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
+            break;
+        case 'agentname':
+            $('table.' + skillGroup).trigger('removeWidget', 'group');
+            $('table.' + skillGroup).trigger('removeWidget', 'zebra');
+            var sortOrder = [
+                [1, 0]
+            ];
+            $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
+            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
+            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [1];
+            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
+            $('table.' + skillGroup).trigger('applyWidgetId', 'group');
+            break;
+        case 'skillgroup':
+            $('table.' + skillGroup).trigger('removeWidget', 'group');
+            $('table.' + skillGroup).trigger('removeWidget', 'zebra');
+            var sortOrder = [
+                [4, 0]
+            ];
+            $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
+            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
+            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [4];
+            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
+            $('table.' + skillGroup).trigger('applyWidgetId', 'group');
+            break;
     }
 };

@@ -1,7 +1,8 @@
 /*! waitForImages jQuery Plugin - v2.4.0 - 2018-02-13
-* https://github.com/alexanderdickson/waitForImages
-* Copyright (c) 2018 Alex Dickson; Licensed MIT */
-;(function (factory) {
+ * https://github.com/alexanderdickson/waitForImages
+ * Copyright (c) 2018 Alex Dickson; Licensed MIT */
+;
+(function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(['jquery'], factory);
@@ -17,7 +18,7 @@
     var eventNamespace = 'waitForImages';
 
     // Is srcset supported by this browser?
-    var hasSrcset = (function(img) {
+    var hasSrcset = (function (img) {
         return img.srcset && img.sizes;
     })(new Image());
 
@@ -97,7 +98,7 @@
         eachCallback = eachCallback || $.noop;
 
         // Convert waitForAll to Boolean.
-        waitForAll = !! waitForAll;
+        waitForAll = !!waitForAll;
 
         // Ensure callbacks are functions.
         if (!$.isFunction(finishedCallback) || !$.isFunction(eachCallback)) {
@@ -164,11 +165,11 @@
                 // For images only, the task is simpler.
                 obj.find('img:has-src')
                     .each(function () {
-                    allImgs.push({
-                        src: this.src,
-                        element: this
+                        allImgs.push({
+                            src: this.src,
+                            element: this
+                        });
                     });
-                });
             }
         });
 
@@ -187,10 +188,10 @@
 
             var image = new Image();
             var events =
-              'load.' + eventNamespace + ' error.' + eventNamespace;
+                'load.' + eventNamespace + ' error.' + eventNamespace;
 
             // Handle the image loading and error with the same callback.
-            $(image).one(events, function me (event) {
+            $(image).one(events, function me(event) {
                 // If an error occurred with loading the image, set the
                 // third argument accordingly.
                 var eachArguments = [

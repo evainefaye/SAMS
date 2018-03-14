@@ -5,7 +5,8 @@
  * @requires jQuery v1.7.1+
  * @link http://vast-engineering.github.com/jquery-popup-overlay/
  */
-;(function ($) {
+;
+(function ($) {
 
     var $window = $(window);
     var options = {};
@@ -35,7 +36,7 @@
             }
 
             if (options.autoopen) {
-                setTimeout(function() {
+                setTimeout(function () {
                     methods.show(el, 0);
                 }, 0);
             }
@@ -50,10 +51,10 @@
 
             bodymarginright = parseInt($body.css('margin-right'), 10);
             transitionsupport = document.body.style.webkitTransition !== undefined ||
-                                document.body.style.MozTransition !== undefined ||
-                                document.body.style.msTransition !== undefined ||
-                                document.body.style.OTransition !== undefined ||
-                                document.body.style.transition !== undefined;
+                document.body.style.MozTransition !== undefined ||
+                document.body.style.msTransition !== undefined ||
+                document.body.style.OTransition !== undefined ||
+                document.body.style.transition !== undefined;
 
             if (options.type == 'tooltip') {
                 options.background = false;
@@ -128,7 +129,7 @@
             }
 
             if (options.type == 'overlay') {
-                $wrapper.css('overflow','auto');
+                $wrapper.css('overflow', 'auto');
             }
 
             $el.css({
@@ -169,7 +170,7 @@
                     textAlign: 'center'
                 };
 
-                if(options.backgroundactive){
+                if (options.backgroundactive) {
                     css.position = 'absolute';
                     css.height = '0';
                     css.overflow = 'visible';
@@ -190,7 +191,7 @@
             // Add WAI ARIA role to announce dialog to screen readers
             $el.attr('role', 'dialog');
 
-            var openelement =  (options.openelement) ? options.openelement : ('.' + el.id + opensuffix);
+            var openelement = (options.openelement) ? options.openelement : ('.' + el.id + opensuffix);
 
             $(openelement).each(function (i, item) {
                 $(item).attr('data-popup-ordinal', i);
@@ -206,7 +207,7 @@
             }
 
             // Show and hide tooltips on hover
-            if(options.action == 'hover'){
+            if (options.action == 'hover') {
                 options.keepfocus = false;
 
                 // Handler: mouseenter, focusin
@@ -226,7 +227,7 @@
                     event.preventDefault();
 
                     var ord = $(this).data('popup-ordinal');
-                    setTimeout(function() { // setTimeout is to allow `close` method to finish (for issues with multiple tooltips)
+                    setTimeout(function () { // setTimeout is to allow `close` method to finish (for issues with multiple tooltips)
                         methods.show(el, ord);
                     }, 0);
                 });
@@ -272,7 +273,7 @@
             lastclicked[el.id] = ordinal;
 
             // Add popup id to visiblePopupsArray
-            setTimeout(function() {
+            setTimeout(function () {
                 visiblePopupsArray.push(el.id);
             }, 0);
 
@@ -283,17 +284,17 @@
                 var len = elements.length;
                 var maxzindex = 0;
 
-                for(var i=0; i<len; i++){
+                for (var i = 0; i < len; i++) {
 
                     var elementzindex = $(elements[i]).css('z-index');
 
-                    if(elementzindex !== 'auto'){
+                    if (elementzindex !== 'auto') {
 
-                      elementzindex = parseInt(elementzindex, 10);
+                        elementzindex = parseInt(elementzindex, 10);
 
-                      if(maxzindex < elementzindex){
-                        maxzindex = elementzindex;
-                      }
+                        if (maxzindex < elementzindex) {
+                            maxzindex = elementzindex;
+                        }
                     }
                 }
 
@@ -323,7 +324,7 @@
                 $wrapper.show();
             }
 
-            opentimer = setTimeout(function() {
+            opentimer = setTimeout(function () {
                 $wrapper.css({
                     visibility: 'visible',
                     opacity: 1
@@ -341,16 +342,16 @@
                 }
             }
 
-            if(options.backgroundactive){
+            if (options.backgroundactive) {
                 //calculates the vertical align
                 $el.css({
-                    top:(
+                    top: (
                         $window.height() - (
                             $el.get(0).offsetHeight +
                             parseInt($el.css('margin-top'), 10) +
                             parseInt($el.css('margin-bottom'), 10)
                         )
-                    )/2 +'px'
+                    ) / 2 + 'px'
                 });
             }
 
@@ -367,7 +368,7 @@
                 });
 
                 // Fix IE8 issue with background not appearing
-                setTimeout(function() {
+                setTimeout(function () {
                     $background.css({
                         'opacity': options.opacity
                     });
@@ -390,7 +391,7 @@
                 // Focus popup or user specified element.
                 // Initial timeout of 50ms is set to give some time to popup to show after clicking on
                 // `open` element, and after animation is complete to prevent background scrolling.
-                setTimeout(function() {
+                setTimeout(function () {
                     if (options.focuselement === 'closebutton') {
                         $('#' + el.id + ' .' + el.id + closesuffix + ':first').focus();
                     } else if (options.focuselement) {
@@ -411,7 +412,7 @@
             callback(el, ordinal, options.onopen);
 
             if (transitionsupport) {
-                $wrapper.one('transitionend', function() {
+                $wrapper.one('transitionend', function () {
                     callback(el, ordinal, options.opentransitionend);
                 });
             } else {
@@ -441,7 +442,7 @@
                 return;
             }
 
-            if(opentimer) clearTimeout(opentimer);
+            if (opentimer) clearTimeout(opentimer);
 
             var $body = $('body');
             var $el = $(el);
@@ -454,7 +455,7 @@
             if (visiblePopupsArray.length === 1) {
                 $('html').removeClass('popup_visible').removeClass('popup_visible_' + el.id);
             } else {
-                if($('html').hasClass('popup_visible_' + el.id)) {
+                if ($('html').hasClass('popup_visible_' + el.id)) {
                     $('html').removeClass('popup_visible_' + el.id);
                 }
             }
@@ -462,13 +463,13 @@
             // Remove popup from the visiblePopupsArray
             visiblePopupsArray.splice(popupIdIndex, 1);
 
-            if($wrapper.hasClass('popup_wrapper_visible')) {
+            if ($wrapper.hasClass('popup_wrapper_visible')) {
                 $wrapper.removeClass('popup_wrapper_visible');
             }
 
             // Focus back on saved element
             if (options.keepfocus && !outerClick) {
-                setTimeout(function() {
+                setTimeout(function () {
                     if ($($el.data('focusedelementbeforepopup')).is(':visible')) {
                         $el.data('focusedelementbeforepopup').focus();
                     }
@@ -503,7 +504,7 @@
             callback(el, lastclicked[el.id], options.onclose);
 
             if (transitionsupport && $el.css('transition-duration') !== '0s') {
-                $el.one('transitionend', function(e) {
+                $el.one('transitionend', function (e) {
 
                     if (!($el.data('popup-visible'))) {
                         if (options.detach) {
@@ -515,7 +516,7 @@
 
                     // Re-enable scrolling of background layer
                     if (options.scrolllock) {
-                        setTimeout(function() {
+                        setTimeout(function () {
                             $body.css({
                                 overflow: 'visible',
                                 'margin-right': bodymarginright
@@ -534,7 +535,7 @@
 
                 // Re-enable scrolling of background layer
                 if (options.scrolllock) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $body.css({
                             overflow: 'visible',
                             'margin-right': bodymarginright
@@ -560,7 +561,7 @@
             if ($(el).data('popup-visible')) {
                 methods.hide(el);
             } else {
-                setTimeout(function() {
+                setTimeout(function () {
                     methods.show(el, ordinal);
                 }, 0);
             }
@@ -601,11 +602,11 @@
                 if (options.horizontal == 'right') {
                     $wrapper.css('left', linkOffset.left + $tooltipanchor.outerWidth() + options.offsetleft);
                 } else if (options.horizontal == 'leftedge') {
-                    $wrapper.css('left', linkOffset.left + $tooltipanchor.outerWidth() - $tooltipanchor.outerWidth() +  options.offsetleft);
+                    $wrapper.css('left', linkOffset.left + $tooltipanchor.outerWidth() - $tooltipanchor.outerWidth() + options.offsetleft);
                 } else if (options.horizontal == 'left') {
-                    $wrapper.css('right', $window.width() - linkOffset.left  - options.offsetleft);
+                    $wrapper.css('right', $window.width() - linkOffset.left - options.offsetleft);
                 } else if (options.horizontal == 'rightedge') {
-                    $wrapper.css('right', $window.width()  - linkOffset.left - $tooltipanchor.outerWidth() - options.offsetleft);
+                    $wrapper.css('right', $window.width() - linkOffset.left - $tooltipanchor.outerWidth() - options.offsetleft);
                 } else {
                     $wrapper.css('left', linkOffset.left + ($tooltipanchor.outerWidth() / 2) - ($el.outerWidth() / 2) - parseFloat($el.css('marginLeft')) + options.offsetleft);
                 }
@@ -623,7 +624,7 @@
                     $wrapper.css('top', linkOffset.top + ($tooltipanchor.outerHeight() / 2) - ($el.outerHeight() / 2) - parseFloat($el.css('marginTop')) + options.offsettop);
                 }
 
-            // Overlay type
+                // Overlay type
             } else if (options.type == 'overlay') {
 
                 // Horizontal position for overlay
@@ -656,7 +657,7 @@
                 genericCloseButton = '<button class="popup_close ' + el.id + '_close" title="Close" aria-label="Close"><span aria-hidden="true">×</span></button>';
             }
 
-            if ($(el).data('popup-initialized')){
+            if ($(el).data('popup-initialized')) {
                 $(el).append(genericCloseButton);
             }
 
@@ -676,7 +677,7 @@
         var openelement;
         var elementclicked;
         if (typeof options === 'undefined') return;
-        openelement =  options.openelement ? options.openelement : ('.' + el.id + opensuffix);
+        openelement = options.openelement ? options.openelement : ('.' + el.id + opensuffix);
         elementclicked = $(openelement + '[data-popup-ordinal="' + ordinal + '"]');
         if (typeof func == 'function') {
             func.call($(el), el, elementclicked);
@@ -685,7 +686,7 @@
 
     // Hide popup if ESC key is pressed
     $(document).on('keydown', function (event) {
-        if(visiblePopupsArray.length) {
+        if (visiblePopupsArray.length) {
             var elementId = visiblePopupsArray[visiblePopupsArray.length - 1];
             var el = document.getElementById(elementId);
 
@@ -697,7 +698,7 @@
 
     // Hide popup on click
     $(document).on('click', function (event) {
-        if(visiblePopupsArray.length) {
+        if (visiblePopupsArray.length) {
             var elementId = visiblePopupsArray[visiblePopupsArray.length - 1];
             var el = document.getElementById(elementId);
             var closeButton = ($(el).data('popupoptions').closeelement) ? $(el).data('popupoptions').closeelement : ('.' + el.id + closesuffix);
@@ -728,8 +729,8 @@
     });
 
     // Keep keyboard focus inside of popup
-    $(document).on('keydown', function(event) {
-        if(visiblePopupsArray.length && event.which == 9) {
+    $(document).on('keydown', function (event) {
+        if (visiblePopupsArray.length && event.which == 9) {
 
             // If tab or shift-tab pressed
             var elementId = visiblePopupsArray[visiblePopupsArray.length - 1];
@@ -783,7 +784,7 @@
 
             var $el = $(this);
 
-            if (typeof customoptions === 'object') {  // e.g. $('#popup').popup({'color':'blue'})
+            if (typeof customoptions === 'object') { // e.g. $('#popup').popup({'color':'blue'})
                 var opt = $.extend({}, $.fn.popup.defaults, $el.data('popupoptions'), customoptions);
                 $el.data('popupoptions', opt);
                 options = $el.data('popupoptions');
