@@ -2,6 +2,8 @@
 var AutoRefresh = '30';
 var skillgroupInfoTimer;
 var screenshotTimer;
+var dictionaryTimer = false;
+window.dictionaryReload = false;
 
 $(document).ready(function () {
 
@@ -31,7 +33,7 @@ $(document).ready(function () {
         var socketURL = serverAddress + ':5530';
         break;
     default:
-        alert('no environment');
+        var socketURL = serverAddress + ':5530';
         break;
     }
     // Initialize variables
@@ -58,7 +60,9 @@ $(document).ready(function () {
     });
 
     $('button#dictionary-button').off('click').on('click', function () {
-        $('div#SASHADictionary').parent().css('background-image', 'url(stylesheets/images/loading.gif)');
+	    $('div.dictionary').html('<ul id="dict" class="treeview-black"></ul>');
+	    $('#dictionary-button').addClass('hidden');
+	    $('div.dictionaryInfo').addClass('hidden');
         reloadDictionary();
     });
 
@@ -108,6 +112,7 @@ $(document).ready(function () {
         var attUID = UserInfo.AttUID;
         var agentName = UserInfo.FullName;
         var smpSessionId = UserInfo.SmpSessionId;
+	    requestHistoricalImages(smpSessionId);
         var skillGroup = UserInfo.SkillGroup;
         var sessionStartTime = UserInfo.SessionStartTime;
         var flowName = UserInfo.FlowName;
@@ -159,19 +164,22 @@ $(document).ready(function () {
             socket.emit('Request SASHA Dictionary from Server', {
                 ConnectionId: connectionId
             });
-        },2000);
+        },100);
         getSkillGroupInfo(skillGroup);
         showFlowHistory(UserInfo);
         socket.emit('Join Detail View Room', {
             SmpSessionId: smpSessionId
+
         });
+        /*
         socket.emit('Get ScreenShots', {
             smp_session_id: smpSessionId,
             view: 'detail'
         });
+        */
     });
 
-
+    /*
     socket.on('Get ScreenShots', function (data) {
         $('div#slides').hide();
         if ($('.flexcontainer').hasClass('pending')) {
@@ -218,7 +226,7 @@ $(document).ready(function () {
         }
         $('div.flexslider').show();
     });
-
+    */
 
 
     socket.on('Update Flow and Step Info', function (data) {
@@ -283,9 +291,9 @@ $(document).ready(function () {
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
-        var html = '<li><img class="makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+        var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + screenshot_time + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + flow_name + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + step_name + '</div></div></li>';
         if (typeof $('.flexslider').data('flexslider') == 'undefined') {
-            var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
+            var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + screenshot_time + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + flow_name + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + step_name + '</div></div></li>';
             $('ul.slides').append(html);
             $('.flexslider').flexslider({
                 controlsContainer: '.flexslider',
@@ -342,15 +350,41 @@ $(document).ready(function () {
 
     socket.on('Send SASHA Dictionary to Monitor', function (data) {
         var Dictionary = data.Dictionary;
-        $('ul#dict').html(Dictionary);
-        $('ul#dict').treeview({
-            collapsed: true,
-        });
-        $('div#SASHADictionary').parent().css('background-image', 'none');
-        var dictionaryTime = new Date().toString();
-        dictionaryTime = toLocalTime(dictionaryTime);
-        $('div.dictionaryInfo').html(dictionaryTime).removeClass('hidden');
-        $('div.dictionary').removeClass('pending hidden');
+	    $('button#showDict').attr('disabled', false);
+        $('ul#dict').html(Dictionary.trim());
+	    var dictionaryTime = new Date().toString();
+	    dictionaryTime = toLocalTime(dictionaryTime);
+	    $('div.dictionaryInfo').html(dictionaryTime);
+	    if ($('button#showDict').length > 0) {
+	    	dictionaryTimer = setTimeout(function () {
+	    		socket.emit('Request SASHA Dictionary from Server', {
+	    			ConnectionId: window.SASHAClientId
+	    		});
+	    	}, AutoRefresh * 4000);
+	    }
+	    if (window.dictionaryReload) {
+		    window.dictionaryReload = false;
+		    $('ul#dict').treeview({
+		    	collapsed: true,
+		    });
+		    $('div.dictionaryInfo').removeClass('hidden');
+		    $('#dictionary-button').removeClass('hidden');
+	    	$('div.dictionary').removeClass('hidden');
+	    	$('button#dictionary-button').removeClass('hidden');
+	    }
+	    $('button#showDict').off('click').on('click', function () {
+	    	$('button#showDict').remove();
+	    	clearTimeout(dictionaryTimer);
+	    	dictionaryTimer = false;
+	    	setTimeout(function() { $('ul#dict').treeview({
+	    			collapsed: true,
+	    		});
+	    		$('div.dictionaryInfo').removeClass('hidden');
+	    		$('#dictionary-button').removeClass('hidden');
+	    		$('div.dictionary').removeClass('hidden');
+	    		$('button#dictionary-button').removeClass('hidden');
+	    	}, 500);
+	    });
     });
 
     // Display Skill Group Dictionary Call out Data
@@ -405,60 +439,133 @@ $(document).ready(function () {
         if (!$('input#autoclose').is(':checked')) {
             clearTimeout(skillgroupInfoTimer);
             clearTimeout(screenshotTimer);
+		    clearTimeout(dictionaryTimer);
             $('button#dictionary-button').off('click');
             $('input#autoclose').closest('div').removeClass('text-left').addClass('data text-center').html('SESSION CLOSED');
             $('button#dictionary-button').remove();
         }
     });
 
-/*
+
     socket.on('Return DB Config', function (data) {
         dbHost = data.dbConfig.host;
         dbUser = data.dbConfig.user;
         dbPassword = data.dbConfig.password;
         dbName = data.dbConfig.database;
 	    useDB = data.useDB;
-        $('div#slides').hide();
-        if ($('.flexcontainer').hasClass('pending')) {
-            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-            $('.flexcontainer').removeClass('pending setHeight');
-        }
-
-
-	    if (!useDB) {
-        var screenshot_time = moment().format('MM/DD/YYYY HH:mm:ss');
-        var html = '<li><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />NO DATABASE ACCESS.  ONLY FUTURE SCREENSHOTS WILL SHOW HERE<p></li>';
-        $('ul.slides').append(html);
-        $('.flexslider').flexslider({
-            controlsContainer: '.flexslider',
-            animation: 'slide',
-            animationLoop: false,
-            slideshow: false,
-            directionNav: true,
-            prevText: 'Previous',
-            nextText: 'Next'
-        });
-        $('img.makefancybox').not('.current').each(function(){
-            var src = $(this).attr('src');
-            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
-            $(this).wrap(a);
-            $('a.fancybox').fancybox({
-                titlePositon: 'inside'
-            });
-            $(this).removeClass('makefancybox');
-        });
-        $('img.fancybox').off('click').on('click',function () {
-            var src = $(this).attr('src');
-            $('img.fancybox-image').attr('src',src);
-        });
-        if (typeof $('.flexslider').data('flexslider') == 'object') {
-            $('.flexslider.pending').removeClass('pending');
-        }
-        $('div.flexslider').show();
-		}
     });
-*/
 });
+
+let requestHistoricalImages = function(smpSessionId) {
+    $('div#slides').hide();
+    if (!useDB) {
+	    if ($('.flexcontainer').hasClass('pending')) {
+		    $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+		    $('.flexcontainer').removeClass('pending setHeight');
+	    }
+	    var html = '<li><img class="fancybox makefancybox" src="images/No Database.png" /></li>';
+	    $('ul.slides').append(html);
+	    $('.flexslider').flexslider({
+	    	controlsContainer: '.flexslider',
+	    	animation: 'slide',
+	    	animationLoop: false,
+	    	slideshow: false,
+	    	directionNav: true,
+	    	prevText: 'Previous',
+	    	nextText: 'Next'
+	    });
+    } else {
+    	var sql = 'SELECT screenshot_time, flow_name, step_name, image_data FROM screenshots WHERE smp_session_id = "' + smpSessionId + '" ORDER BY recorded ASC';
+    	$.ajax({
+    		type: 'post',
+    		url: 'ajax/getinfo.php',
+    		data: {
+    			databaseIP: dbHost,
+    			databaseUser: dbUser,
+    			databasePW: dbPassword,
+    			databaseName: dbName,
+    			sql: sql
+    		},
+    		dataType: 'json',
+    	}).done(function(data) {
+    		if (data.hasOwnProperty('ERROR')) {
+    			switch(data.ERROR) {
+    				case 'NO RECORDS RETURNED MATCHING REQUEST':
+    				break;
+    			default:
+    				if ($('.flexcontainer').hasClass('pending')) {
+    					$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+    					$('.flexcontainer').removeClass('pending setHeight');
+    				}
+    				var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
+    				$('ul.slides').append(html);
+    				$('.flexslider').flexslider({
+    					controlsContainer: '.flexslider',
+    					animation: 'slide',
+    					animationLoop: false,
+    					slideshow: false,
+    					directionNav: true,
+    					prevText: 'Previous',
+    					nextText: 'Next'
+    				});
+    				break;
+    			}
+    		} else {
+    			if ($('.flexcontainer').hasClass('pending')) {
+    				$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+    				$('.flexcontainer').removeClass('pending setHeight');
+    			}
+    			$.each(data, function(key, row) {
+    				var screenshotTime = moment(new Date(row.screenshot_time)).format('MM/DD/YYYY HH:mm:ss');
+    				var flowName = row.flow_name;
+    				var stepName = row.step_name;
+    				var imageData = row.image_data;
+    				var html = '<li><img class="fancybox makefancybox" src="' + imageData + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + screenshotTime + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + flowName + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + stepName + '</div></div></li>';
+    				$('ul.slides').append(html);
+    			});
+    			$('.flexslider').flexslider({
+    				controlsContainer: '.flexslider',
+    				animation: 'slide',
+    				animationLoop: false,
+    				slideshow: false,
+    				directionNav: true,
+    				prevText: 'Previous',
+    				nextText: 'Next'
+    			});
+    			$('img.makefancybox').not('.current').each(function(){
+    				var src = $(this).attr('src');
+    				var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+    				$(this).wrap(a);
+    				$('a.fancybox').fancybox({
+    					titlePositon: 'inside'
+    				});
+    				$(this).removeClass('makefancybox');
+    			});
+    			$('img.fancybox').off('click').on('click',function () {
+    				var src = $(this).attr('src');
+    				$('img.fancybox-image').attr('src',src);
+    			});
+    		}
+    	}).fail(function () {
+    		if ($('.flexcontainer').hasClass('pending')) {
+    			$('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+    			$('.flexcontainer').removeClass('pending setHeight');
+    		}
+    		var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
+    		$('ul.slides').append(html);
+    		$('.flexslider').flexslider({
+    			controlsContainer: '.flexslider',
+    			animation: 'slide',
+    			animationLoop: false,
+    			slideshow: false,
+    			directionNav: true,
+    			prevText: 'Previous',
+    			nextText: 'Next'
+    		});
+    	});
+    }
+};
+
 
 let toLocalTime = function (timestamp) {
     if (timestamp !== null) {
@@ -493,12 +600,7 @@ let checkTimerStylingStep = function (periods) {
 };
 
 let reloadDictionary = function () {
-    $('ul#dict').empty();
-    $('div#SASHADictionary').parent().css('background-image', 'url(stylesheets/images/loading.gif)');
-    var dictionaryTime = new Date().toString();
-    dictionaryTime = toLocalTime(dictionaryTime);
-    $('div.dictionaryInfo').html(dictionaryTime).addClass('hidden');
-    $('div.dictionary').addClass('pending hidden');
+    window.dictionaryReload = true;
     socket.emit('Request SASHA Dictionary from Server', {
         ConnectionId: window.SASHAClientId
     });

@@ -62,9 +62,9 @@ $(document).ready(function () {
             $('select#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional').val('');
             $('select#BusinessLineSel').removeClass('showFilter').addClass('hideFilter optional');
             $('select#WorkSourceSel').removeClass('showFilter').addClass('hideFilter optional');
-			$('select#TaskTypeSel').removeClass('showFilter').addClass('hideFilter optional');
+		    $('select#TaskTypeSel').removeClass('showFilter').addClass('hideFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
         case 'SlowAutomationSummary':
 	    	var phText = $('input#AutomationStepThreshold').attr('data-ph');
@@ -76,7 +76,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
         case 'SlowManualSummary':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
@@ -88,7 +88,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
         case 'AllAutomation':
 		    var phText = $('input#AutomationStepThreshold').attr('data-opt-ph');
@@ -100,7 +100,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
         case'AllManual':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter').val('');
@@ -112,7 +112,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
 	    case 'AllWorkflow':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter');
@@ -124,7 +124,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
 		    break;
         case 'AgentSummary':
             var phText = $('input#AutomationStepThreshold').attr('data-ph');
@@ -138,7 +138,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
         case 'AgentPerformance':
             var phText = $('input#AutomationStepThreshold').attr('data-ph');
@@ -151,7 +151,7 @@ $(document).ready(function () {
             $('select#WorkSourceSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
 	    case 'Screenshots':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
@@ -163,18 +163,18 @@ $(document).ready(function () {
             $('select#TaskTypeSel').removeClass('hideFilter').addClass('showFilter optional');
             var phText = $('input#SessionId').attr('data-opt-ph');
             $('input#SessionId').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText);
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').show();
+		    $('.chosen-container').show();
             break;
 	    case 'PerformanceSummary':
             $('input#AutomationStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter optional');
             $('input#ManualStepThreshold').removeClass('showFilter').addClass('hideFilter optional');
-            $('select#AttUIDSel').removeClass('showFilter').addClass('hideFilter optional');
+            $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('showFilter').addClass('hideFilter optional');
             $('select#WorkSourceSel').removeClass('showFilter').addClass('hideFilter optional');
             $('select#TaskTypeSel').removeClass('showFilter').addClass('hideFilter optional');
             $('input#SessionId').removeClass('showFilter').addClass('hideFilter optional');
-			$('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').hide();
+		    $('.chosen-container').not('#environment_chosen').not('#ReportType_chosen').not('#AttUIDSel_chosen').hide();
             break;
         }
     });
@@ -235,7 +235,7 @@ $(document).ready(function () {
     var attUID = '';
     var BusinessLine = '';
     var WorkSource = '';
-	var TaskType = '';
+    var TaskType = '';
     var titleText = '';
 
     $('input#RequestReport').off('click.request').on('click.request', function () {
@@ -386,9 +386,9 @@ $(document).ready(function () {
 	    case 'Screenshots':
 		    valid = true;
 		    break;
-		case 'PerformanceSummary':
-			valid = true;
-			break;
+	    case 'PerformanceSummary':
+	    	valid = true;
+		    	break;
 	    }
 	    if (!valid) {
 		    return;
@@ -532,7 +532,7 @@ $(document).ready(function () {
 				    workSource =  '';
 			    }
 			    break;
-			case 'TaskTypeSel':
+		    case 'TaskTypeSel':
 			    if ($(element).val() != '') {
                     taskTypeFilter = 'AND (';
 				    if (parameters == '') {
@@ -578,7 +578,7 @@ $(document).ready(function () {
         case 'AllAutomation':
 		    if (parameters == '') {
 			    titleText = 'MOTIVE STEPS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');
-		    } else {		
+		    } else {
 			    titleText = 'MOTIVE STEPS THAT TAKING ' + automationStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
 		    }
             var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) as work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + automationStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' ORDER BY start_time ASC';
@@ -611,8 +611,8 @@ $(document).ready(function () {
             titleText = 'WORKFLOW SESSION DATA FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>DOUBLE CLICK ON A ROW FROM THE LIST TO VIEW THE ASSOCIATED SCREENSHOTS</i></small>';
             var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionIdFilter + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' ORDER BY start_time';
 		    break;
-		case 'PerformanceSummary':
-			titleText = 'WORKFLOW COMPLETION COUNT BY CATEGORY FOR WORKFLOWS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');	
+	    case 'PerformanceSummary':
+		    titleText = 'WORKFLOW COMPLETION COUNT BY CATEGORY FOR WORKFLOWS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
         }
         $.ajax({
             type: 'post',
@@ -623,9 +623,10 @@ $(document).ready(function () {
                 databasePW: dbPassword,
                 databaseName: dbName,
                 sql: sql,
-				startDate: startDate,
-				endDate: endDate,
-				reportType: reportType
+			    startDate: startDate,
+			    endDate: endDate,
+			    reportType: reportType,
+			    attUIDFilter: attUIDFilter
             },
             dataType: 'json',
         }).done(function(data) {
@@ -642,7 +643,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=9 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'SlowManualSummary':
 			    var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false"></th><th colspan=2 class="sorter-false text-center border-bottom">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -655,7 +656,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
 			    break;
             case 'AllAutomation':
                 var html ='<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false" >START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">MOTIVE STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th></tr></thead><tbody>';
@@ -668,7 +669,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'AllManual':
 			    var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">AGENT STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th></tr></thead><tbody>';
@@ -681,7 +682,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=12 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'AllWorkflow':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
@@ -694,7 +695,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'AgentSummary':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW<br />DURATION<br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />MOTIVE STEP<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center filter-false">AVG DURATION</th><th class="text-center">COUNT</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -705,7 +706,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'AgentPerformance':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=7 class="text-center sorter-false">WORKFLOW DATA</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />< ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEPS<br />< ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center filter-false">START TIME</th><th class="text-left">AGENT NAME</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
@@ -743,7 +744,7 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=22 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
             case 'Screenshots':
                 var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
@@ -756,56 +757,97 @@ $(document).ready(function () {
                 } else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                 }
-				html = html + '</tbody></table>';
+			    html = html + '</tbody></table>';
                 break;
-			case 'PerformanceSummary':
+		    case 'PerformanceSummary':
                 if (!data.hasOwnProperty('ERROR')) {
-					var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5>';
+		    		var html = '<h3 class="text-center">'+ $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5>';
+ 					html = html + '<ul class="nav nav-pills nav-justified">';
 				    $.each(data, function (reportType, reportData) {
-						switch (reportType) {
-						case 'CountByAgent':
-							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY AGENT</th></tr><tr><th class="sorter-false filter-false text-center">AGENT NAME</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
-							break;
-						case 'CountByBusinessLine':
-							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY BUSINESS LINE</th></tr><tr><th class="sorter-false filter-false text-center">BUSINESS LINE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
-							break;
-						case 'CountByWorkSource':
-							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY WORK TYPE</th></tr><tr><th class="sorter-false filter-false text-center">WORK TYPE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
-							break;
-						case 'CountByTaskType':
-							html = html + '<table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY TASK TYPE</th></tr><tr><th class="sorter-false filter-false text-center">TASK TYPE</th><th class="sorter-false filter-false text-center">TOTAL</th></tr></thead><tbody>';
-							break;
-						}
-						$.each(reportData, function (index, reportRow) {
-							switch (reportType) {
-							case 'TotalCount':
-								html = html + '<div class="text-center"><h3>TOTAL COMPLETED WORKFLOWS: ' + reportRow.count + '</h3></div>';
-								break;
-							case 'CountByAgent':
-								html = html + '<tr><td class="text-right">' + reportRow.agent_name + '</td><td class="text-right">' + reportRow.agent_name_count + '</td></tr>'
-								break;
-							case 'CountByBusinessLine':
-								html = html + '<tr><td class="text-right">' + reportRow.business_line + '</td><td class="text-right">' + reportRow.business_line_count + '</td></tr>'
-								break;
-							case 'CountByWorkSource':
-								html = html + '<tr><td class="text-right">' + reportRow.work_source + '</td><td class="text-right">' + reportRow.work_source_count + '</td></tr>'
-								break;
-							case 'CountByTaskType':
-								html = html + '<tr><td class="text-right">' + reportRow.task_type + '</td><td class="text-right">' + reportRow.task_type_count + '</td></tr>'
-								break;
-							}
-						});
-						if (reportType != 'TotalCount') {
-							html = html + '</tbody></table>';
-						}
-					});
-				} else {
+		    			switch(reportType) {
+		    			case 'CountByAgent':
+		    				html = html + '<li class="active"><a data-toggle="pill" href="#CountByAgent">COUNT BY AGENT</a></li>';
+		    				break;
+		    			case 'CountByBusinessLine':
+		    				html = html + '<li><a data-toggle="pill" href="#CountByBusinessLine">COUNT BY BUSINESS LINE</a></li>';
+		    				break;
+		    			case 'CountByWorkSource':
+		    				html = html + '<li><a data-toggle="pill" href="#CountByWorkSource">COUNT BY WORK TYPE</a></li>';
+		    				break;
+		    			case 'CountByTaskType':
+		    				html = html + '<li><a data-toggle="pill" href="#CountByTaskType">COUNT BY TASK TYPE</a></li>';
+		    				break;
+		    			}
+		    		});
+		    		html = html + '</ul><div class="tab-content">';
+				    $.each(data, function (reportType, reportData) {
+    					switch (reportType) {
+    					case 'CountByAgent':
+    						html = html + '<div id="CountByAgent" class="tab-pane fade in active"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY AGENT</th></tr><tr><th class="filter-false text-center">AGENT NAME</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+    						break;
+    					case 'CountByBusinessLine':
+    						html = html + '<div id="CountByBusinessLine" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY BUSINESS LINE</th></tr><tr><th class="filter-false text-center">BUSINESS LINE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+    						break;
+    					case 'CountByWorkSource':
+    						html = html + '<div id="CountByWorkSource" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY WORK TYPE</th></tr><tr><th class="filter-false text-center">WORK TYPE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+    						break;
+    					case 'CountByTaskType':
+    						html = html + '<div id="CountByTaskType" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY TASK TYPE</th></tr><tr><th class="filter-false text-center">TASK TYPE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+    						break;
+    					}
+    					$.each(reportData, function (index, reportRow) {
+    						switch (reportType) {
+    						case 'TotalCount':
+    							html = html + '<div class="text-center"><h3>TOTAL COMPLETED WORKFLOWS: ' + reportRow.count + '</h3></div>';
+    							totalCompleted = reportRow.count;
+    							break;
+    						case 'CountByAgent':
+    							html = html + '<tr><td class="text-right">' + reportRow.agent_name + '</td><td class="text-right">' + reportRow.agent_name_count + '</td><td class="text-right">' + (reportRow.agent_name_count / totalCompleted * 100).toFixed(2) + '%</td></tr>';
+    							break;
+    						case 'CountByBusinessLine':
+    							html = html + '<tr><td class="text-right">' + reportRow.business_line + '</td><td class="text-right">' + reportRow.business_line_count + '</td><td class="text-right">' + (reportRow.business_line_count / totalCompleted * 100).toFixed(2) + '%</td></tr>';
+    							break;
+    						case 'CountByWorkSource':
+    							html = html + '<tr><td class="text-right">' + reportRow.work_source + '</td><td class="text-right">' + reportRow.work_source_count + '</td><td class="text-right">' + (reportRow.work_source_count / totalCompleted * 100).toFixed(2) + '%</td></tr>';
+    							break;
+    						case 'CountByTaskType':
+    							html = html + '<tr><td class="text-right">' + reportRow.task_type + '</td><td class="text-right">' + reportRow.task_type_count + '</td><td class="text-right">' + (reportRow.task_type_count / data['TaskTypeTotal']['count'] *100).toFixed(2) + '%</td></tr>';
+    							break;
+    						}
+    					});
+    					switch(reportType) {
+    					case 'TaskTypeTotal':
+    					case 'TotalCount':
+    						break;
+    					case 'CountByAgent':
+    					case 'CountByBusinessLine':
+    					case 'CountByWorkSource':
+    						html = html + '</tbody><thead><tr><th class="sorter-false filter-false text-right">TOTAL</th><th class="sorter-false filter-false text-right">' + totalCompleted + '</th><th class="sorter-false filter-false">&nbsp;</th></tr></thead></table></div>';
+    						break;
+    					case 'CountByTaskType':
+    						html = html + '</tbody><thead><tr><th class="sorter-false filter-false text-right">TOTAL</th><th class="sorter-false filter-false text-right">' + data['TaskTypeTotal']['count'] + '</th><th class="sorter-false filter-false">&nbsp;</th></tr></thead></table></div>';
+    						break;
+    					default:
+    						html = html + '</tbody></table></div>';
+    						break;
+    					}
+    				});
+    				html = html + '</div>';
+    			} else {
                     html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
-				}
-				break;
+    			}
+    			$('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
+    				$('table.result').trigger('update').trigger('applyWidgetId','zebra');
+    				$('table').trigger('update');
+    			});
+    			break;
             }
             $('div#reportBody').html(html);
-            $('table#results').stickyTableHeaders();
+    		$('a[data-toggle="pill"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
+    			$('table.result').trigger('update').trigger('applyWidgetId','zebra');
+    			$('table').trigger('update');
+    		});
+            $('table#results, table.results').stickyTableHeaders();
             if (!data.hasOwnProperty('ERROR')) {
                 $('table#results, table.results').tablesorter({
                     theme: 'custom',
@@ -1084,11 +1126,11 @@ let displayScreenshots = function (session_id) {
 	    if (!business_line) {
 		    business_line = '&nbsp;';
 	    }
-	    var html = '<div class="close row col-sm-12 text-right" style="font-size: 200%;color: #ffffff;padding-right: 15px;padding-top:2px;">X</div><div class="row"><div class="col-sm-3 text-right">SESSION ID:</div><div class="data col-sm-9 text-left">' + data[0].smp_session_id + '</div><div class="col-sm-3 text-right">AGENT:</div><div class="data col-sm-3 text-left">' + data[0].agent_name + '</div><div class="col-sm-3 text-right">MANAGER:</div><div class="data col-sm-3 text-left">' + manager_id + '</div><div class="col-sm-3 text-right">START TIME:</div><div class="data col-sm-3 text-left">' + start_time + '</div><div class="col-sm-3 text-right">END TIME:</div><div class="data col-sm-3 text-left">' + stop_time + '</div><div class="col-sm-3 text-right">DURATION:</div><div class="data col-sm-3 text-left">' + data[0].elapsed_seconds + '</div><div class="col-sm-3 text-right">TASK TYPE:</div><div class="data col-sm-3 text-left">' + task_type + '</div><div class="col-sm-3 text-right">WORK TYPE:</div><div class="data col-sm-3 text-left">' + work_source + '</div><div class="col-sm-3 text-right">BUSINESS LINE:</div><div class="data col-sm-3 text-left">' + business_line + '</div></div>';
+	    var html = '<div class="close row col-sm-12 text-right" style="font-size: 200%;color: #ffffff;padding-right: 15px;padding-top:2px;">X</div><div class="row"><div class="col-sm-3 text-right">SESSION ID:</div><div class="data col-sm-9 text-left">' + data[0].smp_session_id + '</div><div class="col-sm-3 text-right">AGENT:</div><div class="data col-sm-3 text-left">' + data[0].agent_name + '</div><div class="col-sm-3 text-right">MANAGER:</div><div class="data col-sm-3 text-left">' + manager_id + '</div><div class="col-sm-3 text-right">START TIME:</div><div class="data col-sm-3 text-left">' + start_time + '</div><div class="col-sm-3 text-right">END TIME:</div><div class="data col-sm-3 text-left">' + stop_time + '</div><div class="col-sm-3 text-right">DURATION:</div><div class="data col-sm-3 text-left">' + data[0].elapsed_seconds + '</div><div class="col-sm-3 text-right">TASK TYPE:</div><div class="data col-sm-3 text-left">' + task_type + '</div><div class="col-sm-3 text-right">WORK TYPE:</div><div class="data col-sm-3 text-left">' + work_source + '</div><div class="col-sm-3 text-right">BUSINESS LINE:</div><div class="data col-sm-3 text-left">' + business_line + '</div><div class="data col-sm-12 text-center">CLICK THE IMAGE BELOW TO DISPLAY A LARGER VIEW</div></div>';
 	    $('div.headerData').html(html);
 	    var count = data.length;
 	    $.each(data, function(key, value) {
-	    	var html = '<li><img class="flex" src="' + value.image_data + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + value.screenshot_time + '</div><div class="col-sm-6 text-right data">' + (key+1) + '/' + count + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + value.flow_name + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + value.step_name + '</div></div></li>';
+	    	var html = '<li><img class="flex makefancybox" src="' + value.image_data + '" /><div class="footerData row"><div class="col-sm-3 text-right">TIME:</div><div class="data col-sm-3 text-left">' + value.screenshot_time + '</div><div class="col-sm-6 text-right data">' + (key+1) + '/' + count + '</div><div class="col-sm-3 text-right">FLOW NAME</div><div class="col-sm-3 text-left data">' + value.flow_name + '</div><div class="col-sm-3 text-right">STEP NAME:</div><div class="col-sm-3 text-left data">' + value.step_name + '</div></div></li>';
 	    	$('ul.slides').append(html);
 	    });
 	    $('.flexslider').flexslider({
@@ -1105,6 +1147,15 @@ let displayScreenshots = function (session_id) {
         $('div.close').off('click').on('click', function () {
             $('div.container').hide();
             $('div#reportBody').show();
+        });
+        $('img.makefancybox').each(function(){
+            var src = $(this).attr('src');
+            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
+            $(this).wrap(a);
+            $('a.fancybox').fancybox({
+                titlePositon: 'inside'
+            });
+            $(this).removeClass('makefancybox');
         });
     });
 };

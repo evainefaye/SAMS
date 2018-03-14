@@ -335,3 +335,13 @@ img#SashaScreenShot {
 	font-size: 8px;
 	color: black;
 }
+
+
+div.footerData {
+    margin-top: 5px;
+    background-color: #0c2577;
+    padding: 15px 30px;
+    color: white;
+    font-size: 10px;
+    border-radius: 8px;
+}
