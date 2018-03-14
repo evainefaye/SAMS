@@ -4,18 +4,26 @@ var windowManager = new Object(); // Create Object for storing information about
 window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
-    var serverAddress = 'http://10.100.49.104';     // Set the location of the Node.js server
-    var serverAddress = 'http://108.226.174.227';     // Set the location of the Node.js server    
+    var serverAddress = 'http://10.100.49.77';     // Set the location of the Node.js server
+
+    $('select#environment').chosen({
+        width: '100%',
+        allow_single_deselect: true,
+        disable_search: true
+    });
 
     var environment = Cookies.get('environment');
     if (typeof environment == 'undefined') {
-        environment = 'prod';
+        environment = Cookies.get('environment');
+        if (typeof environment == 'undefined') {
+            environment = 'prod';
+        }
         Cookies.set('environment','prod');
     }
-    $('select#environment option[value=' + environment + ']').prop('selected', 'selected').change();
+    $('select#environment').val(environment).trigger('chosen:updated');
 
     switch (environment) {
-    // Set Node.js port and version description based on environment variable.  Default loads production 
+    // Set Node.js port and version description based on environment variable.  Default loads production
     case 'fde':
         var socketURL = serverAddress + ':5510';
         var version = 'DEVELOPMENT';
@@ -49,7 +57,7 @@ $(document).ready(function () {
 
     document.title = 'SAMS - ' + version + ' SASHA ACTIVITY MONITORING SYSTEM'; // Set Window Title
 
-	
+
     // Define Event for enabling / disabling the supervisors list for filtering
     $('#SupervisorList').off('keyup').on('keyup', function() {
         Cookies.set('SupervisorList',$('#SupervisorList').val().trim());
@@ -113,7 +121,7 @@ $(document).ready(function () {
         });
         addCustomTabs();
     });
-	
+
     socket.on('Request Connection Type', function(data) {
         var ServerStartTime = data.ServerStartTime;
         ServerStartTime = toLocalDateTime(ServerStartTime);
@@ -132,7 +140,7 @@ $(document).ready(function () {
         sessionStartTime = toLocalTime(sessionStartTime);
         // If there is no row matching the row your about to add, then go ahead and add it
         if (!$('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
-            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'			
+            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
                 + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-center">' + sessionStartTime + '</td>'
@@ -144,7 +152,7 @@ $(document).ready(function () {
 			    $('tbody tr').show();
 			    $('tbody tr').not(window.filter).hide();
             }
-            $('table.INACTIVESESSIONS').trigger('applyWidgetId','zebra');						
+            $('table.INACTIVESESSIONS').trigger('applyWidgetId','zebra');
             // Initialize Counters for the connection just added
             $('div[InactiveSessionDurationId=sessionDuration_' + connectionId + ']').countdown({
                 since: sessionStartTimestamp,
@@ -211,7 +219,7 @@ $(document).ready(function () {
                 'GROUP BY: ' +
                 '<input type="radio" name="' + skillGroup + '" class="groupOption" value="none" checked="checked">NONE' +
                 '<input type="radio" name="' + skillGroup + '" class="groupOption" value="agentname">AGENT NAME' +
-                '</span>' + 
+                '</span>' +
                 '</div> ' +
                 '<table class="table table-bordered center hover-highlight serviceline ' + skillGroup + '" >' +
                 '<thead>' +
@@ -219,7 +227,7 @@ $(document).ready(function () {
                 '<th class="col-sm-1 text-center attUID">ATT UID</th>' +
                 '<th class="col-sm-2 text-center agentName group-text">AGENT NAME</th>' +
                 '<th class="col-sm-1 text-center workType group-text">WORK SOURCE</th>' +
-                '<th class="col-sm-1 text-center workType group-text">TASK TYPE</th>' +				
+                '<th class="col-sm-1 text-center workType group-text">TASK TYPE</th>' +
                 '<th class="col-sm-1 text-center sessionDuration sorter-false">WORKFLOW<br />SESSION DURATION</th>' +
                 '<th class="col-sm-1 text-center stepDuration sorter-false">STEP<br />DURATION</th>' +
                 '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
@@ -234,6 +242,7 @@ $(document).ready(function () {
             // Sort Tabs in Alphabetical order
             sortTabs('ul#Tabs');
             //  Make the added table sortable
+		    $('table.' + skillGroup).stickyTableHeaders();
             $('table.' + skillGroup).tablesorter({
                 theme: 'custom',
                 sortList: [[5,1]],
@@ -253,7 +262,7 @@ $(document).ready(function () {
                 + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
                 + '<td class="text-left">' + workType + '</td>'
-                + '<td class="text-center">' + taskType + '</td>'								
+                + '<td class="text-center">' + taskType + '</td>'
                 + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
                 + '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
                 + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
@@ -270,9 +279,9 @@ $(document).ready(function () {
             row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
                 + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-center">' + workType + '</td>'				
-                + '<td class="text-center">' + taskType + '</td>'												
-                + '<td class="text-left">' + skillGroup + '</td>'				
+                + '<td class="text-center">' + workType + '</td>'
+                + '<td class="text-center">' + taskType + '</td>'
+                + '<td class="text-left">' + skillGroup + '</td>'
                 + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
                 + '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
                 + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
@@ -334,7 +343,7 @@ $(document).ready(function () {
         // Remove timer(s) associated with connection before removing row to prevent a javascript error
         $('div[inactivesessionDurationId="sessionDuration_' + connectionId + '"]').countdown('destroy');
         $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown('destroy');
-        $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown('destroy');		
+        $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown('destroy');
         $('tr[connectionId="' + connectionId + '"]').remove();
         // force the groupable pages to refresh since their categories may now be empty
         $('table.INACTIVESESSIONS').trigger('update').trigger('applyWidgetId','zebra');
@@ -428,9 +437,9 @@ $(document).ready(function () {
             var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">'
                 + '<td class="text-centers">' + attUID + '</a></td>'
                 + '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>'
-                + '<td class="text-left">' + workType + '</td>'				
+                + '<td class="text-left">' + workType + '</td>'
                 + '<td class="text-left">' + taskType + '</td>'
-                + '<td class="text-center">' + skillGroup + '</td>'				
+                + '<td class="text-center">' + skillGroup + '</td>'
                 + '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>'
                 + '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>'
                 + '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>'
@@ -463,7 +472,7 @@ $(document).ready(function () {
             $('a[skillGroup="STALLEDSESSIONS"] span').html(userCount);
 
             // Trigger table to sort
-            $('table.STALLEDSESSIONS').trigger('applyWidgetId','zebra');			
+            $('table.STALLEDSESSIONS').trigger('applyWidgetId','zebra');
             doGroup('STALLEDSESSIONS');
         }
     });
@@ -595,7 +604,7 @@ let addCustomTabs = function () {
         '<input type="radio" name="ALLSESSIONS" class="groupOption" value="none" checked="checked">NONE' +
         '<input type="radio" name="ALLSESSIONS" class="groupOption" value="agentname">AGENT NAME' +
         '<input type="radio" name="ALLSESSIONS" class="groupOption" value="skillgroup">SKILL GROUP' +
-        '</span>' + 
+        '</span>' +
         '</div> ' +
         '<table class="table table-bordered center groupable hover-highlight ALLSESSIONS">' +
         '<thead>' +
@@ -604,7 +613,7 @@ let addCustomTabs = function () {
         '<th class="col-sm-2 text-center agentName group-text">AGENT NAME</th>' +
         '<th class="col-sm-1 text-center workType group-text">WORK SOURCE</th>' +
         '<th class="col-sm-1 text-center taskType group-text">TASK TYPE</th>' +
-        '<th class="col-sm-1 text-center skillGroup group-word">BUSINESS UNIT</th>' +		
+        '<th class="col-sm-1 text-center skillGroup group-word">BUSINESS UNIT</th>' +
         '<th class="col-sm-1 text-center sessionDuration sorter-false">WORKFLOW<br />SESSION DURATION</th>' +
         '<th class="col-sm-1 text-center stepDuration sorter-false">STEP<br />DURATION</th>' +
         '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
@@ -620,6 +629,7 @@ let addCustomTabs = function () {
     $('.nav-tabs a[skillGroup="ALLSESSIONS"]').tab('show');
     $('table.ALLSESSIONS').trigger('update').trigger('applyWidgetId','zebra');
     // Make table sortable
+    $('table.ALLSESSIONS').stickyTableHeaders();
     $('table.ALLSESSIONS').tablesorter({
         theme: 'custom',
         sortReset: true,
@@ -633,7 +643,7 @@ let addCustomTabs = function () {
     $('ul#Tabs').append(row);
     row = '<div id="INACTIVESESSIONS" class="tab-pane">' +
         '<div class="buttonrow">' +
-        '<span class="buttons">' + 
+        '<span class="buttons">' +
         'GROUP BY: ' +
         '<input type="radio" name="INACTIVESESSIONS" class="groupOption" value="none" checked="checked">NONE' +
         '<input type="radio" name="INACTIVESESSIONS" class="groupOption" value="agentname">AGENT NAME' +
@@ -654,6 +664,7 @@ let addCustomTabs = function () {
         '</div>';
     $('div#Contents').append(row);
     // Make Table Sortable
+    $('table.INACTIVESESSIONS').stickyTableHeaders();
     $('table.INACTIVESESSIONS').tablesorter({
         theme: 'custom',
         sortList: [[5,1]],
@@ -668,7 +679,7 @@ let addCustomTabs = function () {
     $('ul#Tabs').append(row);
     row = '<div id="STALLEDSESSIONS" class="tab-pane">' +
         '<div class="buttonrow">' +
-        '<span class="buttons">' + 
+        '<span class="buttons">' +
         'GROUP BY: ' +
         '<input type="radio" name="STALLEDSESSIONS" class="groupOption" value="none" checked="checked">NONE' +
         '<input type="radio" name="STALLEDSESSIONS" class="groupOption" value="agentname">AGENT NAME' +
@@ -696,6 +707,7 @@ let addCustomTabs = function () {
         '</div>';
     $('div#Contents').append(row);
     // Make Table Sortable
+    $('table.STALLEDSESSIONS').stickyTableHeaders();
     $('table.STALLEDSESSIONS').tablesorter({
         theme: 'custom',
         sortList: [[5,1]],
@@ -711,7 +723,7 @@ let handleGroupChange = function () {
     $('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
         var target = $(e.target).attr('skillGroup');
         $('table.' + target).trigger('update').trigger('applyWidgetId','zebra');
-    });	
+    });
     $('table').trigger('update');
     setTimeout(function() {
         $('input[type=radio].groupOption').off('change.groupOption').on('change.groupOption', function () {
@@ -721,31 +733,31 @@ let handleGroupChange = function () {
             case 'none':
                 $('table.' + name).trigger('sortReset');
                 $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('applyWidgetId', 'zebra');				
+                $('table.' + name).trigger('applyWidgetId', 'zebra');
                 break;
             case 'agentname':
                 $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('removeWidget', 'zebra');				
+                $('table.' + name).trigger('removeWidget', 'zebra');
                 var sortOrder = [[1,0]];
-                $('table.' + name).trigger('sortReset').trigger('sorton',[sortOrder]);				
-                $('table.' + name).trigger('applyWidgetId', 'zebra');				
+                $('table.' + name).trigger('sortReset').trigger('sorton',[sortOrder]);
+                $('table.' + name).trigger('applyWidgetId', 'zebra');
                 $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [1];
                 $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
                 $('table.' + name).trigger('applyWidgetId' ,'group');
                 break;
             case 'skillgroup':
                 $('table.' + name).trigger('removeWidget', 'group');
-                $('table.' + name).trigger('removeWidget', 'zebra');				
+                $('table.' + name).trigger('removeWidget', 'zebra');
                 var sortOrder = [[4,0]];
                 $('table.' + name).trigger('sortReset').trigger('sorton',[sortOrder]);
-                $('table.' + name).trigger('applyWidgetId', 'zebra');				
+                $('table.' + name).trigger('applyWidgetId', 'zebra');
                 $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [4];
                 $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
                 $('table.' + name).trigger('applyWidgetId' ,'group');
                 break;
             }
         });
-    }, 300);	
+    }, 300);
 };
 
 let doGroup = function (skillGroup) {
@@ -754,24 +766,24 @@ let doGroup = function (skillGroup) {
     case 'none':
         $('table.' + skillGroup).trigger('sortReset');
         $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');				
+        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
         break;
     case 'agentname':
         $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('removeWidget', 'zebra');				
+        $('table.' + skillGroup).trigger('removeWidget', 'zebra');
         var sortOrder = [[1,0]];
-        $('table.' + skillGroup).trigger('sortReset').trigger('sorton',[sortOrder]);				
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');				
+        $('table.' + skillGroup).trigger('sortReset').trigger('sorton',[sortOrder]);
+        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
         $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [1];
         $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
         $('table.' + skillGroup).trigger('applyWidgetId' ,'group');
         break;
     case 'skillgroup':
         $('table.' + skillGroup).trigger('removeWidget', 'group');
-        $('table.' + skillGroup).trigger('removeWidget', 'zebra');				
+        $('table.' + skillGroup).trigger('removeWidget', 'zebra');
         var sortOrder = [[4,0]];
         $('table.' + skillGroup).trigger('sortReset').trigger('sorton',[sortOrder]);
-        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');				
+        $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
         $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [4];
         $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
         $('table.' + skillGroup).trigger('applyWidgetId' ,'group');
