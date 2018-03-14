@@ -14,6 +14,11 @@
     },
     "rules": {
         "no-const-assign": "warn",
+        "no-compare-neg-zero": "warn",
+        "no-constant-condition": "warn",
+        "no-undef": "warn",
+        "no-unused-vars": "warn",
+        "comma-spacing": "warn",
         "no-trailing-spaces": "warn",
         "no-this-before-super": "warn",
         "no-unreachable": "warn",

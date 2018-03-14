@@ -15,7 +15,7 @@ $(document).ready(function () {
         if (typeof environment == 'undefined') {
             environment = 'prod';
         }
-        Cookies.set('environmentReporting','prod');
+        Cookies.set('environmentReporting', 'prod');
     }
     $('select#environment').val(environment).trigger('chosen:updated');
 
@@ -34,7 +34,7 @@ $(document).ready(function () {
         break;
     default:
         environment = 'prod';
-        Cookies.set('environmentReporting','prod');
+        Cookies.set('environmentReporting', 'prod');
         var socketURL = serverAddress + ':5530';
         version = 'PRODUCTION';
         break;
@@ -42,7 +42,7 @@ $(document).ready(function () {
  	$('select#ReportType').val('');
     $('select#environment').off('change').on('change', function () {
         environment = $(this).find(':selected').val();
-        Cookies.set('environmentReporting',environment);
+        Cookies.set('environmentReporting', environment);
         window.location.reload();
     });
 
@@ -191,15 +191,15 @@ $(document).ready(function () {
                 moment().endOf('day')
             ],
             'Yesterday': [
-                moment().subtract(1,'d').startOf('day'),
-                moment().subtract(1,'d').endOf('day')
+                moment().subtract(1, 'd').startOf('day'),
+                moment().subtract(1, 'd').endOf('day')
             ],
             'Previous 7 Days': [
-                moment().subtract(7,'d').startOf('day'),
+                moment().subtract(7, 'd').startOf('day'),
                 moment().endOf('day')
             ],
             'Previous 30 Days': [
-                moment().subtract(30,'d').startOf('day'),
+                moment().subtract(30, 'd').startOf('day'),
                 moment().endOf('day')
             ],
             'This Month': [
@@ -211,8 +211,8 @@ $(document).ready(function () {
                 moment().subtract(1, 'weeks').endOf('isoWeek')
             ],
             'Last Month': [
-                moment().subtract(1,'M').startOf('month').startOf('day'),
-                moment().subtract(1,'M').endOf('month').endOf('day')
+                moment().subtract(1, 'M').startOf('month').startOf('day'),
+                moment().subtract(1, 'M').endOf('month').endOf('day')
             ]
         },
         'locale': {
@@ -464,7 +464,7 @@ $(document).ready(function () {
 				    } else {
 					    parameters = parameters + ' ATTUID:&nbsp;[';
 				    }
-                    $.each($(element).val(), function (key,value) {
+                    $.each($(element).val(), function (key, value) {
                         attUID = attUID + ' ' + attUID;
                         if (key == 0) {
                             attUIDFilter = attUIDFilter + '(manager_id = "' + value + '" || att_uid = "' + value + '")';
@@ -491,7 +491,7 @@ $(document).ready(function () {
 					    parameters = parameters +  ' BUSINESS&nbsp;LINE:&nbsp;[';
 				    }
                     businessLine = $(element).val();
-                    $.each(businessLine, function (key,value) {
+                    $.each(businessLine, function (key, value) {
                         if (key == 0) {
                             businessLineFilter = businessLineFilter + 'business_line LIKE "%' + value + '%" ';
 						    parameters = parameters + value;
@@ -516,7 +516,7 @@ $(document).ready(function () {
 					    parameters = parameters + '&nbsp;WORK&nbsp;TYPE:&nbsp;[';
 				    }
                     workSource = $(element).val();
-                    $.each(workSource, function (key,value) {
+                    $.each(workSource, function (key, value) {
                         if (key == 0) {
                             workSourceFilter = workSourceFilter + 'work_source LIKE "%' + value + '%"';
 						    parameters = parameters + value;
@@ -541,7 +541,7 @@ $(document).ready(function () {
 					    parameters = parameters + '&nbsp;TASK&nbsp;TYPE:&nbsp;[';
 				    }
                     taskType = $(element).val();
-                    $.each(taskType, function (key,value) {
+                    $.each(taskType, function (key, value) {
                         if (key == 0) {
                             taskTypeFilter = taskTypeFilter + 'task_type = "' + value + '"';
 						    parameters = parameters + value;
@@ -844,7 +844,7 @@ $(document).ready(function () {
             }
             $('div#reportBody').html(html);
     		$('a[data-toggle="pill"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
-    			$('table.result').trigger('update').trigger('applyWidgetId','zebra');
+    			$('table.result').trigger('update').trigger('applyWidgetId', 'zebra');
     			$('table').trigger('update');
     		});
             $('table#results, table.results').stickyTableHeaders();
@@ -871,7 +871,7 @@ $(document).ready(function () {
 		    $('td.query-manual').off('click').on('click', function() {
 			    smp_session_id = $(this).parent().prop('data-session');
 			    compare = $(this).attr('data-query');
-			    subQuery('manual',smp_session_id, compare);
+			    subQuery('manual', smp_session_id, compare);
 		    });
 	    }).fail(function () {
 		    alert('Request Timed Out');
@@ -934,7 +934,7 @@ $(document).ready(function () {
         dbName = data.dbConfig.database;
 	    useDB = data.useDB;
 	    if (!useDB) {
-		    $('select, input').not('#environment').prop('disabled',true).trigger('chosen:updated');
+		    $('select, input').not('#environment').prop('disabled', true).trigger('chosen:updated');
 		    $('body').append('<div id="main" class="center"><h3>REQUIRED DATABASE ACCESS NOT CONFIGURED FOR THIS ENVIRONMENT</h3></div>');
 		    return false;
 	    }

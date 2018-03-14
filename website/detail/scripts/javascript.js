@@ -67,7 +67,7 @@ $(document).ready(function () {
     });
 
     $('button#pushMessageButton').off('click.broadcast').on('click.broadcast', function () {
-        var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g,'<br />');
+        var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g, '<br />');
         socket.emit('Send User Message to Server', {
             ConnectionId: window.SASHAClientId,
             BroadcastText: broadcastText
@@ -164,7 +164,7 @@ $(document).ready(function () {
             socket.emit('Request SASHA Dictionary from Server', {
                 ConnectionId: connectionId
             });
-        },100);
+        }, 100);
         getSkillGroupInfo(skillGroup);
         showFlowHistory(UserInfo);
         socket.emit('Join Detail View Room', {
@@ -317,9 +317,9 @@ $(document).ready(function () {
             });
             $(this).removeClass('makefancybox');
         });
-        $('img.fancybox').off('click').on('click',function () {
+        $('img.fancybox').off('click').on('click', function () {
             var src = $(this).attr('src');
-            $('img.fancybox-image').attr('src',src);
+            $('img.fancybox-image').attr('src', src);
         });
     });
 
@@ -334,7 +334,7 @@ $(document).ready(function () {
         var ImageURL = data.ImageURL;
         $('img#SASHAScreenshot').attr('src', ImageURL).show();
         $('img#SASHAScreenshot').parent().css('background-image', 'none');
-        $('a.fancybox.current').attr('href',ImageURL);
+        $('a.fancybox.current').attr('href', ImageURL);
         //$('img.fancybox-image').attr('src', ImageURL);
         var screenshotTime = new Date().toString();
         screenshotTime = toLocalTime(screenshotTime);
@@ -541,9 +541,9 @@ let requestHistoricalImages = function(smpSessionId) {
     				});
     				$(this).removeClass('makefancybox');
     			});
-    			$('img.fancybox').off('click').on('click',function () {
+    			$('img.fancybox').off('click').on('click', function () {
     				var src = $(this).attr('src');
-    				$('img.fancybox-image').attr('src',src);
+    				$('img.fancybox-image').attr('src', src);
     			});
     		}
     	}).fail(function () {
