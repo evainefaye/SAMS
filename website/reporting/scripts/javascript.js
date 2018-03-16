@@ -8,6 +8,7 @@ $(document).ready(function () {
     $('div#main').hide();
     // Set the location of the Node.JS server
     var serverAddress = 'http://10.100.49.77';
+    var serverAddress = 'http://127.0.0.1';
 
     var environment = Cookies.get('environmentReporting');
     if (typeof environment == 'undefined') {
@@ -22,11 +23,11 @@ $(document).ready(function () {
     switch (environment) {
         case 'fde':
             var socketURL = serverAddress + ':5510';
-            var version = 'DEVELOPMENT';
+            var version = 'FDE (DEVELOPMENT)';
             break;
         case 'pre-prod':
             var socketURL = serverAddress + ':5520';
-            version = 'BETA';
+            version = 'PRE-PROD (BETA)';
             break;
         case 'prod':
             var socketURL = serverAddress + ':5530';
@@ -633,7 +634,7 @@ $(document).ready(function () {
             $('input, select').attr('disabled', false);
             switch (reportType) {
                 case 'SlowAutomationSummary':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="sorter-false"></th><th colspan=2 class="sorter-false text-center border-bottom">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + automationStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">FLOW NAME</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=9 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th class="sorter-false"></th><th colspan=2 class="sorter-false text-center">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + automationStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var percent_standard = (value.count_standard / value.count * 100).toFixed(2) + '%';
@@ -646,7 +647,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'SlowManualSummary':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=2 class="sorter-false"></th><th colspan=2 class="sorter-false text-center border-bottom">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="filter-false text-center">AVERAGE<br />DURATION</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=10 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th colspan=2 class="sorter-false"></th><th colspan=2 class="sorter-false text-center">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th><th class="text-center sortInitialOrder-asc group-false">STEP NAME</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE<br />DURATION</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var percent_standard = (value.count_standard / value.count * 100).toFixed(2) + '%';
@@ -659,7 +660,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'AllAutomation':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false" >START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">MOTIVE STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">MOTIVE STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -672,7 +673,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'AllManual':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">AGENT STEP DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center">FLOW NAME</th><th class="text-center">STEP NAME</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=12 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">AGENT STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center group-separator">FLOW NAME</th><th class="text-center group-false">STEP NAME</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -685,7 +686,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'AllWorkflow':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=10 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th class="text-center group-false">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -698,7 +699,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'AgentSummary':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW<br />DURATION<br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />MOTIVE STEP<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center filter-false">AVG DURATION</th><th class="text-center">COUNT</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW<br />DURATION<br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />MOTIVE STEP<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING<br />AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-false">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-false">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center filter-false group-false">AVG DURATION</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             html = html + '<tr><td class="text-left">' + value.agent_name + '</td><td class="text-left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-center">' + value.session_average + '</td><td class="text-right">' + value.count_completed + '</td><td class="text-right">' + value.count_slow_workflow + '</td><td class="text-right">' + (value.count_slow_workflow / value.count_completed * 100).toFixed(2) + '%</td><td class="text-right">' + value.count_slow_automation + '</td><td class="text-right">' + (value.count_slow_automation / value.count_completed * 100).toFixed(2) + '%</td><td class="text-right">' + value.count_slow_manual + '</td><td class="text-right">' + (value.count_slow_manual / value.count_completed * 100).toFixed(2) + '%</td></tr>';
@@ -709,7 +710,7 @@ $(document).ready(function () {
                     html = html + '</tbody></table>';
                     break;
                 case 'AgentPerformance':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=7 class="text-center sorter-false">WORKFLOW DATA</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />< ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEPS<br />< ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center filter-false">START TIME</th><th class="text-left">AGENT NAME</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th><th class="text-center">COUNT</th><th class="text-center filter-false">TOTAL<br />TIME</th><th class="text-center">PERCENTAGE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=19 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th colspan=7 class="text-center sorter-false">WORKFLOW DATA</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />< ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">MOTIVE STEPS<br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEPS<br />< ' + manualStepThreshold + ' SECONDS</th><th colspan=3 class="text-center sorter-false">AGENT STEP<br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center filter-false group-false">START TIME</th><th class="text-left sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center group-false">COUNT</th><th class="text-center filter-false group-false">TOTAL<br />TIME</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center filter-false group-false">TOTAL<br />TIME</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center filter-false group-false">TOTAL<br />TIME</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center filter-false group-false">TOTAL<br />TIME</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -734,7 +735,7 @@ $(document).ready(function () {
                                 var percent_manual_within = '0.00%';
                                 var percent_manual_exceeded = '0.00%';
                             }
-                            html = html + '<tr class="screenshots" data-session = "' + value.smp_session_id + '"><td class="text-center">' + start_time + '</td><td class="text-left">' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-center">' + value.session_duration + '</td><td class="text-right">' + automation_count_within + '</td><td class="text-center">' + value.automation_time_within + '</td><td class="text-right">' + percent_automation_within + '</td><td class="text-right">' + automation_count_exceeded + '</td><td class="text-center">' + value.automation_time_exceeded + '</td><td class="text-right">' + percent_automation_exceeded + '</td><td class="text-right">' + manual_count_within + '</td><td class="text-center">' + value.manual_time_within + '</td><td class="text-right">' + percent_manual_within + '</td>';
+                            html = html + '<tr><td class="text-center">' + start_time + '</td><td class="text-left">' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-center">' + value.session_duration + '</td><td class="text-right">' + automation_count_within + '</td><td class="text-center">' + value.automation_time_within + '</td><td class="text-right">' + percent_automation_within + '</td><td class="text-right">' + automation_count_exceeded + '</td><td class="text-center">' + value.automation_time_exceeded + '</td><td class="text-right">' + percent_automation_exceeded + '</td><td class="text-right">' + manual_count_within + '</td><td class="text-center">' + value.manual_time_within + '</td><td class="text-right">' + percent_manual_within + '</td>';
                             if (manual_count_exceeded > 0) {
                                 html = html + '<td class="text-right" data-query="' + manualStepThreshold + '">' + manual_count_exceeded + '</td><td>' + value.manual_time_exceeded + '<td class="text-right">' + percent_manual_exceeded + '</td></tr>';
                             } else {
@@ -742,12 +743,12 @@ $(document).ready(function () {
                             }
                         });
                     } else {
-                        html = html + '<tr><td colspan=22 class="text-center">' + data.ERROR + '</td></tr>';
+                        html = html + '<tr><td colspan=19 class="text-center">' + data.ERROR + '</td></tr>';
                     }
                     html = html + '</tbody></table>';
                     break;
                 case 'Screenshots':
-                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th class="text-center">SESSION ID</th><th class="text-center filter-false">START TIME</th><th class="text-center filter-false">COMPLETION TIME</th><th class="text-center filter-false">WORKFLOW DURATION</th><th class="text-center">AGENT NAME</th><th class="text-center">ATT UID</th><th class="text-center">MANAGER ATT UID</th><th class="text-center">WORK TYPE</th><th class="text-center">BUSINESS LINE</th><th class="text-center">TASK TYPE</th></tr></thead><tbody>';
+                    var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=10 class="sorter-false text-center">' + $('select#ReportType :selected').text() + '</th></tr><tr><th class="text-center sortInitialOrder-asc group-false">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th></tr></thead><tbody>';
                     if (!data.hasOwnProperty('ERROR')) {
                         $.each(data, function (key, value) {
                             var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
@@ -783,16 +784,16 @@ $(document).ready(function () {
                         $.each(data, function (reportType, reportData) {
                             switch (reportType) {
                                 case 'CountByAgent':
-                                    html = html + '<div id="CountByAgent" class="tab-pane fade in active"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY AGENT</th></tr><tr><th class="filter-false text-center">AGENT NAME</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+                                    html = html + '<div id="CountByAgent" class="tab-pane fade in active"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY AGENT</th></tr><tr><th class="filter-false text-center sortInitialOrder-asc group-false">AGENT NAME</th><th class="filter-false text-center group-false">TOTAL COMPLETED</th><th class="filter-false text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                                     break;
                                 case 'CountByBusinessLine':
-                                    html = html + '<div id="CountByBusinessLine" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY BUSINESS LINE</th></tr><tr><th class="filter-false text-center">BUSINESS LINE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+                                    html = html + '<div id="CountByBusinessLine" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY BUSINESS LINE</th></tr><tr><th class="filter-false text-center sortInitialOrder-asc group-false">BUSINESS LINE</th><th class="filter-false text-center group-false">TOTAL COMPLETED</th><th class="filter-false text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                                     break;
                                 case 'CountByWorkSource':
-                                    html = html + '<div id="CountByWorkSource" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY WORK TYPE</th></tr><tr><th class="filter-false text-center">WORK TYPE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+                                    html = html + '<div id="CountByWorkSource" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY WORK TYPE</th></tr><tr><th class="filter-false text-center sortInitialOrder-asc group-false">WORK TYPE</th><th class="filter-false text-center group-false">TOTAL COMPLETED</th><th class="filter-false text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                                     break;
                                 case 'CountByTaskType':
-                                    html = html + '<div id="CountByTaskType" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY TASK TYPE</th></tr><tr><th class="filter-false text-center">TASK TYPE</th><th class="filter-false text-center">TOTAL COMPLETED</th><th class="filter-false text-center">PERCENTAGE</th></tr></thead><tbody>';
+                                    html = html + '<div id="CountByTaskType" class="tab-pane fade in"><table class="results table table-bordered center hover-highlight"><thead><tr><th colspan=3 class="sorter-false filter-false text-center">COMPLETED WORKFLOWS BY TASK TYPE</th></tr><tr><th class="filter-false text-center sortInitialOrder-asc group-false">TASK TYPE</th><th class="filter-false text-center group-false">TOTAL COMPLETED</th><th class="filter-false text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                                     break;
                             }
                             $.each(reportData, function (index, reportRow) {
@@ -837,8 +838,8 @@ $(document).ready(function () {
                         html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
                     }
                     $('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
-                        $('table.result').trigger('update').trigger('applyWidgetId', 'zebra');
-                        $('table').trigger('update');
+                        $('table.result').trigger('update', true).trigger('applyWidgetId', 'zebra');
+                        $('table').trigger('update', true);
                     });
                     break;
             }
@@ -847,31 +848,37 @@ $(document).ready(function () {
                 $('table.result').trigger('update').trigger('applyWidgetId', 'zebra');
                 $('table').trigger('update');
             });
-            $('table#results, table.results').stickyTableHeaders();
             if (!data.hasOwnProperty('ERROR')) {
                 $('table#results, table.results').tablesorter({
                     theme: 'custom',
                     sortReset: true,
+					sortRestart: true,
+					sortInitialOrder: 'desc',
                     ignoreCase: true,
-                    widgets: ['zebra', 'filter']
+                    widgets: ['zebra', 'filter', 'output', 'saveSort', 'stickyHeaders', 'group'],
+    				widgetOptions: {
+      					group_collapsible : true,  // make the group header clickable and collapse the rows below it.
+      					group_collapsed   : false, // start with all groups collapsed (if true)
+      					group_saveGroups  : true,  // remember collapsed groups
+ 						group_separator : '_',
+      					group_saveReset : '.group-reset',
+      					output_delivery : 'd'
+    				}
                 });
             } else {
                 $('table#results, table.results').tablesorter({
                     theme: 'custom',
                     sortReset: true,
                     ignoreCase: true,
-                    widgets: ['zebra']
+					sortRestart: true,
+					sortInitialOrder: 'desc',
+                    widgets: ['zebra', 'stickyHeaders']
                 });
             }
             $('div.overlay').hide();
             $('tr.screenshots').off('dblclick').on('dblclick', function () {
                 var session_id = $(this).attr('data-session');
                 displayScreenshots(session_id);
-            });
-            $('td.query-manual').off('click').on('click', function () {
-                smp_session_id = $(this).parent().prop('data-session');
-                compare = $(this).attr('data-query');
-                subQuery('manual', smp_session_id, compare);
             });
         }).fail(function () {
             alert('Request Timed Out');
@@ -1062,39 +1069,11 @@ $(document).ready(function () {
     });
 });
 
-let subQuery = function (type, lookup, compare) {
-    if (type == 'manual') {
-        var sql = 'SELECT *, SEC_TO_TIME(elapsed_seconds) AS elapsed_seconds FROM duration_log_step_manual WHERE elapsed_seconds >= "' + compare + '" AND smp_session_id = "' + lookup + '"';
-    }
-    $.ajax({
-        type: 'post',
-        url: 'ajax/getinfo.php',
-        data: {
-            databaseIP: dbHost,
-            databaseUser: dbUser,
-            databasePW: dbPassword,
-            databaseName: dbName,
-            sql: sql
-        },
-        dataType: 'json',
-    }).done(function (data) {
-        var popupData = '<div class="popup"><p class="text-center">SESSION: ' + lookup + '</p><table class="table table-bordered center hover-highlight"><thead><th class="text-center">START TIME</th><th class="text-center">COMPLETED TIME</th><th class="text-center">MANUAL STEP DURATION</th><th class="text-center">FLOW NAME</th><th>STEP NAME</th><thead><tbody>';
-        $.each(data, function (key, value) {
-            popupData = popupData + '<tr><td class="text-center">' + value.start_time + '</td><td class="text-center">' + value.stop_time + '</td><td class="text-center">' + value.elapsed_seconds + '</td><td class="text-left">' + value.flow_name + '</td><td class="text-left">' + value.step_name + '</td></tr>';
-        });
-        popupData = popupData + '</table></div>';
-        $.fn.popup.defaults.transition = 'all 0.3s';
-        $(popupData).popup({
-            transition: 'all 0.3s',
-            scrolllock: true // optional
-        }).popup('show');
-        console.log(popupData);
-    });
-};
-
 let displayScreenshots = function (session_id) {
     $('div#reportBody').hide();
     $('div.overlay').show();
+	$('.flexslider').remove();
+	$('div.container').html('<div class="headerData col-md-12"></div><div class="flexslider col-md-12"><ul class="slides"></ul></div>');
     var sql = 'SELECT ss.smp_session_id, ss.flow_name, ss.step_name, ss.screenshot_time, ss.image_data, sl.start_time, sl.stop_time, SEC_TO_TIME(sl.elapsed_seconds) AS elapsed_seconds, CONCAT(sl.last_name, ", ", sl.first_name, " (", UCASE(sl.att_uid), ")") AS agent_name, UCASE(sl.manager_id) AS manager_id, sl.work_source, sl.business_line, sl.task_type FROM screenshots ss LEFT JOIN duration_log_session sl ON ss.smp_session_id = sl.smp_session_id WHERE ss.smp_session_id = "' + session_id + '" ORDER BY ss.recorded';
     $.ajax({
         type: 'post',
@@ -1146,6 +1125,7 @@ let displayScreenshots = function (session_id) {
         $('div.container').show();
         $('div.close').off('click').on('click', function () {
             $('div.container').hide();
+			$('ul.slides').empty();
             $('div#reportBody').show();
         });
         $('img.makefancybox').each(function () {

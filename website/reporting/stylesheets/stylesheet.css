@@ -1,16 +1,14 @@
+
+/* Display images at 75% size */
 img {
     width: 75%;
     height: 75%;
 }
 
-#loading-img {
-    background: url(http://preloaders.net/preloaders/360/Velocity.gif) center center no-repeat;
-    height: 100%;
-    z-index: 20;
-}
-
-.overlay {
-    background: #ffffff;
+/* Create Overlay for loading screen */
+div.overlay {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url(images/6.gif) center center no-repeat;
+	z-index: 2000;
     display: none;
     position: absolute;
     top: 0;
@@ -20,6 +18,7 @@ img {
     opacity: 0.5;
 }
 
+/* Position Calendar Screens */
 .calendarinput {
     position: relative;
 }
@@ -32,7 +31,8 @@ img {
     cursor: pointer;
 }
 
-.initializationScreen {
+/* Connecting / Lost Connection */
+div.initializationScreen {
     margin: auto;
     display: flex;
     align-items: center;
@@ -43,12 +43,7 @@ img {
     font-weight: bold;
 }
 
-.fluid_container {
-    margin: 0 auto;
-    max-width: 1000px;
-    width: 90%;
-}
-
+/* Screenshot Captions */
 .flex-caption {
     width: 96%;
     padding: 2%;
@@ -128,8 +123,6 @@ table#results {
     width: 100%;
 }
 
-.optional {}
-
 .required {
     border-color: red;
 }
@@ -147,6 +140,7 @@ div.chosen-container {
     padding-top: 2px;
 }
 
+/* Style placeholders */
 ::-webkit-input-placeholder {
     /* Chrome/Opera/Safari */
     font-size: 13px;
@@ -177,57 +171,11 @@ div#reportBody {
     padding-top: 30px;
 }
 
-td.query-manual {
-    cursor: pointer;
-}
-
-div.popup {
-    background-color: #888888;
-    border: solid 2px #000;
-    border-radius: 3px;
-    padding: 15px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-div.center {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    /* bring your own prefixes */
-    transform: translate(-50%, -50%);
-}
-
 div.container {
     margin-top: 50px;
     border: solid 3px #000;
     border-radius: 8px;
     display: none;
-}
-
-.flex-caption {
-    width: 96%;
-    padding: 2%;
-    left: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, .5);
-    color: #fff;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
-    font-size: 14px;
-    line-height: 18px;
-}
-
-div.overlay {
-    z-index: 200;
-    display: none;
-    background: url(http://preloaders.net/preloaders/360/Velocity.gif) center center no-repeat;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    opacity: 0.5;
 }
 
 div.headerData {
@@ -251,15 +199,4 @@ div.footerData {
 
 .data {
     font-weight: bold;
-}
-
-.borderless td,
-.borderless th {
-    border: none !important
-}
-
-table.results {
-    margin-left: auto;
-    margin-right: auto;
-    width: auto;
 }
