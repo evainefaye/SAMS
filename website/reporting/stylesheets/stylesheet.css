@@ -1,8 +1,17 @@
+body {
+    font-family: Arial, Courier, "Courier New"
+}
 
-/* Display images at 75% size */
-img {
+/* Set Screenshot Image Size */
+img.flex {
     width: 75%;
     height: 75%;
+}
+
+img.tableIcon {
+	width: 25px;
+	height: 25px;
+	cursor: pointer;
 }
 
 /* Create Overlay for loading screen */

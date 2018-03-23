@@ -1,15 +1,22 @@
-var windowManager = new Object(); // Create Object for storing information about Open Popup Detail windows
+// Create object for storing information about open monitor detail windows
+var windowManager = new Object();
+
+// Create global variable to store the filter by supervisor attuid
 window.filter = ''; // Create global variable to store the window filter
 
 $(document).ready(function () {
-    var serverAddress = 'http://127.0.0.1'; // Set the location of the Node.js server
+	
+	// Set Address for SAMS Server
+    var serverAddress = 'http://10.100.49.77';
 
+	// Initialize Environment Selection
     $('select#environment').chosen({
         width: '100%',
-        allow_single_deselect: true,
+        allow_single_deselect: false,
         disable_search: true
     });
 
+	// Get Environment from Cookie if available, default to prod on none found.   Set Environment Selection to value.
     var environment = Cookies.get('environment');
     if (typeof environment == 'undefined') {
         environment = Cookies.get('environment');
@@ -20,15 +27,15 @@ $(document).ready(function () {
     }
     $('select#environment').val(environment).trigger('chosen:updated');
 
+	// Set Port and environment variable based on selection 
     switch (environment) {
-        // Set Node.js port and version description based on environment variable.  Default loads production
         case 'fde':
             var socketURL = serverAddress + ':5510';
-            var version = 'DEVELOPMENT';
+            var version = 'FDE (DEVELOPMENT)';
             break;
         case 'pre-prod':
             var socketURL = serverAddress + ':5520';
-            version = 'BETA';
+            version = 'PRE-PROD (BETA)';
             break;
         case 'prod':
             var socketURL = serverAddress + ':5530';
@@ -42,23 +49,33 @@ $(document).ready(function () {
             break;
     }
 
+	// Event to handle anytime environment choice is changed
     $('select#environment').off('change').on('change', function () {
         environment = $(this).find(':selected').val();
         Cookies.set('environment', environment);
+		// Close any monitor detail windows that are open for this environment
         $.each(windowManager, function (key) {
             windowManager[key].close();
             delete windowManager[key];
         });
         window.location.reload();
     });
-    $('#SupervisorList').val(Cookies.get('SupervisorList'));
+	
+    // Close any monitor detail windows that are open for this environment if you are closing the window
+    $(window).on('unload', function () {
+        $.each(windowManager, function (key) {
+            windowManager[key].close();
+            delete windowManager[key];
+        });
+    });
 
-    document.title = 'SAMS - ' + version + ' SASHA ACTIVITY MONITORING SYSTEM'; // Set Window Title
 
+	// Reset SupervisorsList to its saved value on load
+    $('#SupervisorList').val(Cookies.get( environment +'-SupervisorList'));
 
-    // Define Event for enabling / disabling the supervisors list for filtering
+    // Handle updating the supervisors list
     $('#SupervisorList').off('keyup').on('keyup', function () {
-        Cookies.set('SupervisorList', $('#SupervisorList').val().trim());
+        Cookies.set(environment + '-SupervisorList', $('#SupervisorList').val().trim());
         if ($('#SupervisorList').val().trim().length > 0) {
             var supervisorList = $('#SupervisorList').val().trim();
             supervisorList = supervisorList.replace(/[;|: ,]+/g, ',');
@@ -72,478 +89,712 @@ $(document).ready(function () {
             });
             $('tbody tr').show();
             $('tbody tr').not(window.filter).hide();
-            $('table').trigger('update').trigger('applyWidgetId', 'zebra');
+            $('table').trigger('update', true);
         } else {
             window.filter = '';
             $('tbody tr').show();
-            $('table').trigger('update').trigger('applyWidgetId', 'zebra');
+            $('table').trigger('update', true);
         }
     });
-    $('span#environment').html(version); // Display the Monitor version on page
-    window.socket = io.connect(socketURL); // Connect to socket.io
 
-    // Define function to autoclose detail windows opened by monitor window when appropriate
-    $(window).on('unload', function () {
-        $.each(windowManager, function (key) {
-            windowManager[key].close();
-            delete windowManager[key];
-        });
-    });
+	// Set Window Title
+    document.title = 'SAMS - ' + version + ' SASHA ACTIVITY MONITORING SYSTEM';
 
-    socket.on('connect', function () {
-        showMainScreen();
-        socket.emit('Request Current Connection Data', {
-            ActiveTab: 'none'
-        });
-    });
 
-    socket.on('disconnect', function () {
-        $('div.initializationScreen').html('CONNECTION INTERRUPTED').show();
-        $('div.mainScreen').hide();
-        $('div#supervisorFilter').hide();
-        // store currently active tab
-        var active = $('li.active').attr('tabId');
-        // Remove any countdown timers
-        $('.is-countdown').countdown('destroy');
-        // Empty information
-        $('ul#Tabs').empty();
-        $('div#Contents').empty();
-        // Close any detail windows and remove them from window manager
-        $.each(windowManager, function (key) {
-            windowManager[key].close();
-            delete windowManager[key];
-        });
-        // Add the custom Tabs back
-        socket.emit('Request Current Connection Data', {
-            ActiveTab: active
-        });
-        addCustomTabs();
-    });
+	// Create the All Sessions, Not Started, and Stalled Sessions Tabs
+	createDefaultTabs();
+	
+	// Connect to SAMS Server
+	window.socket = io.connect(socketURL);
 
+	// When connection is established, SAMS Server will send a request for the type of connection (SASHA or Monitor User).
+	// This function returns the type of connection as a monitor user and gathers startup time for the server.
     socket.on('Request Connection Type', function (data) {
-        var ServerStartTime = data.ServerStartTime;
-        ServerStartTime = toLocalDateTime(ServerStartTime);
+        var ServerStartTime = moment(new Date(data.ServerStartTime)).format('MM/DD/YYYY @ HH:mm:SS');
         $('span#serverStartTime').html(ServerStartTime);
         socket.emit('Register Monitor User');
     });
 
-    // Add a SASHA User Row to Monitor for a Connecting Client
+	// Connection to SAMS Server is Established
+    socket.on('connect', function () {
+        showMainScreen();
+		// Request data for all connected clients from SAMS Server
+        socket.emit('Request Current Connection Data', {
+            ActiveTab: 'none'
+        });
+    });
+	
+	// Connection to SAMS server is Lost
+    socket.on('disconnect', function () {
+		window.location.reload();
+    });
+
+	// Add user to the 'INACTIVESESSIONS' tab
     socket.on('Add SASHA Connection to Monitor', function (data) {
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
         var attUID = UserInfo.AttUID;
         var reverseName = UserInfo.ReverseName;
         var sessionStartTime = UserInfo.ConnectTime;
-        var sessionStartTimestamp = new Date(sessionStartTime);
-        sessionStartTime = toLocalTime(sessionStartTime);
-        // If there is no row matching the row your about to add, then go ahead and add it
-        if (!$('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
-            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
-                '<td class="text-centers">' + attUID + '</a></td>' +
-                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
-                '<td class="text-center">' + sessionStartTime + '</td>' +
-                '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '"></div></td>' +
-                '</tr>';
-            $('table.INACTIVESESSIONS tbody:last').append(row);
-            doGroup('INACTIVESESSION');
-            if (window.filter.length) {
-                $('tbody tr').show();
-                $('tbody tr').not(window.filter).hide();
-            }
-            $('table.INACTIVESESSIONS').trigger('applyWidgetId', 'zebra');
-            // Initialize Counters for the connection just added
-            $('div[InactiveSessionDurationId=sessionDuration_' + connectionId + ']').countdown({
-                since: sessionStartTimestamp,
-                compact: true,
-                layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
-                format: 'yowdhMS'
-            });
-            // Update Count(s) of users on table(s)
-            var userCount = $('table.INACTIVESESSIONS tbody tr').not('.group-header').length;
-            $('a[skillGroup=INACTIVESESSIONS] span').html(userCount);
-        }
-
-        // Update on doubleclick events to launch detail window
-        $('table tbody tr').not('.group-header').off('dblclick').on('dblclick', function () {
-            // if ($(this).closest('table').hasClass('INACTIVESESSIONS')) {
-            //      return;
-            //  }
-            var id = $(this).attr('connectionId');
-            Cookies.set('connectionId', id);
-            var winName = 'window_' + id;
-            if (typeof windowManager[winName] != 'undefined') {
-                var win = windowManager[winName];
-                win.close();
-            }
-            windowManager[winName] = window.open('../detail/index.html', winName);
+        var sessionStartTimestamp = new Date(UserInfo.ConnectTime);
+        var sessionStartTime = moment(new Date(UserInfo.ConnectTime)).format('MM/DD/YYYY HH:mm:ss');
+		// If there is a row with the connectionId already existing do not add it again.
+		if ($('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
+			return;
+		}
+        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+            '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
+            '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+            '<td class="text-center">' + sessionStartTime + '</td>' +
+            '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
+            '</tr>';
+        $('table.INACTIVESESSIONS tbody:last').append(row);
+        // Begin Counters for the new row
+        $('div[InactiveSessionDurationId=sessionDuration_' + connectionId + ']').countdown({
+            since: sessionStartTimestamp,
+            compact: true,
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
+            format: 'yowdhMS'
         });
+        // Update User Count in 'INACTIVESESSIONS' tab
+        $('span.count-INACTIVESESSIONS').html($('table.INACTIVESESSIONS tbody tr').not('.group-header').length);
+        $('table.INACTIVESESSIONS').trigger('update', true);
     });
 
-
-    // Add a SASHA User Row to Monitor for a Connecting Client
+    // Add a user to the 'ALLSESSIONS' tab and to skill tab as well
     socket.on('Notify Monitor Begin SASHA Flow', function (data) {
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
-        // Remove timer associated with connection before removing row to prevent a javascript error
-        $('div[inactivesessionDurationId=sessionDuration_' + connectionId + ']').countdown('destroy');
-        $('table.INACTIVESESSIONS tbody tr[connectionId=' + connectionId + ']').remove();
-        // force the groupable pages to refresh since their categories may now be empty
-        $('table.INACTIVESESSIONS').trigger('update').trigger('applyWidgetId', 'zebra');
-        // Update Count(s) of users on table(s)
-        var userCount = $('table.INACTIVESESSIONS tbody tr').not('.group-header').length;
-        $('a[skillGroup=INACTIVESESSIONS] span').html(userCount);
+		// If user exists on the 'INACTIVESESSIONS' tab then they must be removed from there
+		if ($('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
+			// Start by removing timers 
+			$('div[inactivesessionDurationId=sessionDuration_' + connectionId + ']').countdown('destroy');
+			$('table.INACTIVESESSIONS tbody tr[connectionId=' + connectionId + ']').remove();
+			$('span.count-INACTIVESESSIONS').html($('table.INACTIVESESSIONS tbody tr').not('.group-header').length);
+		}
         var attUID = UserInfo.AttUID;
         var reverseName = UserInfo.ReverseName;
         var skillGroup = UserInfo.SkillGroup;
         var taskType = UserInfo.TaskType;
         var workType = UserInfo.SAMSWorkType;
-        var sessionStartTime = UserInfo.SessionStartTime;
         var flowName = UserInfo.FlowName;
         var stepName = UserInfo.StepName;
-        var stepStartTime = UserInfo.StepStartTime;
+		var stepStartTimestamp = new Date(UserInfo.StepStartTime);
+        var stepStartTime = moment(new Date(UserInfo.StepStartTime)).format('MM/DD/YYYY HH:mm:SS');
+        var sessionStartTimestamp = new Date(UserInfo.SessionStartTime);
+        var sessionStartTime = moment(new Date(UserInfo.SessionStartTime)).format('MM/DD/YYYY HH:mm:SS');
         // If skillGroup is not set, then set it as UNKNOWN
         if (skillGroup === null || skillGroup === 'null' || skillGroup === '' || skillGroup == 'undefined') {
             skillGroup = 'UNKNOWN';
         }
-        // If there is no tab for the skillGroup your about to work with, then add it
+		
+		// Begin adding to 'ALLSESSIONS' tab
+        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+            '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
+            '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+            '<td class="text-center">' + workType + '</td>' +
+            '<td class="text-center">' + taskType + '</td>' +
+            '<td class="text-left">' + skillGroup + '</td>' +
+            '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
+            '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '</tr>';
+        $('table.ALLSESSIONS tbody:last').append(row);
+		// Update User Count in 'INACTIVESESSIONS' tab
+        $('span.count-ALLSESSIONS').html($('table.ALLSESSIONS tbody tr').not('.group-header').length);
+
+		// Begin adding to Skill Group Tab
+		// If no tab exists, create one
         if (!$('ul#Tabs li[tabId=' + skillGroup + ']').length) {
-            var row = '<li tabId=' + skillGroup + '>' +
-                '<a class=nav-link" data-toggle="tab" skillGroup="' + skillGroup + '" href="#' + skillGroup + '">' + skillGroup + ' (<span>0</span>)</a>' +
-                '</li>';
-            $('ul#Tabs').append(row);
-            row = '<div id="' + skillGroup + '" class="tab-pane">' +
-                '<div class="buttonrow">' +
-                '<span class="buttons">' +
-                'GROUP BY: ' +
-                '<input type="radio" name="' + skillGroup + '" class="groupOption" value="none" checked="checked">NONE' +
-                '<input type="radio" name="' + skillGroup + '" class="groupOption" value="agentname">AGENT NAME' +
-                '</span>' +
-                '</div> ' +
-                '<table class="table table-bordered center hover-highlight serviceline ' + skillGroup + '" >' +
-                '<thead>' +
-                '<tr>' +
-                '<th class="col-sm-1 text-center attUID">ATT UID</th>' +
-                '<th class="col-sm-2 text-center agentName group-text">AGENT NAME</th>' +
-                '<th class="col-sm-1 text-center workType group-text">WORK SOURCE</th>' +
-                '<th class="col-sm-1 text-center workType group-text">TASK TYPE</th>' +
-                '<th class="col-sm-1 text-center sessionDuration sorter-false">WORKFLOW<br />SESSION DURATION</th>' +
-                '<th class="col-sm-1 text-center stepDuration sorter-false">STEP<br />DURATION</th>' +
-                '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
-                '<th class="col-sm-3 text-center stepName sorter-false">STEP NAME</th>' +
-                '</tr>' +
-                '</thead>' +
-                '<tbody >' +
-                '</tbody>' +
-                '</table>' +
-                '</div>';
-            $('div#Contents').append(row);
-            // Sort Tabs in Alphabetical order
+			addTab(skillGroup);
             sortTabs('ul#Tabs');
-            //  Make the added table sortable
-            $('table.' + skillGroup).stickyTableHeaders();
-            $('table.' + skillGroup).tablesorter({
-                theme: 'custom',
-                sortList: [
-                    [5, 1]
-                ],
-                sortReset: true,
-                widgets: ['zebra']
-            });
-            handleGroupChange();
-        }
+		}
+        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+            '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
+            '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+            '<td class="text-left">' + workType + '</td>' +
+            '<td class="text-center">' + taskType + '</td>' +
+            '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
+            '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '</tr>';
+        $('table.' + skillGroup + ' tbody:last').append(row);
+		// Update User Count in 'INACTIVESESSIONS' tab
+        $('span.count-' + skillGroup).html($('table.' + skillGroup + ' tbody tr').not('.group-header').length);
 
-        // If there is no row matching the row your about to add, then go ahead and add it
-        if (!$('table.' + skillGroup + ' tbody tr[connectionId="' + connectionId + '"]').length) {
-            var sessionStartTimestamp = new Date(sessionStartTime);
-            sessionStartTime = toLocalTime(sessionStartTime);
-            var stepStartTimestamp = new Date(stepStartTime);
-            stepStartTime = toLocalTime(stepStartTime);
-            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
-                '<td class="text-centers">' + attUID + '</a></td>' +
-                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
-                '<td class="text-left">' + workType + '</td>' +
-                '<td class="text-center">' + taskType + '</td>' +
-                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
-                '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
-                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
-                '</tr>';
-            $('table.' + skillGroup + ' tbody:last').append(row);
-            if (window.filter.length) {
-                $('tbody tr').show();
-                $('tbody tr').not(window.filter).hide();
-            }
-            $('table.' + skillGroup).trigger('update').trigger('applyWidgetId', 'zebra');
-
-            // Also add to All Sessions tab.  New row defined here as that includes SkillGroup
-            row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
-                '<td class="text-centers">' + attUID + '</a></td>' +
-                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
-                '<td class="text-center">' + workType + '</td>' +
-                '<td class="text-center">' + taskType + '</td>' +
-                '<td class="text-left">' + skillGroup + '</td>' +
-                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
-                '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
-                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
-                '</tr>';
-            $('table.ALLSESSIONS tbody:last').append(row);
-            if (window.filter.length) {
-                $('tbody tr').show();
-                $('tbody tr').not(window.filter).hide();
-            }
-            // Initialize Counters for the connection just added
-            $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
-                since: sessionStartTimestamp,
-                compact: true,
-                layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
-                format: 'yowdhMS',
-                onTick: checkStalledSessions,
-                tickInterval: 1
-            });
-            $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown({
-                since: stepStartTimestamp,
-                compact: true,
-                layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
-                format: 'yowdhMS',
-                onTick: checkTimerStyling,
-                tickInterval: 1
-            });
-            // Request the tables to resort
-
-            // Update Count(s) of users on table(s)
-            var userCount = $('table.' + skillGroup + ' tbody tr').not('.group-header').length;
-            $('a[skillGroup="' + skillGroup + '"] span').html(userCount);
-            userCount = $('table.ALLSESSIONS tbody tr').not('.group-header').length;
-            $('a[skillGroup="ALLSESSIONS"] span').html(userCount);
-            $('table.ALLSESSIONS').trigger('update').trigger('applyWidgetId', 'zebra');
-            doGroup(skillGroup);
-            doGroup('ALLSESSIONS');
-        }
-
-        // Update on doubleclick events to launch detail window
-        $('table tbody tr').not('.group-header').off('dblclick').on('dblclick', function () {
-            var id = $(this).attr('connectionId');
-            Cookies.set('connectionId', id);
-            var winName = 'window_' + id;
-            if (typeof windowManager[winName] != 'undefined') {
-                var win = windowManager[winName];
-                win.close();
-            }
-            windowManager[winName] = window.open('../detail/index.html');
+        // Begin Counters for the new row(s)
+        $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
+            since: sessionStartTimestamp,
+            compact: true,
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
+            format: 'yowdhMS',
+            onTick: checkStalledSessions,
+            tickInterval: 1
         });
+        $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown({
+            since: stepStartTimestamp,
+            compact: true,
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
+            format: 'yowdhMS',
+            onTick: checkTimerStyling,
+            tickInterval: 1
+        });
+        $('table.ALLSESSIONS').trigger('update', true);
     });
 
-
-    // Remove a SASHA User Row for a disconnected SASHA User from Monitor
+    // Remove User from all tabs (disconnected)
     socket.on('Remove SASHA Connection from Monitor', function (data) {
         var connectionId = data.ConnectionId;
         var UserInfo = data.UserInfo;
         var skillGroup = UserInfo.SkillGroup;
-        // Remove timer(s) associated with connection before removing row to prevent a javascript error
+		// Start by removing timers 
         $('div[inactivesessionDurationId="sessionDuration_' + connectionId + '"]').countdown('destroy');
         $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown('destroy');
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown('destroy');
         $('tr[connectionId="' + connectionId + '"]').remove();
-        // force the groupable pages to refresh since their categories may now be empty
-        $('table.INACTIVESESSIONS').trigger('update').trigger('applyWidgetId', 'zebra');
-        $('table.STALLEDSESSIONS').trigger('update').trigger('applyWidgetId', 'zebra');
-        handleGroupChange();
+		$('table').trigger('update', true);
+
         // Update Count(s) of users on table(s)
-        var userCount = $('table.' + skillGroup + ' tbody tr').not('.group-header').length;
-        $('a[skillGroup="' + skillGroup + '"] span').html(userCount);
-        userCount = $('table.INACTIVESESSIONS tbody tr').not('.group-header').length;
-        $('a[skillGroup="INACTIVESESSIONS"] span').html(userCount);
-        userCount = $('table.ALLSESSIONS tbody tr').not('.group-header').length;
-        $('a[skillGroup="ALLSESSIONS"] span').html(userCount);
-        userCount = $('table.STALLEDSESSIONS tbody tr').not('.group-header').length;
-        $('a[skillGroup="STALLEDSESSIONS"] span').html(userCount);
-        // Close any detail windows associated to connection
-        var winName = 'window_' + connectionId;
+        $('span.count-' + skillGroup).html($('table.' + skillGroup + ' tbody tr').not('.group-header').length);
+        $('span.count-INACTIVESESSIONS').html($('table.INACTIVESESSIONS tbody tr').not('.group-header').length);
+        $('span.count-ALLSESSIONS').html($('table.ALLSESSIONS tbody tr').not('.group-header').length);
+        $('span.count-STALLEDSESSIONS').html($('table.STALLEDSESSIONS tbody tr').not('.group-header').length);
+		// Check for any open detail window and determine if it should auto close or not
+		var winName = 'window_' + connectionId;
         if (typeof windowManager[winName] === 'object') {
             if (windowManager[winName].$('input#autoclose').is(':checked')) {
                 windowManager[winName].close();
             } else {
+				// Set to not close the window so notify the server so that it can stop refreshing items that require a connection
                 socket.emit('Notify Server Session Closed', {
                     ConnectionId: connectionId
                 });
             }
             delete windowManager[winName];
         }
-        doGroup('ALLSESSIONS');
-        doGroup('STALLEDSESSIONS');
-        doGroup('INACTIVESESSIONS');
-        doGroup(skillGroup);
     });
 
+	// Update Flow / Step Name information
     socket.on('Update Flow and Step Info', function (data) {
         var connectionId = data.ConnectionId;
         var UserInfo = data.UserInfo;
         var flowName = UserInfo.FlowName;
         var stepName = UserInfo.StepName;
-        var stepStartTime = UserInfo.StepStartTime;
-        var stepStartTimestamp = new Date(stepStartTime);
-        var stepStartTime = toLocalTime(stepStartTime);
-        // first remove any countdown to avoid javascript errors
+		var stepStartTimestamp = new Date(UserInfo.StepStartTime);
+        var stepStartTime = moment(new Date(UserInfo.StepStartTime)).format('MM/DD/YYYY HH:mm:SS');
+		// Start by removing timers 
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').removeClass('warnWaitScreenDuration');
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown('destroy');
+		// Update Flow/Step Name and hover titles
         $('td[flowNameId="flowName_' + connectionId + '"]').html(flowName);
         $('td[stepNameId="stepName_' + connectionId + '"]').html('<span class="stepInfo">' + stepName + '</span>');
         $('[stepStartTitle="stepStartTitle_' + connectionId + '"]').prop('title', 'Step Started ' + stepStartTime);
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').prop('title', 'Step Started ' + stepStartTime);
-        // restart countdown
+        // Re-initialize Counters
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').removeClass('warnWaitScreenDuration');
         $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown({
             since: stepStartTimestamp,
             compact: true,
-            layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
             format: 'yowdhMS',
             onTick: checkTimerStyling,
             tickInterval: 1
         });
     });
 
-    // Restore the Active Tab
-    socket.on('Reset Active Tab', function (data) {
-        var activeTab = data.ActiveTab;
-        $('a[skillGroup="' + activeTab + '"]').click();
-        $('table.' + activeTab).trigger('update').trigger('applyWidgetId', 'zebra');
-    });
-
-
-    // Stalled Session detected, add an entry under STALLEDSESSIONS
+	// I may want to consider checking if i can flag them in the server since I time them there now and not use the timers to do this.
+    // Timer reported user as stalled, add an entry under 'STALLEDSESSIONS'
     socket.on('Alert Monitor of Stalled Session', function (data) {
-        // If it isn't already in stalled sessions then add it
+
         var UserInfo = data.UserInfo;
         var connectionId = UserInfo.ConnectionId;
-        if (!$('table.STALLEDSESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
-            var attUID = UserInfo.AttUID;
-            var reverseName = UserInfo.ReverseName;
-            var skillGroup = UserInfo.SkillGroup;
-            var workType = UserInfo.SAMSWorkType;
-            var taskType = UserInfo.TaskType;
-            var sessionStartTime = UserInfo.SessionStartTime;
-            var flowName = UserInfo.FlowName;
-            var stepName = UserInfo.StepName;
-            var stepStartTime = UserInfo.StepStartTime;
-            var sessionStartTimestamp = new Date(sessionStartTime);
-            sessionStartTime = toLocalTime(sessionStartTime);
-            var stepStartTimestamp = new Date(stepStartTime);
-            stepStartTime = toLocalTime(stepStartTime);
-            // If skill group was not set, set it to UNKNOWN
-            if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
-                skillGroup = 'UNKNOWN';
-            }
-            var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
-                '<td class="text-centers">' + attUID + '</a></td>' +
-                '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
-                '<td class="text-left">' + workType + '</td>' +
-                '<td class="text-left">' + taskType + '</td>' +
-                '<td class="text-center">' + skillGroup + '</td>' +
-                '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="Session Started ' + sessionStartTime + '"></div></td>' +
-                '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="Step Started ' + stepStartTime + '"></div></td>' +
-                '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-                '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
-                '</tr>';
-            $('table.STALLEDSESSIONS tbody:last').append(row);
-            if (window.filter.length) {
-                $('tbody tr').show();
-                $('tbody tr').not(window.filter).hide();
-            }
-            // initialize Countdown
-            $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
-                since: sessionStartTimestamp,
-                compact: true,
-                layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
-                format: 'yowdhMS',
-                onTick: checkTimerStyling,
-                tickInterval: 1
-            });
-            $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown({
-                since: stepStartTimestamp,
-                compact: true,
-                layout: '{d<} {dn} {d1} {d>} {h<} {hnn} {sep} {h>} {mnn} {sep} {snn}',
-                format: 'yowdhMS',
-                onTick: checkTimerStyling,
-                tickInterval: 1
-            });
-            // update user count
-            var userCount = $('table.STALLEDSESSIONS tbody tr').not('.group-header').length;
-            $('a[skillGroup="STALLEDSESSIONS"] span').html(userCount);
+		// If an entry under 'STALLEDSESSIONS' already exists don't do anything
+		if ($('table.STALLEDSESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
+			return;
+		}
 
-            // Trigger table to sort
-            $('table.STALLEDSESSIONS').trigger('applyWidgetId', 'zebra');
-            doGroup('STALLEDSESSIONS');
+        var attUID = UserInfo.AttUID;
+        var reverseName = UserInfo.ReverseName;
+        var skillGroup = UserInfo.SkillGroup;
+        var workType = UserInfo.SAMSWorkType;
+        var taskType = UserInfo.TaskType;
+        var sessionStartTime = UserInfo.SessionStartTime;
+        var flowName = UserInfo.FlowName;
+        var stepName = UserInfo.StepName;
+		var stepStartTimestamp = new Date(UserInfo.StepStartTime);
+        var stepStartTime = moment(new Date(UserInfo.StepStartTime)).format('MM/DD/YYYY HH:mm:SS');
+        var sessionStartTimestamp = new Date(UserInfo.SessionStartTime);
+        var sessionStartTime = moment(new Date(UserInfo.SessionStartTime)).format('MM/DD/YYYY HH:mm:SS');
+        // If skill group was not set, set it to UNKNOWN
+        if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
+            skillGroup = 'UNKNOWN';
         }
-    });
+        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+            '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
+            '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
+            '<td class="text-left">' + workType + '</td>' +
+            '<td class="text-left">' + taskType + '</td>' +
+            '<td class="text-center">' + skillGroup + '</td>' +
+            '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
+            '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '</tr>';
+        $('table.STALLEDSESSIONS tbody:last').append(row);
 
-
-    // Clear all tables and reload
-    $('button#RefreshSASHAConnections').off('click').on('click', function () {
-        // store currently active tab
-        var active = $('li.active').attr('tabId');
-        // Remove any countdown timers
-        $('.is-countdown').countdown('destroy');
-        // Empty information
-        $('ul#Tabs').empty();
-        $('div#Contents').empty();
-        // Close any detail windows and remove them from window manager
-        $.each(windowManager, function (key) {
-            windowManager[key].close();
-            delete windowManager[key];
+        // Begin Counters
+        $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
+            since: sessionStartTimestamp,
+            compact: true,
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
+            format: 'yowdhMS',
+            onTick: checkTimerStyling,
+            tickInterval: 1
         });
-        // Add the custom Tabs back
-        socket.emit('Request Current Connection Data', {
-            ActiveTab: active
+        $('div[stepDurationId="stepDuration_' + connectionId + '"]').countdown({
+            since: stepStartTimestamp,
+            compact: true,
+            layout: '{d<}{dn}{d1}{d>}{h<}{hnn}{sep}{h>}{mnn}{sep}{snn}',
+            format: 'yowdhMS',
+            onTick: checkTimerStyling,
+            tickInterval: 1
         });
-        addCustomTabs();
-    });
 
-    // Add custom Tabs
-    addCustomTabs();
+        // Update Count(s) of users on table(s)
+        $('span.count-STALLEDSESSIONS').html($('table.STALLEDSESSIONS tbody tr').not('.group-header').length);
+
+        // Trigger table to sort
+        $('table.STALLEDSESSIONS').trigger('update', true);
+    });
 });
 
-// Convert Time to Local Time as HH:MM:SS
-let toLocalTime = function (timestamp) {
-    if (timestamp !== null) {
-        timestamp = new Date(timestamp);
-        var hours = '0' + timestamp.getHours();
-        var hours = hours.slice(-2);
-        var minutes = '0' + timestamp.getMinutes();
-        minutes = minutes.slice(-2);
-        var seconds = '0' + timestamp.getSeconds();
-        seconds = seconds.slice(-2);
-        return hours + ':' + minutes + ':' + seconds;
-    }
+
+/****** HELPER PROCEDURES ******/
+
+let createDefaultTabs = function () {
+
+	// Create Tab for 'ALLSESSIONS'
+    var row = '<li class="pull-right" tabId="ALLSESSIONS">' +
+        '<a class="nav-link" data-toggle="tab" skillGroup="ALLSESSIONS" href="#ALLSESSIONS">IN PROGRESS (<span class="count-ALLSESSIONS">0</span>)</a>' +
+        '</li>';
+    $('ul#Tabs').append(row);
+	// Create Tab Content for 'ALLSESSIONS'
+    row = '<div id="ALLSESSIONS" class="tab-pane">' +
+        '<table class="table table-bordered center hover-highlight ALLSESSIONS">' +
+        '<thead>' +
+		'<tr>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+		'</tr>' +
+        '<tr>' +
+		'<th colspan=9 class="col-sm-12 sorter-false filter-false">' +
+		'<div class="col-sm-12 buttonrow">' +
+        '<div class="col-sm-1 text-left">' +
+        '<img class="tableIcon reset clear-filters-ALLSESSIONS" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png">' +
+        '</div> ' +
+		'<div class="col-sm-10 text-center">WORKFLOW IN PROGRESS (<span class="count-ALLSESSIONS">0</span>)</div>' +
+		'</div>' +
+		'</th>' + 
+		'</tr>' +
+        '<tr>' +
+
+        '<th class="col-sm-1 text-center attUID sortInitialOrder-asc group-text">ATT UID</th>' +
+        '<th class="col-sm-2 text-center agentName sortInitialOrder-asc group-text">AGENT NAME</th>' +
+        '<th class="col-sm-1 text-center workType sortInitialOrder-asc group-text">WORK SOURCE</th>' +
+        '<th class="col-sm-1 text-center taskType sortInitialOrder-asc group-text">TASK TYPE</th>' +
+        '<th class="col-sm-1 text-center skillGroup sortInitialOrder-asc group-text">BUSINESS UNIT</th>' +
+        '<th class="col-sm-1 text-center sessionDuration countdown filter-false group-false sorter-date">WORKFLOW <br />SESSION DURATION</th>' +
+        '<th class="col-sm-1 text-center stepDuration countdown filter-false group-false sorter-date">STEP <br />DURATION</th>' +
+        '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
+        '<th class="col-sm-2 text-center stepName sorter-false">STEP NAME</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody >' +
+        '</tbody>' +
+        '</table>' +
+        '</div>';
+    $('div#Contents').append(row);
+
+	// Setup Open Detail View from clicking moreDetails Image on 'ALLSESSIONS' table
+	$('table.ALLSESSIONS tbody').off('click').on('click', 'img.moreDetails', function () {
+		var id = $(this).closest('tr').attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Setup Open Detail View from double clicking row on 'ALLSESSIONS' table
+	$('table.ALLSESSIONS tbody').off('dblclick').on('dblclick', 'tr', function () {
+		var id = $(this).attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Create Tab for 'INACTIVESESSIONS'
+    row = '<li class="pull-right" tabId="INACTIVESESSIONS">' +
+        '<a class="nav-link" data-toggle="tab" skillGroup="INACTIVESESSIONS" href="#INACTIVESESSIONS">NOT STARTED (<span class="count-INACTIVESESSIONS">0</span>)</a>' +
+        '</li> ';
+    $('ul#Tabs').append(row);
+	// Create Tab Content for 'INACTIVESESSIONS'
+    row = '<div id="INACTIVESESSIONS" class="tab-pane">' +
+        '<table class="table table-bordered center hover-highlight INACTIVESESSIONS">' +
+        '<thead>' +
+		'<tr>' +
+        '<th class="col-sm-3 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-3 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-3 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-3 no-border sorter-false filter-false"></th>' +
+		'</tr>' +
+		'<tr>' +
+		'<th colspan=4 class="col-sm-12 sorter-false filter-false">' +
+		'<div class="col-sm-12 buttonrow">' +
+        '<div class="col-sm-1 text-left">' +
+        '<img class="tableIcon reset clear-filters-INACTIVESESSIONS" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png">' +
+        '</div> ' +
+		'<div class="col-sm-10 text-center">WORKFLOW NOT STARTED (<span class="count-INACTIVESESSIONS">0</span>)</div>' +
+		'</div>' +
+		'</th>' + 
+		'</tr>' +
+        '<tr>' +
+        '<th class="col-sm-3 text-center attUID sortInitialOrder-asc group-text">ATT UID</th>' +
+        '<th class="col-sm-3 text-center agentName sortInitialOrder-asc group-text">AGENT NAME</th>' +
+        '<th class="col-sm-3 text-center filter-false group-false sessionStartTime sorter-date">SASHA CONNECTION STARTED</th>' +
+        '<th class="col-sm-3 text-center sessionDuration countdown filter-false group-false sorter-date">CONNECTION DURATION</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody >' +
+        '</tbody>' +
+        '</table>' +
+        '</div>';
+    $('div#Contents').append(row);
+
+	// Setup Open Detail View from clicking moreDetails Image on 'INACTIVESESSIONS' table
+	$('table.INACTIVESESSIONS tbody').off('click').on('click', 'img.moreDetails', function () {
+		var id = $(this).closest('tr').attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Setup Open Detail View from double clicking row on 'INACTIVESESSIONS' table
+	$('table.INACTIVESESSIONS tbody').off('dblclick').on('dblclick', 'tr', function () {
+		var id = $(this).attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Create Tab for 'STALLEDSESSIONS'
+    row = '<li class="pull-right" tabId="STALLEDSESSIONS">' +
+        '<a class="nav-link" data-toggle="tab" skillGroup="STALLEDSESSIONS" href="#STALLEDSESSIONS">STALLED SESSIONS (<span class="count-STALLEDSESSIONS">0</span>)</a>' +
+        '</li> ';
+    $('ul#Tabs').append(row);
+	// Create Tab Content for 'STALLEDSESSIONS'
+    row = '<div id="STALLEDSESSIONS" class="tab-pane">' +
+        '<table class="table table-bordered center hover-highlight STALLEDSESSIONS">' +
+        '<thead>' +
+        '<tr>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '</tr>' +
+		'<tr>' +
+		'<th colspan=9 class="col-sm-12 sorter-false filter-false">' +
+		'<div class="col-sm-12 buttonrow">' +
+        '<div class="col-sm-1 text-left">' +
+        '<img class="tableIcon reset clear-filters-STALLEDSESSIONS" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png">' +
+        '</div> ' +
+		'<div class="col-sm-10 text-center">STALLED WORKFLOWS (<span class="count-STALLEDSESSIONS">0</span>)</div>' +
+		'</div>' +
+		'</th>' + 
+		'</tr>' +
+        '<tr>' +
+        '<th class="col-sm-1 text-center attUID sortInitialOrder-asc group-text">ATT UID</th>' +
+        '<th class="col-sm-2 text-center agentName sortInitialOrder-asc group-text">AGENT NAME</th>' +
+        '<th class="col-sm-1 text-center workType sortInitialOrder-asc group-text">WORK SOURCE</th>' +
+        '<th class="col-sm-1 text-center taskType sortInitialOrder-asc group-text">TASK TYPE</th>' +
+        '<th class="col-sm-1 text-center skillGroup sortInitialOrder-asc group-text">BUSINESS UNIT</th>' +
+        '<th class="col-sm-1 text-center sessionDuration countdown filter-false group-false sorter-date">WORKFLOW <br />SESSION DURATION</th>' +
+        '<th class="col-sm-1 text-center stepDuration countdown filter-false group-false sorter-date">STEP <br />DURATION</th>' +
+        '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
+        '<th class="col-sm-2 text-center stepName sorter-false">STEP NAME</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody >' +
+        '</tbody>' +
+        '</table>' +
+        '</div>';
+    $('div#Contents').append(row);
+
+	// Setup Open Detail View from clicking moreDetails Image on 'STALLED' table
+	$('table.STALLEDSESSIONS tbody').off('click').on('click', 'img.moreDetails', function () {
+		var id = $(this).closest('tr').attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Setup Open Detail View from double clicking row on 'STALLEDSESSIONS' table
+	$('table.STALLEDSESSIONS tbody').off('dblclick').on('dblclick', 'tr', function () {
+		var id = $(this).attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+
+	// Initialize ALLSESSIONS tab as active
+    $('.nav-tabs a[skillGroup="ALLSESSIONS"]').tab('show');
+
+    // Make tables sortable
+    $.each($('table'), function () {
+		if ($(this).hasClass('ALLSESSIONS')) {
+			var sortList = [[5,0]];
+			var sortAppend = [[5,0]];
+			var tableName = 'ALLSESSIONS';
+		}
+		else if ($(this).hasClass('STALLEDSESSIONS')) {
+			var sortList = [[5,0]];
+			var sortAppend = [[5,0]];
+			var tableName = 'STALLEDSESSIONS';
+		}
+		else {
+			var sortList = [[3,0]];
+			var sortAppend = [[3,0]];
+			var tableName = 'INACTIVESESSIONS';
+		}
+		$(this).tablesorter({
+			theme: 'custom',
+			sortReset: true,
+			sortRestart: true,
+			sortInitialOrder: 'desc',
+			ignoreCase: true,
+			sortList: sortList,
+			sortAppend: sortAppend,
+			textExtraction: {
+				'.countdown' : function(node, table, cellIndex) {
+					return $(node).find('div').attr('title');
+				}
+			},
+			widgets: ['zebra', 'output', 'print', 'filter', 'saveSort', 'stickyHeaders', 'group'],
+			widgetOptions: {
+				group_collapsible : false,  // make the group header clickable and collapse the rows below it.
+				group_collapsed   : false, // start with all groups collapsed (if true)
+				group_saveGroups  : true,  // remember collapsed groups
+				group_separator : '_',
+				group_complete : 'groupingComplete',
+				filter_saveFilters : true,
+				filter_reset : '.clear-filters-' + tableName,
+				output_delivery : 'download',
+				output_includeFooter : false,
+				output_saveFileName : $(this).parent().prop('id') + '.CSV',
+				print_title      : $(this).parent().prop('id'),
+				print_styleSheet : 'stylesheets/print-stylesheet.css',
+				print_now : true,
+				saveSort : true
+			}
+		});
+	});
+	
+	// Configure reset button
+	$('.reset').off('click').on('click', function () {
+		var table = $(this).closest('table');
+		if ($(this).hasClass('INACTIVESESSIONS')) {
+			var sortList = [[3,0]];
+		} else {
+			var sortList = [[5,0]];
+		}
+		$(table).trigger('filterResetSaved').trigger('saveSortReset').trigger('sortReset').trigger('sorton', [sortList]);
+	});
+	
+	// Configure Export and Print Buttons 
+	$('.csv').off('click').on('click', function() {
+		$(this).closest('table').trigger('outputTable');
+	});
+	$('.print').off('click').on('click', function() {
+		var name = $(this).closest('tr').text();					
+		$(this).closest('table').trigger('printTable');
+	});
+
+	// Anytime a tab is clicked, reapply tablesorter widgets
+    $('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
+        var target = $(e.target).attr('skillGroup');
+        $('table.' + target).trigger('update', true);
+    });
+
 };
 
-// Convert Time to DateTime as MM/DD/YY @ HH:MM:SS
-let toLocalDateTime = function (timestamp) {
-    if (timestamp !== null) {
-        timestamp = new Date(timestamp);
-        var month = timestamp.getMonth() + 1;
-        var date = timestamp.getDate();
-        var year = timestamp.getFullYear();
-        var hours = '0' + timestamp.getHours();
-        hours = hours.slice(-2);
-        var minutes = '0' + timestamp.getMinutes();
-        minutes = minutes.slice(-2);
-        var seconds = '0' + timestamp.getSeconds();
-        seconds = seconds.slice(-2);
-        return month + '/' + date + '/' + year + ' @ ' + hours + ':' + minutes + ':' + seconds;
-    }
+
+let addTab = function (skillGroup) {
+	// Create Tab for new skill group
+    var row = '<li tabId=' + skillGroup + '>' +
+        '<a class=nav-link" data-toggle="tab" skillGroup="' + skillGroup + '" href="#' + skillGroup + '">' + skillGroup + ' (<span class="count-' + skillGroup + '">0</span>)</a>' +
+        '</li>';
+    $('ul#Tabs').append(row);
+	// Create Tab Content for skill group
+    row = '<div id="' + skillGroup + '" class="tab-pane">' +
+        '<table class="table table-bordered center hover-highlight ' + skillGroup + '">' +
+        '<thead>' +
+		'<tr>' +
+        '<tr>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-1 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '<th class="col-sm-2 no-border sorter-false filter-false"></th>' +
+        '</tr>' +
+		'<th colspan=8 class="col-sm-12 sorter-false filter-false">' +
+		'<div class="col-sm-12 buttonrow">' +
+        '<div class="col-sm-1 text-left">' +
+        '<img class="tableIcon reset clear-filters-' + skillGroup + '" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png">' +
+        '</div> ' +
+		'<div class="col-sm-10 text-center">' + skillGroup + ' (<span class="count-' + skillGroup + '">0</span>)</div>' +
+		'</div>' +
+		'</th>' + 
+		'</tr>' +
+        '<tr>' +
+        '<th class="col-sm-1 text-center attUID sortInitialOrder-asc group-text">ATT UID</th>' +
+        '<th class="col-sm-2 text-center agentName sortInitialOrder-asc group-text">AGENT NAME</th>' +
+        '<th class="col-sm-1 text-center workType sortInitialOrder-asc group-text">WORK SOURCE</th>' +
+        '<th class="col-sm-1 text-center taskType sortInitialOrder-asc group-text">TASK TYPE</th>' +
+        '<th class="col-sm-1 text-center sessionDuration countdown filter-false group-false sorter-date">WORKFLOW <br />SESSION DURATION</th>' +
+        '<th class="col-sm-1 text-center stepDuration countdown filter-false group-false sorter-date">STEP <br />DURATION</th>' +
+        '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
+        '<th class="col-sm-2 text-center stepName sorter-false">STEP NAME</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody >' +
+        '</tbody>' +
+        '</table>' +
+        '</div>';
+    $('div#Contents').append(row);
+
+	// Setup Open Detail View from clicking moreDetails Image on skill group table
+	$('table.' + skillGroup + ' tbody').off('click').on('click', 'img.moreDetails', function () {
+		var id = $(this).closest('tr').attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Setup Open Detail View from double clicking row on skill group table
+	$('table.' + skillGroup + ' tbody').off('dblclick').on('dblclick', 'tr', function () {
+		var id = $(this).attr('connectionId');
+		Cookies.set('connectionId', id);
+		var winName = 'window_' + id;
+		if (typeof windowManager[winName] != 'undefined') {
+			var win = windowManager[winName];
+			win.close();
+		}
+		windowManager[winName] = window.open('../detail/index.html', winName);
+	});
+
+	// Make table sortable
+	$('table.' + skillGroup).tablesorter({
+		theme: 'custom',
+		sortReset: true,
+		sortRestart: true,
+		sortInitialOrder: 'desc',
+		ignoreCase: true,
+		sortList: [[4,0]],
+		sortAppend: [[4,0]],
+		textExtraction: {
+			'.countdown' : function(node, table, cellIndex) {
+				return $(node).find('div').attr('title');
+			}
+		},
+		widgets: ['zebra', 'output', 'print', 'filter', 'saveSort', 'stickyHeaders', 'group'],
+		widgetOptions: {
+			group_collapsible : false,  // make the group header clickable and collapse the rows below it.
+			group_collapsed   : false, // start with all groups collapsed (if true)
+			group_saveGroups  : true,  // remember collapsed groups
+			group_separator : '_',
+			group_complete : 'groupingComplete',
+			filter_saveFilters : true,
+			filter_reset : '.clear-filters-' + skillGroup,
+			output_delivery : 'download',
+			output_includeFooter : false,
+			output_saveFileName : $('table.' + skillGroup).parent().prop('id') + '.CSV',
+			print_title      : $('table.' + skillGroup).parent().prop('id'),
+			print_styleSheet : 'stylesheets/print-stylesheet.css',
+			print_now : true,
+			saveSort : true
+		}
+	});
+	
+	$('.reset').off('click').on('click', function () {
+		var table = $(this).closest('table');
+		if ($(table).hasClass('INACTIVESESSIONS')) {
+			var sortList = [[3,0]];
+		} else {
+			var sortList = [[5,0]];
+		}
+		$(table).trigger('filterResetSaved').trigger('saveSortReset').trigger('sortReset').trigger('sorton', [sortList]);
+	});
+
+	// Configure Export and Print Buttons 
+	$('.csv').off('click').on('click', function() {
+		$(this).closest('table').trigger('outputTable');
+	});
+	$('.print').off('click').on('click', function() {
+		var name = $(this).closest('tr').text();					
+		$(this).closest('table').trigger('printTable');
+	});
+
+	// Apply table refresh on tab change to new tab
+	$('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
+		var target = $(e.target).attr('skillGroup');
+		$('table.' + target).trigger('update', true);
+	});
 };
 
-
-// Hide the initialization screen and show the main screen
-let showMainScreen = function () {
-    $('div.initializationScreen').hide();
-    $('div.mainScreen').show();
-    $('div#supervisorFilter').show();
-    // Update Server Start Time
-};
-
-// Sort Tabs
 let sortTabs = function (element) {
     var myList = $(element);
     var listItems = myList.children('li').get();
@@ -556,9 +807,21 @@ let sortTabs = function (element) {
     $.each(listItems, function (idx, itm) {
         myList.append(itm);
     });
+    $('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
+        var target = $(e.target).attr('skillGroup');
+        $('table.' + target).trigger('update', true);
+    });
 };
 
-// Checks if SESSION is showing as over threshold for being stalled and adds it to the stalled sessions if so
+
+// Hide Initialization and show screen on connection
+let showMainScreen = function () {
+    $('div.initializationScreen').hide();
+    $('div.mainScreen').show();
+    $('div#supervisorFilter').show();
+};
+
+
 let checkStalledSessions = function (periods) {
     if ($.countdown.periodsToSeconds(periods) > 1200) {
         $(this).addClass('highlightDuration');
@@ -570,6 +833,7 @@ let checkStalledSessions = function (periods) {
         }
     }
 };
+
 
 // Add Styling on Timer if over threshold
 let checkTimerStyling = function (periods) {
@@ -586,221 +850,5 @@ let checkTimerStyling = function (periods) {
         $(this).addClass('highlightDuration');
     } else {
         $(this).removeClass('highlightDuration');
-    }
-};
-
-
-// Add INACTIVESESSION, STALLEDSESSIONS and ALLSESSIONS tabs
-let addCustomTabs = function () {
-    // Start by adding All Sessions Tab
-    var row = '<li class="pull-right" tabId="ALLSESSIONS">' +
-        '<a class="nav-link" data-toggle="tab" skillGroup="ALLSESSIONS" href="#ALLSESSIONS">IN PROCESS (<span>0</span>)</a>' +
-        '</li>';
-    $('ul#Tabs').append(row);
-    row = '<div id="ALLSESSIONS" class="tab-pane">' +
-        '<div class="buttonrow">' +
-        '<span class="buttons">' +
-        'GROUP BY: ' +
-        '<input type="radio" name="ALLSESSIONS" class="groupOption" value="none" checked="checked">NONE' +
-        '<input type="radio" name="ALLSESSIONS" class="groupOption" value="agentname">AGENT NAME' +
-        '<input type="radio" name="ALLSESSIONS" class="groupOption" value="skillgroup">SKILL GROUP' +
-        '</span>' +
-        '</div> ' +
-        '<table class="table table-bordered center groupable hover-highlight ALLSESSIONS">' +
-        '<thead>' +
-        '<tr>' +
-        '<th class="col-sm-1 text-center attUID group-letter">ATT UID</th>' +
-        '<th class="col-sm-2 text-center agentName group-text">AGENT NAME</th>' +
-        '<th class="col-sm-1 text-center workType group-text">WORK SOURCE</th>' +
-        '<th class="col-sm-1 text-center taskType group-text">TASK TYPE</th>' +
-        '<th class="col-sm-1 text-center skillGroup group-word">BUSINESS UNIT</th>' +
-        '<th class="col-sm-1 text-center sessionDuration sorter-false">WORKFLOW<br />SESSION DURATION</th>' +
-        '<th class="col-sm-1 text-center stepDuration sorter-false">STEP<br />DURATION</th>' +
-        '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
-        '<th class="col-sm-2 text-center stepName sorter-false">STEP NAME</th>' +
-        '</tr>' +
-        '</thead>' +
-        '<tbody >' +
-        '</tbody>' +
-        '</table>' +
-        '</div>';
-    $('div#Contents').append(row);
-    // Set ALLSessions as default tab
-    $('.nav-tabs a[skillGroup="ALLSESSIONS"]').tab('show');
-    $('table.ALLSESSIONS').trigger('update').trigger('applyWidgetId', 'zebra');
-    // Make table sortable
-    $('table.ALLSESSIONS').stickyTableHeaders();
-    $('table.ALLSESSIONS').tablesorter({
-        theme: 'custom',
-        sortReset: true,
-        sortList: [
-            [5, 1]
-        ],
-        widgets: ['zebra'],
-    });
-    // Add FLOW NOT STARTED Tab
-    row = '<li class="pull-right" tabId="INACTIVESESSIONS">' +
-        '<a class="nav-link" data-toggle="tab" skillGroup="INACTIVESESSIONS" href="#INACTIVESESSIONS">NOT STARTED (<span>0</span>)</a>' +
-        '</li> ';
-    $('ul#Tabs').append(row);
-    row = '<div id="INACTIVESESSIONS" class="tab-pane">' +
-        '<div class="buttonrow">' +
-        '<span class="buttons">' +
-        'GROUP BY: ' +
-        '<input type="radio" name="INACTIVESESSIONS" class="groupOption" value="none" checked="checked">NONE' +
-        '<input type="radio" name="INACTIVESESSIONS" class="groupOption" value="agentname">AGENT NAME' +
-        '</span>' +
-        '</div> ' +
-        '<table class="table table-bordered center groupable hover-highlight INACTIVESESSIONS">' +
-        '<thead>' +
-        '<tr>' +
-        '<th class="col-sm-3 text-center attUID group-letter">ATT UID</th>' +
-        '<th class="col-sm-3 text-center agentName group-text">AGENT NAME</th>' +
-        '<th class="col-sm-3 text-center sessionStartTime">SASHA CONNECTION STARTED</th>' +
-        '<th class="col-sm-3 text-center sessionDuration sorter-false">CONNECTION DURATION</th>' +
-        '</tr>' +
-        '</thead>' +
-        '<tbody >' +
-        '</tbody>' +
-        '</table>' +
-        '</div>';
-    $('div#Contents').append(row);
-    // Make Table Sortable
-    $('table.INACTIVESESSIONS').stickyTableHeaders();
-    $('table.INACTIVESESSIONS').tablesorter({
-        theme: 'custom',
-        sortList: [
-            [5, 1]
-        ],
-        sortReset: true,
-        widgets: ['zebra'],
-    });
-    // When tab is clicked, it should resort the table for it
-    // Add StalledSessions Tab
-    row = '<li class="pull-right" tabId="STALLEDSESSIONS">' +
-        '<a class="nav-link" data-toggle="tab" skillGroup="STALLEDSESSIONS" href="#STALLEDSESSIONS">STALLED SESSIONS (<span>0</span>)</a>' +
-        '</li> ';
-    $('ul#Tabs').append(row);
-    row = '<div id="STALLEDSESSIONS" class="tab-pane">' +
-        '<div class="buttonrow">' +
-        '<span class="buttons">' +
-        'GROUP BY: ' +
-        '<input type="radio" name="STALLEDSESSIONS" class="groupOption" value="none" checked="checked">NONE' +
-        '<input type="radio" name="STALLEDSESSIONS" class="groupOption" value="agentname">AGENT NAME' +
-        '<input type="radio" name="STALLEDSESSIONS" class="groupOption" value="skillgroup">SKILL GROUP' +
-        '</span>' +
-        '</div> ' +
-        '<table class="table table-bordered center groupable hover-highlight STALLEDSESSIONS">' +
-        '<thead>' +
-        '<tr>' +
-        '<th class="col-sm-1 text-center attUID group-letter">ATT<br />UID</th>' +
-        '<th class="col-sm-2 text-center agentName group-text">AGENT NAME</th>' +
-        '<th class="col-sm-1 text-center workType group-text">WORK SOURCE</th>' +
-        '<th class="col-sm-1 text-center taskType group-text">TASK TYPE</th>' +
-        '<th class="col-sm-1 text-center skillGroup group-word">BUSINESS UNIT</th>' +
-        '<th class="col-sm-1 text-center sessionDuration sorter-false">WORKFLOW<br />SESSION DURATION</th>' +
-        '<th class="col-sm-1 text-center stepDuration sorter-false">STEP<br />DURATION</th>' +
-
-        '<th class="col-sm-2 text-center flowName sorter-false">FLOW NAME</th>' +
-        '<th class="col-sm-2 text-center stepName sorter-false">STEP NAME</th>' +
-        '</tr>' +
-        '</thead>' +
-        '<tbody >' +
-        '</tbody>' +
-        '</table>' +
-        '</div>';
-    $('div#Contents').append(row);
-    // Make Table Sortable
-    $('table.STALLEDSESSIONS').stickyTableHeaders();
-    $('table.STALLEDSESSIONS').tablesorter({
-        theme: 'custom',
-        sortList: [
-            [5, 1]
-        ],
-        sortReset: true,
-        widgets: ['zebra'],
-    });
-    // When tab is clicked, it should resort the table for it
-
-    handleGroupChange();
-};
-
-let handleGroupChange = function () {
-    $('a[data-toggle="tab"]').off('shown.bs.tab.resort').on('shown.tab.bs.resort', function (e) {
-        var target = $(e.target).attr('skillGroup');
-        $('table.' + target).trigger('update').trigger('applyWidgetId', 'zebra');
-    });
-    $('table').trigger('update');
-    setTimeout(function () {
-        $('input[type=radio].groupOption').off('change.groupOption').on('change.groupOption', function () {
-            var name = $(this).attr('name');
-            var val = $(this).val();
-            switch (val) {
-                case 'none':
-                    $('table.' + name).trigger('sortReset');
-                    $('table.' + name).trigger('removeWidget', 'group');
-                    $('table.' + name).trigger('applyWidgetId', 'zebra');
-                    break;
-                case 'agentname':
-                    $('table.' + name).trigger('removeWidget', 'group');
-                    $('table.' + name).trigger('removeWidget', 'zebra');
-                    var sortOrder = [
-                        [1, 0]
-                    ];
-                    $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
-                    $('table.' + name).trigger('applyWidgetId', 'zebra');
-                    $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [1];
-                    $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
-                    $('table.' + name).trigger('applyWidgetId', 'group');
-                    break;
-                case 'skillgroup':
-                    $('table.' + name).trigger('removeWidget', 'group');
-                    $('table.' + name).trigger('removeWidget', 'zebra');
-                    var sortOrder = [
-                        [4, 0]
-                    ];
-                    $('table.' + name).trigger('sortReset').trigger('sorton', [sortOrder]);
-                    $('table.' + name).trigger('applyWidgetId', 'zebra');
-                    $('table.' + name).data('tablesorter').widgetOptions.group_forceColumn = [4];
-                    $('table.' + name).data('tablesorter').widgetOptions.group_enforceSort = false;
-                    $('table.' + name).trigger('applyWidgetId', 'group');
-                    break;
-            }
-        });
-    }, 300);
-};
-
-let doGroup = function (skillGroup) {
-    var val = $('input[name=' + skillGroup + ']:checked').val();
-    switch (val) {
-        case 'none':
-            $('table.' + skillGroup).trigger('sortReset');
-            $('table.' + skillGroup).trigger('removeWidget', 'group');
-            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-            break;
-        case 'agentname':
-            $('table.' + skillGroup).trigger('removeWidget', 'group');
-            $('table.' + skillGroup).trigger('removeWidget', 'zebra');
-            var sortOrder = [
-                [1, 0]
-            ];
-            $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
-            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [1];
-            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
-            $('table.' + skillGroup).trigger('applyWidgetId', 'group');
-            break;
-        case 'skillgroup':
-            $('table.' + skillGroup).trigger('removeWidget', 'group');
-            $('table.' + skillGroup).trigger('removeWidget', 'zebra');
-            var sortOrder = [
-                [4, 0]
-            ];
-            $('table.' + skillGroup).trigger('sortReset').trigger('sorton', [sortOrder]);
-            $('table.' + skillGroup).trigger('applyWidgetId', 'zebra');
-            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_forceColumn = [4];
-            $('table.' + skillGroup).data('tablesorter').widgetOptions.group_enforceSort = false;
-            $('table.' + skillGroup).trigger('applyWidgetId', 'group');
-            break;
     }
 };

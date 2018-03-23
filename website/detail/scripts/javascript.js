@@ -1,29 +1,43 @@
-// How many seconds between Auto refresh
+
+// Set base number of seconds for Auto Refresh Items
 var AutoRefresh = '30';
+
+// Set Timers for refresh
 var skillgroupInfoTimer;
 var screenshotTimer;
 var dictionaryTimer = false;
+
+// Determine if dictionary should reload or not (do not change)
 window.dictionaryReload = false;
 
 $(document).ready(function () {
-
-    var environment = Cookies.get('environment');
-    window.connectionId = Cookies.get('connectionId');
-    if (typeof connectionId == 'undefined' || typeof environment == 'undefined') {
-        $('body').empty();
-        $('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MAIN</span></div>');
-        if (typeof socket != 'undefined') {
-            socket.disconnect();
-        }
-        setTimeout(function () {
-            window.close();
-        }, AutoRefresh * 1000);
-        Cookies.remove('connectionId');
-        throw new Error('No Environment or Connection Id set');
+	
+	//Obtain Environment and the ConnectionId that your trying to view either from cookies or by URL parameter
+	var environment = Cookies.get('environment');
+	window.connectionId = Cookies.get('connectionId');
+    if (typeof window.connectionId == 'undefined' || typeof environment == 'undefined') {
+		console.log('not passed in cookies, getting parameters');
+		var environment = getParameterByName('env');
+		window.connectionId = getParameterByName('id');
+		if (environment == '' || window.connectionId == '') {
+			$('body').empty();
+			$('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MONITOR WINDOW OR PASS THE ENVIRONMENT AND CONNECTION ID IN THE URL</span></div>');
+			if (typeof socket != 'undefined') {
+				socket.disconnect();
+			}
+			setTimeout(function () {
+				window.close();
+			}, AutoRefresh * 1000);
+			Cookies.remove('connectionId');
+			throw new Error('No Environment or Connection Id set');
+		}
     }
     Cookies.remove('connectionId');
 
+	// Set Address for SAMS Server
     var serverAddress = 'http://10.100.49.77';
+
+	// Set Port based on environment
     switch (environment) {
         case 'fde':
             var socketURL = serverAddress + ':5510';
@@ -38,9 +52,10 @@ $(document).ready(function () {
             var socketURL = serverAddress + ':5530';
             break;
     }
-    // Initialize variables
-    window.socket = io.connect(socketURL);
+	// Connect to SAMS Server
+	window.socket = io.connect(socketURL);
 
+	// Upon connection request database configuration information from SAMS server
     socket.on('connect', function () {
         socket.emit('Request DB Config');
         window.SASHAClientId = window.connectionId;
@@ -49,8 +64,11 @@ $(document).ready(function () {
         });
     });
 
-    socket.on('disconnect', function () {});
+	// Handle disconnection from SAMS server
+    socket.on('disconnect', function () {
+	});
 
+	// Create Larger version of screenshot images viewable when clicked
     $('img.fancybox').each(function () {
         var src = $(this).attr('src');
         var a = $('<a href="#" class="fancybox current"></a>').attr('href', src);
@@ -60,6 +78,7 @@ $(document).ready(function () {
         });
     });
 
+	// View Dictionary
     $('button#dictionary-button').off('click').on('click', function () {
         $('div.dictionary').html('<ul id="dict" class="treeview-black"></ul>');
         $('#dictionary-button').addClass('hidden');
@@ -67,6 +86,7 @@ $(document).ready(function () {
         reloadDictionary();
     });
 
+	// Event to handle sending the message to the agent 
     $('button#pushMessageButton').off('click.broadcast').on('click.broadcast', function () {
         var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g, '<br />');
         socket.emit('Send User Message to Server', {
@@ -76,34 +96,6 @@ $(document).ready(function () {
         $('textarea#pushMessage').val('');
     });
 
-    $('button#storeInfoButton').off('click.storeInfo').on('click.StoreInfo', function () {
-        var headerData = $('div[class="headerInfo"]').html();
-        var stepHistory = $('div[class="flowHistoryWrapper"]').html();
-        var imageTimestamp = $('div.screenshotInfo').html();
-        var imageData = $('img#SASHAScreenshot').prop('src');
-        var dictionaryTimestamp = $('div.dictionaryInfo').html();
-        var dictionaryData = $('ul#dict').html();
-        var dictionaryData = dictionaryData.replace(/'/g, '&#39;');
-        socket.emit('Store Data To Database', {
-            FirstName: window.UserInfo.FirstName,
-            LastName: window.UserInfo.LastName,
-            AttUID: window.UserInfo.AttUID,
-            SMPSessionId: window.UserInfo.SmpSessionId,
-            ConnectionId: window.SASHAClientId,
-            headerInfo: headerData,
-            stepHistory: stepHistory,
-            imageTimestamp,
-            imageData: imageData,
-            dictionaryTimestamp: dictionaryTimestamp,
-            dictionaryData: dictionaryData,
-        });
-    });
-
-    $('button#keepScreenshots').off('click.keepScreenshots').on('click.keepScreenshots', function () {
-        socket.emit('Retain Screenshot Remote', {
-            connectionId: window.SASHAClientId
-        });
-    });
 
     // Receives Client Information from server
     socket.on('Receive Client Detail from Server', function (data) {
@@ -120,9 +112,9 @@ $(document).ready(function () {
         var stepName = UserInfo.StepName;
         var stepStartTime = UserInfo.StepStartTime;
         var sessionStartTimestamp = new Date(sessionStartTime);
-        var sessionStartTime = toLocalTime(sessionStartTime);
+        var sessionStartTime = moment(new Date(sessionStartTime)).format('MM/DD/YYYY @ HH:mm:SS');
         var stepStartTimestamp = new Date(stepStartTime);
-        stepStartTime = toLocalTime(stepStartTime);
+        stepStartTime = moment(new Date( stepStartTime)).format('MM/DD/YYYY @ HH:mm:SS');
         if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
             skillGroup = 'UNKNOWN';
         }
@@ -159,7 +151,7 @@ $(document).ready(function () {
         });
         document.title = 'SAMS - ' + agentName + ' (' + attUID + ')';
         socket.emit('Request SASHA ScreenShot from Server', {
-            ConnectionId: connectionId
+            ConnectionId: connectionId,
         });
         setTimeout(function () {
             socket.emit('Request SASHA Dictionary from Server', {
@@ -172,63 +164,7 @@ $(document).ready(function () {
             SmpSessionId: smpSessionId
 
         });
-        /*
-        socket.emit('Get ScreenShots', {
-            smp_session_id: smpSessionId,
-            view: 'detail'
-        });
-        */
     });
-
-    /*
-    socket.on('Get ScreenShots', function (data) {
-        $('div#slides').hide();
-        if ($('.flexcontainer').hasClass('pending')) {
-            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-            $('.flexcontainer').removeClass('pending setHeight');
-        }
-        var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
-        var flow_name = data.flow_name;
-        var step_name = data.step_name;
-        var image_data = data.image_data;
-        var html = '<li><img class="fancybox makefancybox" src="' + image_data + '" /><p class=flex-caption>SCREENSHOT TIME:&nbsp;' + screenshot_time + '<br />FLOW NAME:&nbsp;' + flow_name + '<br />STEP NAME:&nbsp;' + step_name +'<p></li>';
-        $('ul.slides').append(html);
-        // $('a.fancybox').attr('href',image_data);
-        // $('img.fancybox-image').attr('src', image_data);
-
-
-    });
-
-    socket.on('Screenshots Delivered', function() {
-        $('.flexslider').flexslider({
-            controlsContainer: '.flexslider',
-            animation: 'slide',
-            animationLoop: false,
-            slideshow: false,
-            directionNav: true,
-            prevText: 'Previous',
-            nextText: 'Next'
-        });
-        $('img.makefancybox').not('.current').each(function(){
-            var src = $(this).attr('src');
-            var a = $('<a href="#" class="fancybox"></a>').attr('href', src);
-            $(this).wrap(a);
-            $('a.fancybox').fancybox({
-                titlePositon: 'inside'
-            });
-            $(this).removeClass('makefancybox');
-        });
-        $('img.fancybox').off('click').on('click',function () {
-            var src = $(this).attr('src');
-            $('img.fancybox-image').attr('src',src);
-        });
-        if (typeof $('.flexslider').data('flexslider') == 'object') {
-            $('.flexslider.pending').removeClass('pending');
-        }
-        $('div.flexslider').show();
-    });
-    */
-
 
     socket.on('Update Flow and Step Info', function (data) {
         var connectionId = data.ConnectionId;
@@ -272,7 +208,7 @@ $(document).ready(function () {
         $('table#flowHistoryTable > tbody > tr:even').addClass('stripe');
         if (connectionId === window.SASHAClientId) {
             var StepStartTimestamp = new Date(StepStartTime);
-            StepStartTime = toLocalTime(StepStartTime);
+            StepStartTime = moment(new Date(StepStartTime)).format('MM/DD/YYYY @ HH:mm:SS');
             $('div#stepDuration_' + connectionId).countdown('destroy');
             $('td#flowName_' + connectionId).html(FlowName);
             $('td#nodeName_' + connectionId).html(StepName);
@@ -288,7 +224,7 @@ $(document).ready(function () {
     });
 
     socket.on('Update Screenshot History', function (data) {
-        var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY HH:mm:ss');
+        var screenshot_time = moment(data.screenshot_time).format('MM/DD/YYYY @ HH:mm:ss');
         var flow_name = data.flow_name;
         var step_name = data.step_name;
         var image_data = data.image_data;
@@ -340,7 +276,7 @@ $(document).ready(function () {
         $('a.fancybox.current').attr('href', ImageURL);
         //$('img.fancybox-image').attr('src', ImageURL);
         var screenshotTime = new Date().toString();
-        screenshotTime = toLocalTime(screenshotTime);
+        screenshotTime = moment(new Date(screenshotTime)).format('HH:mm:SS');
         $('div.screenshotInfo').html(screenshotTime).removeClass('hidden');
         $('div.screenshotDiv').removeClass('pending');
         // Request fresh screenshot every xx seconds
@@ -356,7 +292,7 @@ $(document).ready(function () {
         $('button#showDict').attr('disabled', false);
         $('ul#dict').html(Dictionary.trim());
         var dictionaryTime = new Date().toString();
-        dictionaryTime = toLocalTime(dictionaryTime);
+        dictionaryTime = moment(new Date(dictionaryTime)).format('HH:mm:SS');
         $('div.dictionaryInfo').html(dictionaryTime);
         if ($('button#showDict').length > 0) {
             dictionaryTimer = setTimeout(function () {
@@ -420,7 +356,7 @@ $(document).ready(function () {
             row = row + '<tr><td colspan=6 center>NONE</td></tr>';
         }
         var skillGroupTime = new Date().toString();
-        skillGroupTime = toLocalTime(skillGroupTime);
+        skillGroupTime = moment(new Date(skillGroupTime)).format('HH:mm:SS');
         $('div#skillGroupTime').html(skillGroupTime).removeClass('hidden');
         $('div#skillGroupInfoDisplay table tbody').empty();
         $('div#skillGroupInfoDisplay table tbody:last').append(row);
@@ -520,7 +456,7 @@ let requestHistoricalImages = function (smpSessionId) {
                     $('.flexcontainer').removeClass('pending setHeight');
                 }
                 $.each(data, function (key, row) {
-                    var screenshotTime = moment(new Date(row.screenshot_time)).format('MM/DD/YYYY HH:mm:ss');
+                    var screenshotTime = moment(new Date(row.screenshot_time)).format('MM/DD/YYYY @ HH:mm:ss');
                     var flowName = row.flow_name;
                     var stepName = row.step_name;
                     var imageData = row.image_data;
@@ -611,7 +547,7 @@ let reloadDictionary = function () {
 };
 
 let getSkillGroupInfo = function (skillGroup) {
-    // set skillGroup Specic Data Requests
+    // set skillGroup Specific Data Requests
     var requestValue = new Object();
     switch (skillGroup) {
         case 'TSC':
@@ -738,4 +674,16 @@ let showFlowHistory = function (UserInfo) {
     $('table#flowHistoryTable > tbody > tr:odd').removeClass('stripe');
     $('table#flowHistoryTable > tbody > tr:even').addClass('stripe');
     window.lastFlowName = flowName;
+};
+
+
+let getParameterByName = function (name) {
+	var regexS = "[\\?&]"+name+"=([^&#]*)", 
+		regex = new RegExp(regexS),
+		results = regex.exec( window.location.search );
+	if( results == null ){
+		return "";
+	} else{
+		return decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
 };
