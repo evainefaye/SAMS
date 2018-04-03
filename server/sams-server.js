@@ -1,5 +1,3 @@
-const cheerio = require('cheerio');
-
 // Store the time of the server boot
 var serverStartTime = new Date().toUTCString();
 var sashaUsers = new Object();
@@ -11,8 +9,11 @@ var sessionCounter = new Object;
 
 var notifyStalledStepTime = 300000;
 var notifyStalledFlowTime = 1200000;
-var dictionaryRefreshTime = 120000;
-var logDictionaryData = true;
+
+// Enabled Capturing Dictionary Data and pushing it to the monitor(s) associated 
+var pushDictionaryData = false;
+var pushDictionaryTime = 120000;
+
 
 var db_config = {};
 global.con = '';
@@ -102,7 +103,7 @@ if (useDB) {
                 var sql = 'DELETE FROM duration_log_step_automation WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
                 global.con.query(sql, function(err, result) {
                     if (err) {
-                        console.log(new Date().toString(), 'Error running SQL line 103: ' + sql + ' ' + err);
+                        console.log(new Date().toString(), 'Error running SQL line 103: ' + err);
                     } else {
                         console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_automation table');
                     }
@@ -110,7 +111,7 @@ if (useDB) {
                 var sql = 'DELETE FROM duration_log_step_manual WHERE smp_session_id NOT IN(SELECT smp_session_id FROM duration_log_session)';
                 global.con.query(sql, function(err, result) {
                     if (err) {
-                        console.log(new Date().toString(), 'Error running SQ line 111 ' + sql + ' ' + err);
+                        console.log(new Date().toString(), 'Error running SQ line 111 ' + err);
 				    } else {
 					    console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from duration_log_step_manual table');
 				    }
@@ -118,7 +119,7 @@ if (useDB) {
                 var sql = 'DELETE FROM screenshots WHERE in_progress = "Y"';
                 global.con.query(sql, function(err, result) {
 				    if (err) {
-					    console.log(new Date().toString(), 'Error running SQL line 119: ' + sql + ' ' + err);
+					    console.log(new Date().toString(), 'Error running SQL line 119: ' + err);
 				    } else {
 					    console.log(new Date().toString(), 'Purged ' + result.affectedRows + ' invalid records from screenshots table');
 				    }
@@ -173,7 +174,7 @@ io.sockets.on('connection', function (socket) {
                     var sql = 'UPDATE screenshots SET in_progress="N" WHERE smp_session_id="' + smpSessionId + '"';
                     global.con.query(sql, function(err, result) {
 					    if (err) {
-					    	console.log(new Date().toString(), 'Error running SQL line 174: ' + sql + ' ' + err);
+					    	console.log(new Date().toString(), 'Error running SQL line 174: ' + err);
 					    }
 				    });
                 }
@@ -184,8 +185,9 @@ io.sockets.on('connection', function (socket) {
                 var elapsedTime = (Date.parse(flowStopTime)-Date.parse(flowStartTime))/1000;
                 if (!isNaN(elapsedTime) && userInfo.hasOwnProperty('SAMSWorkType')) {
 			    	if (userInfo['SAMSWorkType'].length > 0) {
+						var dashboardData = userInfo.DashboardData;
 			    		// console.log(new Date().toString(), 'Session Ended: ' + userInfo.AttUID);;
-			    		var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, threshold_exceeded) VALUES(' +
+			    		var sql = 'REPLACE INTO duration_log_session (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, active_org, asset, client_name, client_ticket_num, email, environment, ip, is_sable, is_sasha_dev, mac, master_state, phone, problem_abstract, room_number, run_location, site_name, task_assigned_time, ticket_number, ticket_role, ticket_type, t2_team_name, dispatch_auth, test_auth, site_access_hours, power_to_cpe, ticket_state, work_queue, userInfo) VALUES(' +
 							mysql.escape(userInfo.SmpSessionId) + ',' +
 							mysql.escape(new Date(flowStartTime).toISOString()) + ',' +
 							mysql.escape(new Date(flowStopTime).toISOString()) + ',' +
@@ -196,16 +198,38 @@ io.sockets.on('connection', function (socket) {
 							mysql.escape(userInfo.Manager) + ',' +
 							mysql.escape(userInfo.SAMSWorkType) + ',' +
 							mysql.escape(userInfo.SkillGroup) + ',' +
-							mysql.escape(userInfo.TaskType) + ',';
-					    if (elapsedTime > notifyStalledFlowTime / 1000) {
-					    	sql = sql + mysql.escape('Y');
-					    } else {
-					    	sql = sql + mysql.escape('N');
-					    }
-					    sql = sql + ')';
+							mysql.escape(userInfo.TaskType) + ',' + 
+							mysql.escape(dashboardData.ActiveOrg) + ',' + 
+							mysql.escape(dashboardData.Asset) + ',' + 
+							mysql.escape(dashboardData.ClientName) + ',' + 
+							mysql.escape(dashboardData.ClientTicketNum) + ',' + 
+							mysql.escape(dashboardData.Email) + ',' + 
+							mysql.escape(dashboardData.Environment) + ',' + 
+							mysql.escape(dashboardData.IP) + ',' + 
+							mysql.escape(dashboardData.IsSable) + ',' + 
+							mysql.escape(dashboardData.IsSASHADev) + ',' + 
+							mysql.escape(dashboardData.MAC) + ',' + 
+							mysql.escape(dashboardData.MasterState) + ',' + 
+							mysql.escape(dashboardData.Phone) + ',' +
+							mysql.escape(dashboardData.ProblemAbstract) + ',' + 
+							mysql.escape(dashboardData.RoomNumber) + ',' + 
+							mysql.escape(dashboardData.RunLocation) + ',' + 
+							mysql.escape(dashboardData.Name) + ',' + 
+							mysql.escape(dashboardData.TaskAssignedTime) + ',' + 
+							mysql.escape(dashboardData.TicketNum) + ',' + 
+							mysql.escape(dashboardData.TicketRole) + ',' + 
+							mysql.escape(dashboardData.TicketType) + ',' + 
+							mysql.escape(dashboardData.T2TeamName) + ',' + 
+							mysql.escape(dashboardData.dispatchAuth) + ',' + 
+							mysql.escape(dashboardData.testAuth) + ',' + 
+							mysql.escape(dashboardData.SAH) + ',' + 
+							mysql.escape(dashboardData.powerToCPE) + ',' + 
+							mysql.escape(dashboardData.ticketState) + ',' + 
+							mysql.escape(dashboardData.workQueue) + ',' +
+							mysql.escape(JSON.stringify(userInfo)) + ')';
 					    global.con.query(sql, function(err, result) {
 					    	if (err) {
-					    		console.log(new Date().toString(), 'Error running SQL line 206: ' + sql + ' ' + err);
+					    		console.log(new Date().toString(), 'Error running SQL line 206: ' + err);
 					    	}
 					    });
 				    }
@@ -222,7 +246,7 @@ io.sockets.on('connection', function (socket) {
 				    	case 'SO WAIT':
 				    		oldStepStartTime = new Date(oldStepStartTime).toISOString();
 				    		stepStopTime = new Date(stepStopTime).toISOString();
-				    		var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+				    		var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress) VALUES(' +
 								mysql.escape(userInfo.SmpSessionId) + ',' +
 								mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
 								mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
@@ -236,17 +260,12 @@ io.sockets.on('connection', function (socket) {
 								mysql.escape(userInfo.TaskType) + ',' +
 								mysql.escape(oldFlowName) + ',' +
 								mysql.escape(oldStepName) + ',' +
-								mysql.escape('N') + ',';
-				    		if (elapsedTime >= 30) {
-				    			sql = sql + mysql.escape('Y') + ')';
-				    		} else {
-				    			sql = sql + mysql.escape('N') + ')';
-				    		}
+								mysql.escape('N') + ')';
 				    		break;
 				    	default:
 				    		oldStepStartTime = new Date(oldStepStartTime).toISOString();
 				    		stepStopTime = new Date(stepStopTime).toISOString();
-				    		var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+				    		var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress) VALUES(' +
 								mysql.escape(userInfo.SmpSessionId) + ',' +
 								mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
 								mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
@@ -260,47 +279,28 @@ io.sockets.on('connection', function (socket) {
 								mysql.escape(userInfo.TaskType) + ',' +
 								mysql.escape(oldFlowName) + ',' +
 								mysql.escape(oldStepName) + ',' +
-								mysql.escape('N') + ',';
-				    		if (elapsedTime >= 300) {
-				    			sql = sql + mysql.escape('Y') + ')';
-				    		} else {
-				    			sql = sql + mysql.escape('N') + ')';
-				    		}
+								mysql.escape('N') + ')';
 				    		break;
 				    	}
 				    	if (sql != '') {
 				    		global.con.query(sql, function(err, result) {
 				    			if (err) {
-				    				console.log(new Date().toString(), 'Error running SQL line 272 ' + sql + ' ' + err);
+				    				console.log(new Date().toString(), 'Error running SQL line 272 ' + err);
 				    			}
 				    		});
 				    	}
 				    	var sql = 'UPDATE duration_log_step_manual SET in_progress="N" WHERE smp_session_id ="' + userInfo.SmpSessionId + '"';
 				    	global.con.query(sql, function(err, result) {
 				    		if (err) {
-				    			console.log(new Date().toString(), 'Error running SQL line 279: ' + sql + ' ' + err);
+				    			console.log(new Date().toString(), 'Error running SQL line 279: ' + err);
 				    		}
 				    	});
 				    	var sql = 'UPDATE duration_log_step_automation SET in_progress="N" WHERE smp_session_id ="' + userInfo.SmpSessionId + '"';
 				    	global.con.query(sql, function(err, result) {
 				    		if (err) {
-				    			console.log(new Date().toString(), 'Error running SQL line 285: ' + sql + ' ' + err);
+				    			console.log(new Date().toString(), 'Error running SQL line 285: ' + err);
 				    		}
 				    	});
-						sql = 'REPLACE INTO workflow_history_data (smp_session_id, userInfo) VALUES(' + mysql.escape(userInfo.SmpSessionId) + ', ' + mysql.escape(JSON.stringify(userInfo)) + ')';
-						global.con.query(sql, function(err, result) {
-							if (err) {
-								console.log(new Date().toString(), 'Error running SQL line 291: ' + sql + ' ' + err);
-							}
-						});
-
-						var dashboardData = userInfo.DashboardData;
-						sql = 'REPLACE INTO sasha_dictionary_data (smpSessionId, activeOrg, clientName, clientTicketNum, environment, ip, isSable, isSASHADev, mac, masterState, problemAbstract, roomNumber, runLocation, skillGroup, taskAssignedTime, taskType, ticketRole, ticketType, t2TeamName, userName, dispatchAuth, testAuth, sah, powerToCPE, ticketState, workQueue, asset, email, name, phone) VALUES (' + mysql.escape(userInfo.SmpSessionId) + ',' + mysql.escape(dashboardData.ActiveOrg) + ',' + mysql.escape(dashboardData.ClientName) + ',' + mysql.escape(dashboardData.ClientTicketNum) + ',' + mysql.escape(dashboardData.Environment) + ',' + mysql.escape(dashboardData.IP) + ',' + mysql.escape(dashboardData.IsSable) + ',' + mysql.escape(dashboardData.IsSASHADev) + ',' + mysql.escape(dashboardData.MAC) + ',' + mysql.escape(dashboardData.MasterState) + ',' + mysql.escape(dashboardData.ProblemAbstract) + ',' + mysql.escape(dashboardData.RoomNumber) + ',' + mysql.escape(dashboardData.RunLocation) + ',' + mysql.escape(dashboardData.SkillGroup) + ',' + mysql.escape(dashboardData.TaskAssignedTime) + ',' + mysql.escape(dashboardData.TaskType) + ',' + mysql.escape(dashboardData.TicketRole) + ',' + mysql.escape(dashboardData.TicketType) + ',' + mysql.escape(dashboardData.T2TeamName) + ',' + mysql.escape(dashboardData.userName) + ',' + mysql.escape(dashboardData.dispatchAuth) + ',' + mysql.escape(dashboardData.testAuth) + ',' + mysql.escape(dashboardData.SAH) + ',' + mysql.escape(dashboardData.powerToCPE) + ',' + mysql.escape(dashboardData.ticketState) + ',' + mysql.escape(dashboardData.workQueue) + ',' + mysql.escape(dashboardData.Asset) + ',' + mysql.escape(dashboardData.Email) + ',' + mysql.escape(dashboardData.Name) + ',' + mysql.escape(dashboardData.Phone) + ')';
-						global.con.query(sql, function(err, result) {
-							if (err) {
-								console.log(new Date().toString(), 'Error running SQL line 299: ' + sql + ' ' + err);
-							}
-						});
 				    }
 				}
             }
@@ -461,7 +461,7 @@ io.sockets.on('connection', function (socket) {
                 case 'SO WAIT':
                     oldStepStartTime = new Date(oldStepStartTime).toISOString();
                     stepStopTime = new Date(stepStopTime).toISOString();
-                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                    var sql = 'INSERT INTO duration_log_step_automation (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress) VALUES(' +
                         mysql.escape(userInfo.SmpSessionId) + ',' +
                         mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
                         mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
@@ -475,18 +475,12 @@ io.sockets.on('connection', function (socket) {
                         mysql.escape(userInfo.TaskType) + ',' +
                         mysql.escape(oldFlowName) + ',' +
                         mysql.escape(oldStepName) + ',' +
-                        mysql.escape('Y') + ',';
-                    if (elapsedTime >= 30) {
-                        sql = sql + mysql.escape('Y');
-                    } else {
-                        sql = sql + mysql.escape('N');
-                    }
-                    sql = sql + ')';
+                        mysql.escape('Y') + ')';
                     break;
                 default:
                     oldStepStartTime = new Date(oldStepStartTime).toISOString();
                     stepStopTime = new Date(stepStopTime).toISOString();
-                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress, threshold_exceeded) VALUES(' +
+                    var sql = 'INSERT INTO duration_log_step_manual (smp_session_id, start_time, stop_time, elapsed_seconds, att_uid, first_name, last_name, manager_id, work_source, business_line, task_type, flow_name, step_name, in_progress) VALUES(' +
                         mysql.escape(userInfo.SmpSessionId) + ',' +
                         mysql.escape(new Date(oldStepStartTime).toISOString()) + ',' +
                         mysql.escape(new Date(stepStopTime).toISOString()) + ',' +
@@ -500,18 +494,12 @@ io.sockets.on('connection', function (socket) {
                         mysql.escape(userInfo.TaskType) + ',' +
                         mysql.escape(oldFlowName) + ',' +
                         mysql.escape(oldStepName) + ',' +
-                        mysql.escape('Y') + ',';
-                    if (elapsedTime >= 300) {
-                        sql = sql + mysql.escape('Y');
-                    } else {
-                        sql = sql + mysql.escape('N');
-                    }
-                    sql = sql + ')';
+                        mysql.escape('Y') + ')';
                     break;
                 }
 		    global.con.query(sql, function(err, result) {
 		    	if (err) {
-		    		console.log(new Date().toString(), 'Error running SQL line 512: ' + sql + ' ' + err);
+		    		console.log(new Date().toString(), 'Error running SQL line 512: ' + err);
 		    	}
 		    });
             }
@@ -693,7 +681,7 @@ io.sockets.on('connection', function (socket) {
         var connectionId = data.ConnectionId;
         if (typeof sashaUsers[connectionId] != 'undefined') {
 			userInfo = sashaUsers[connectionId];
-			smpSessionId = userInfo['SmpSessionId'];
+			var smpSessionId = userInfo['SmpSessionId'];
 			io.in(connectionId).emit('Request SASHA Dictionary from SASHA', {
 				ConnectionId: connectionId
 			});
@@ -705,10 +693,8 @@ io.sockets.on('connection', function (socket) {
 		dictionary = dictionary.trim();
         var connectionId = socket.connectionId;
         if (typeof sashaUsers[connectionId] != 'undefined') {
-			var userInfo = sashaUsers[connectionId];
-			var smpSessionId = userInfo.SMPSessionId;
 			// console.log(new Date().toString(), 'SAMS received a dictionary from SASHA Connection ' + connectionId);
-			var roomCount = io.nsps['/'].adapter.rooms[smpSessionId];
+			var roomCount = io.nsps['/'].adapter.rooms[connectionId];
 			if (roomCount) {
 				var count = roomCount.length;
                 // console.log(new Date().toString(), 'There are ' + count + ' users in room for ' + connectionId);
@@ -746,6 +732,16 @@ io.sockets.on('connection', function (socket) {
 			delete resultValue.serverSideUpdate;
 			
 			// Clean Up Values that are returned and prepare for database storage
+
+			// Remove Non digits
+//			resultValue.CountryCode = resultValue['CountryCode'].replace(/[^0-9]+/g, '');
+//			resultValue.CallbackNumber = resultValue['CallbackNumber'].replace(/[^0-9]+/g, '');
+//			resultValue.CallerPhone = resultValue['CallerPhone'].replace(/[^0-9]+/g, '');
+//			resultValue.ContactPhone = resultValue['ContactPhone'].replace(/[^0-9]+/g, '');
+//			resultValue.endUserPhone = resultValue['endUserPhone'].replace(/[^0-9]+/g, '');
+//			resultValue.ParentTicketNum = resultValue['ParentTicketNum'].replace(/[^0-9]+/g, '');
+//			resultValue.TicketNum = resultValue['TicketNum'].replace(/[^0-9]+/g, '');
+
 			
 			// If dispatchAuth1, dispatchAuth2, or dispatchAuth3 contain Y its Y otherwise if one of them contains N its N otherwise its blank
 			if (resultValue.dispatchAuth1 == 'Y' || resultValue.dispatchAuth2 == 'Y' || resultValue.dispatchAuth3 == 'Y') {
@@ -760,7 +756,8 @@ io.sockets.on('connection', function (socket) {
 			delete resultValue.dispatchAuth3;
 			// Remove undesired characters from string
 			resultValue.ProblemAbstract = resultValue.ProblemAbstract.replace(/;-;-;/g,' ').replace(/:~:~/g,' ');
-			
+			// Remove undesired characters from string
+			resultValue.TicketRole = resultValue.TicketRole.replace(/;-;-;/g,' ').replace(/:~:~/g,' ').replace(/TicketRole/g,'');
 			// If testAuth1, testAuth2, or testAuth3 contain Y its Y otherwise if one of them contains N its N otherwise its blank
 			if (resultValue.testAuth1 == 'Y' || resultValue.testAuth2 == 'Y' || resultValue.testAuth3 == 'Y') {
 				resultValue.testAuth = 'Y';
@@ -855,12 +852,10 @@ io.sockets.on('connection', function (socket) {
 			delete resultValue.endUserName;
 			delete resultValue.endUserPhone;
 			delete resultValue.ParentTicketNum;
-			delete resultValue.TicketNum;
 			delete resultValue.VenueCode;
 			delete resultValue.VenueName;
 			userInfo['DashboardData'] = resultValue;
 			delete resultValue;
-			console.log(userInfo);
 			sashaUsers[connectionId] = userInfo;
 		} else {
 			var connectionId = socket.connectionId;
@@ -921,7 +916,7 @@ io.sockets.on('connection', function (socket) {
                     var sql = 'INSERT INTO screenshots (GUID, smp_session_id, screenshot_time, flow_name, step_name, image_data, in_progress) VALUES(UUID(),' + mysql.escape(smpSessionId) + ',' + mysql.escape(currentTime) + ',' + mysql.escape(flowName) + ',' + mysql.escape(stepName) + ',' + mysql.escape(imageURL) + ',' + mysql.escape('Y') + ')';
                     global.con.query(sql, function(err, result) {
 			    		if (err) {
-			    			console.log(new Date().toString(), 'Error running SQL line 922: ' + sql + ' ' + err);
+			    			console.log(new Date().toString(), 'Error running SQL line 922: ' + err);
 			    		}
 			    	});
                 }
@@ -1030,9 +1025,9 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-// Setup Timer to request the Dictionary from any users in the 'sasha' room ever so often:
-if (logDictionaryData) {
-	console.log(new Date().toString(), 'Requesting SASHA Dictionary for all SASHA Clients every ' + dictionaryRefreshTime/1000 + ' seconds');
+// Setup Timer to request getting and pushing dictionary data to any connected monitor clients.
+if (pushDictionaryData && pushDictionaryTime > 0) {
+	console.log(new Date().toString(), 'Requesting SASHA Dictionary for all SASHA Clients every ' + pushDictionaryTime/1000 + ' seconds');
 	setInterval(function () {
 		// Get count of users in sasha room
 		var sashaClientCount = io.nsps['/'].adapter.rooms['sasha'];
@@ -1062,8 +1057,8 @@ if (logDictionaryData) {
 			}
 			// console.log(new Date().toString(), monitorUserCount.length + ' users connected to session data for ' + connId + ', requesting update of dictionary data');
 			io.sockets.in(connId).emit('Request SASHA Dictionary from SASHA', {
-					ConnectionId: 'Autorefresh'
+					ConnectionId: connId
 			});
 		}
-	}, dictionaryRefreshTime);
+	}, pushDictionaryTime);
 }	

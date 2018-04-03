@@ -399,9 +399,18 @@ $(document).ready(function () {
         $('div#screenshotBody').html('');
         var startDate = $('#daterange').data('daterangepicker').startDate.toISOString();
         var endDate = $('#daterange').data('daterangepicker').endDate.toISOString();
-        automationStepFilter = '';
-        manualStepFilter = '';
-        sessionFilter = '';
+	    var sql = '';
+	    var attUIDFilter = '';
+	    var workSourceFilter = '';
+	    var businessLineFilter = '';
+        var automationStepFilter = '';
+        var manualStepFilter = '';
+        var sessionFilter = '';
+	    var taskTypeFilter = '';
+	    var automationStepFilterWithin = '';
+	    var automationStepFilterExceeded = '';
+	    var manualStepFilterWithin = '';
+	    var manualStepFilterExceeded = '';
         var attUIDFilter = '';
         var automationStepThreshold = '';
         var manualStepThreshold = '';
@@ -569,11 +578,11 @@ $(document).ready(function () {
         switch (reportType) {
         case 'SlowAutomationSummary':
             titleText = 'MOTIVE STEPS THAT HAVE ONE OR MORE MOTIVE STEP TAKING ' + automationStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT mainQuery.flow_name AS flow_name, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_automation mainQuery WHERE in_progress = "N" ' + automationStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY flow_name ORDER BY flow_name ASC';
+            var sql = 'SELECT mainQuery.flow_name AS flow_name, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_automation subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND in_progress = "N" ' + automationStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) AS average_slow FROM duration_log_step_automation mainQuery WHERE in_progress = "N" ' + automationStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY flow_name ORDER BY flow_name ASC';
             break;
         case 'SlowManualSummary':
             titleText = 'AGENT STEPS THAT HAVE ONE OR MORE AGENT STEP TAKING ' + manualStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            var sql = 'SELECT mainQuery.flow_name AS flow_name, mainQuery.step_name,(SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(elapsed_seconds) AS average_slow FROM duration_log_step_manual mainQuery WHERE in_progress = "N" ' + manualStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY CONCAT(flow_name, step_name) ORDER BY flow_name ASC, step_name ASC';
+            var sql = 'SELECT mainQuery.flow_name AS flow_name, mainQuery.step_name,(SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count, (SELECT COUNT(*) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_standard, COUNT(*) AS count_slow, (SELECT SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average, (SELECT IF(SUM(elapsed_seconds) IS NULL, SEC_TO_TIME(0), SEC_TO_TIME(ROUND(AVG(elapsed_seconds)))) FROM duration_log_step_manual subQuery1 WHERE subQuery1.flow_name = mainQuery.flow_name AND subQuery1.step_name = mainQuery.step_name AND in_progress = "N" ' + manualStepFilterWithin + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS average_standard, SEC_TO_TIME(ROUND(AVG(elapsed_seconds))) AS average_slow FROM duration_log_step_manual mainQuery WHERE in_progress = "N" ' + manualStepFilterExceeded + 'AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY CONCAT(flow_name, step_name) ORDER BY flow_name ASC, step_name ASC';
             break;
         case 'AllAutomation':
             if (parameters == '') {
@@ -600,7 +609,7 @@ $(document).ready(function () {
             var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionThresholdFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + 'ORDER BY start_time';
             break;
         case 'AgentSummary':
-            titleText = 'WORKFLOW SUMMARY BY AGENT FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
+            titleText = 'WORKFLOW PERFORMANCE SUMMARY BY AGENT FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
             var sql = 'SELECT CONCAT(last_name, ", ", first_name) AS agent_name, att_uid, manager_id, SEC_TO_TIME(ROUND(AVG(elapsed_seconds),0)) AS session_average, COUNT(*) AS count_completed, (SELECT COUNT(*) FROM duration_log_session subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND elapsed_seconds >= "' + sessionThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))) AS count_slow_workflow, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_automation subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + automationStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_automation, (SELECT COUNT(DISTINCT smp_session_id) FROM duration_log_step_manual subQuery1 WHERE subQuery1.att_uid = mainQuery.att_uid AND in_progress = "N" AND elapsed_seconds >= "' + manualStepThreshold + '" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ) AS count_slow_manual FROM duration_log_session mainQuery WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + ' GROUP BY att_uid ORDER BY agent_name';
             break;
         case 'AgentPerformance':
@@ -626,14 +635,24 @@ $(document).ready(function () {
                 startDate: startDate,
                 endDate: endDate,
                 reportType: reportType,
-                attUIDFilter: attUIDFilter
+                attUIDFilter: attUIDFilter,
+			    workSourceFilter: workSourceFilter,
+			    businessLineFilter: businessLineFilter,
+			    taskTypeFilter: taskTypeFilter,
+			    automationStepFilterWithin: automationStepFilterWithin,
+			    automationStepFilterExceeded: automationStepFilterExceeded,
+			    manualStepFilterWithin: manualStepFilterWithin,
+			    manualStepFilterExceeded: manualStepFilterExceeded,
+			    automationStepThreshold: automationStepThreshold,
+			    manualStepThreshold: manualStepThreshold,
+			    sessionThreshold: sessionThreshold
             },
             dataType: 'json',
         }).done(function (data) {
             $('input, select').attr('disabled', false);
             switch (reportType) {
             case 'SlowAutomationSummary':
-                var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=9 class="sorter-false"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="SlowAutomationSummary" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="sorter-false"></th><th colspan=2 class="sorter-false text-center">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + automationStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
+                var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=9 class="sorter-false"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="SlowAutomationSummary" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="sorter-false"></th><th colspan=2 class="sorter-false text-center">TOTAL</th><th colspan=3 class="sorter-false text-center">WITHIN ' + automationStepThreshold + ' SECONDS</th><th colspan=3 class="sorter-false text-center">OVER ' + automationStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME CONTAINING STEP</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="filter-false text-center group-false">AVERAGE <br />DURATION</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                 if (!data.hasOwnProperty('ERROR')) {
                     $.each(data, function (key, value) {
                         var percent_standard = (value.count_standard / value.count * 100).toFixed(2) + '%';
@@ -698,10 +717,10 @@ $(document).ready(function () {
                 html = html + '</tbody></table>';
                 break;
             case 'AgentSummary':
-                var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="AgentSummary" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW <br />DURATION <br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING <br />MOTIVE STEP <br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">CONTAINING <br />AGENT STEP <br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-false">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-false">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center filter-false group-false">AVG DURATION</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
+                var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="results" class="table table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="AgentSummary" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th colspan=3 class="text-center sorter-false"></th><th colspan=2 class="text-center sorter-false">COMPLETED WORKFLOWS</th><th colspan=2 class="text-center sorter-false">WORKFLOW <br />DURATION <br />>=' + sessionThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">WORKFLOWS CONTAINING <br />MOTIVE STEP <br />>=' + automationStepThreshold + ' SECONDS</th><th colspan=2 class="text-center sorter-false">WORKFLOWS CONTAINING <br />AGENT STEP <br />>=' + manualStepThreshold + ' SECONDS</th></tr><tr><th class="text-center sortInitialOrder-asc group-false">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-false">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center filter-false group-false">AVG DURATION</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th><th class="text-center group-false">COUNT</th><th class="text-center group-false">PERCENTAGE</th></tr></thead><tbody>';
                 if (!data.hasOwnProperty('ERROR')) {
                     $.each(data, function (key, value) {
-                        html = html + '<tr><td class="text-left">' + value.agent_name + '</td><td class="text-left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-center">' + value.session_average + '</td><td class="text-right">' + value.count_completed + '</td><td class="text-right">' + value.count_slow_workflow + '</td><td class="text-right">' + (value.count_slow_workflow / value.count_completed * 100).toFixed(2) + '%</td><td class="text-right">' + value.count_slow_automation + '</td><td class="text-right">' + (value.count_slow_automation / value.count_completed * 100).toFixed(2) + '%</td><td class="text-right">' + value.count_slow_manual + '</td><td class="text-right">' + (value.count_slow_manual / value.count_completed * 100).toFixed(2) + '%</td></tr>';
+                        html = html + '<tr><td class="text-left">' + value.agent_name + '</td><td class="text-left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-center">' + value.session_average + '</td><td class="text-right">' + value.count_completed + '</td><td class="text-right">' + value.count_slow_workflow + '</td><td class="text-right">' + value.percent_slow_workflow + '%</td><td class="text-right">' + value.count_slow_automation + '</td><td class="text-right">' + value.percent_slow_automation + '%</td><td class="text-right">' + value.count_slow_manual + '</td><td class="text-right">' + value.percent_slow_manual + '%</td></tr>';
                     });
                 } else {
                     html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
@@ -714,32 +733,23 @@ $(document).ready(function () {
                     $.each(data, function (key, value) {
                         var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
                         var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
-                        var automation_count_within = Number(value.automation_count_within);
-                        var manual_count_within = Number(value.manual_count_within);
-                        var automation_count_exceeded = Number(value.automation_count_exceeded);
-                        var manual_count_exceeded = Number(value.manual_count_exceeded);
-                        var total_automation_count = automation_count_within + automation_count_exceeded;
-                        var total_manual_count = manual_count_within + manual_count_exceeded;
+                        var total_automation_count = Number(value.count_automation_within) + Number(value.count_automation_exceeded);
+                        var total_manual_count = Number(value.count_manual_within) + Number(value.count_manual_exceeded);
                         if (total_automation_count > 0) {
-                            var percent_automation_within = (automation_count_within / total_automation_count * 100).toFixed(2) + '%';
-                            var percent_automation_exceeded = (automation_count_exceeded / total_automation_count * 100).toFixed(2) + '%';
+                            var percent_automation_within = (value.count_automation_within / total_automation_count * 100).toFixed(2) + '%';
+                            var percent_automation_exceeded = (value.count_automation_exceeded / total_automation_count * 100).toFixed(2) + '%';
                         } else {
                             var percent_automation_within = '0.00%';
                             var percent_automation_exceeded = '0.00%';
                         }
                         if (total_manual_count > 0) {
-                            var percent_manual_within = (manual_count_within / total_manual_count * 100).toFixed(2) + '%';
-                            var percent_manual_exceeded = (manual_count_exceeded / total_manual_count * 100).toFixed(2) + '%';
+                            var percent_manual_within = (value.count_manual_within / total_manual_count * 100).toFixed(2) + '%';
+                            var percent_manual_exceeded = (value.count_manual_exceeded / total_manual_count * 100).toFixed(2) + '%';
                         } else {
                             var percent_manual_within = '0.00%';
                             var percent_manual_exceeded = '0.00%';
                         }
-                        html = html + '<tr><td class="text-center">' + start_time + '</td><td class="text-left">' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-center">' + value.session_duration + '</td><td class="text-right">' + automation_count_within + '</td><td class="text-center">' + value.automation_time_within + '</td><td class="text-right">' + percent_automation_within + '</td><td class="text-right">' + automation_count_exceeded + '</td><td class="text-center">' + value.automation_time_exceeded + '</td><td class="text-right">' + percent_automation_exceeded + '</td><td class="text-right">' + manual_count_within + '</td><td class="text-center">' + value.manual_time_within + '</td><td class="text-right">' + percent_manual_within + '</td>';
-                        if (manual_count_exceeded > 0) {
-                            html = html + '<td class="text-right" data-query="' + manualStepThreshold + '">' + manual_count_exceeded + '</td><td>' + value.manual_time_exceeded + '<td class="text-right">' + percent_manual_exceeded + '</td></tr>';
-                        } else {
-                            html = html + '<td class="text-right">' + manual_count_exceeded + '</td><td>' + value.manual_time_exceeded + '<td class="text-right">' + percent_manual_exceeded + '</td></tr>';
-                        }
+                        html = html + '<tr><td class="text-center">' + start_time + '</td><td class="text-left">' + value.agent_name + ' (' + value.att_uid + ')' + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-center">' + value.session_duration + '</td><td class="text-right">' + value.count_automation_within + '</td><td class="text-center">' + value.duration_automation_within + '</td><td class="text-right">' + percent_automation_within + '</td><td class="text-right">' + value.count_automation_exceeded + '</td><td class="text-center">' + value.duration_automation_exceeded + '</td><td class="text-right">' + percent_automation_exceeded + '</td><td class="text-right">' + value.count_manual_within + '</td><td class="text-center">' + value.duration_manual_within + '</td><td class="text-right">' + percent_manual_within + '</td><td class="text-right"> ' + value.count_manual_exceeded + '</td><td>' + value.duration_manual_exceeded + '<td class="text-right">' + percent_manual_exceeded + '</td></tr>';
                     });
                 } else {
                     html = html + '<tr><td colspan=19 class="text-center">' + data.ERROR + '</td></tr>';
@@ -851,29 +861,29 @@ $(document).ready(function () {
 			    $.each($('table#results, table.results'), function () {
 				    var name = $(this).find('tr').first().text();
 				    $(this).tablesorter({
-				    	theme: 'custom',
-				    	sortReset: true,
-				    	sortRestart: true,
-				    	sortInitialOrder: 'desc',
+					    theme: 'custom',
+					    sortReset: true,
+					    sortRestart: true,
+					    sortInitialOrder: 'desc',
 					    ignoreCase: true,
-				    		widgets: ['zebra', 'filter', 'output', 'print', 'saveSort', 'stickyHeaders', 'group'],
-						    widgetOptions: {
-						    group_collapsible : false,  // make the group header clickable and collapse the rows below it.
-						    group_collapsed   : false, // start with all groups collapsed (if true)
-						    group_saveGroups  : true,  // remember collapsed groups
-						    group_separator : '_',
-						    group_complete : 'groupingComplete',
-						    filter_saveFilters : true,
-						    filter_reset : '.clear-filters',
-						    output_delivery : 'download',
-						    output_includeFooter : false,
-						    output_saveFileName : name + '.CSV',
-						    print_title      : name,
-						    print_styleSheet : 'stylesheets/print-stylesheet.css',
-						    print_now : true,
-						    saveSort : false
-					    }
-				    });
+					    widgets: ['zebra', 'filter', 'output', 'print', 'saveSort', 'stickyHeaders', 'group'],
+					    widgetOptions: {
+					    	group_collapsible : false,  // make the group header clickable and collapse the rows below it.
+					    	group_collapsed   : false, // start with all groups collapsed (if true)
+					    	group_saveGroups  : true,  // remember collapsed groups
+					    	group_separator : '_',
+					    	group_complete : 'groupingComplete',
+					    	filter_saveFilters : true,
+					    	filter_reset : '.clear-filters',
+					    	output_delivery : 'download',
+					    	output_includeFooter : false,
+					    	output_saveFileName : name + '.CSV',
+				    		print_title      : name,
+				    		print_styleSheet : 'stylesheets/print-stylesheet.css',
+				    		print_now : true,
+				    		saveSort : false
+				    	}
+			    	});
                 });
 
 			    $('.reset').off('click').on('click', function () {
@@ -893,8 +903,8 @@ $(document).ready(function () {
                     theme: 'custom',
                     sortReset: true,
                     ignoreCase: true,
-			    	sortRestart: true,
-			    	sortInitialOrder: 'desc',
+				    sortRestart: true,
+				    sortInitialOrder: 'desc',
                     widgets: ['zebra', 'stickyHeaders']
                 });
             }

@@ -9,6 +9,10 @@ table {
     width: 100%;
 }
 
+button#refreshDict {
+	display: none;
+}
+
 table tr,
 td {
     overflow: hidden;
@@ -44,8 +48,6 @@ td {
 }
 
 .dictionary {
-    max-height: 320px;
-    overflow-y: auto;
 }
 
 .dictionaryInfo {
@@ -58,6 +60,9 @@ td {
     padding: 3px;
     color: #FFFFFF;
     font-weight: bold;
+}
+.dictInfoRow {
+	padding-bottom: 15px;
 }
 
 .data {

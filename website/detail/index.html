@@ -55,6 +55,7 @@
 		<!-- End Add local stylesheet and javascript -->
 	</head>
 	<body>
+		<div class="overlay"></div>
 		<div class="header text-center">
 			<div>
 				<div id="autoclosediv" class="text-left float-left">
@@ -107,18 +108,15 @@
 		<div class="col-sm-6 col-sm-offset-3 dictionaryDiv setHeight">
 			<div class="col-sm-12 text-center" id="dictHeader">
 				<h3>MOTIVE DICTIONARY DATA</h3>
+				<h5>SCREEN WILL BECOME UNRESPONSIVE LOADING / REFRESHING DICTIONARY</h5>
 				<div class="text-center col-sm-12">
 					<button id="showDict" disabled="true" class="btn btn-primary">SHOW DICTIONARY</button>
+					<button id="refreshDict" disabled="true" class="btn btn-primary">REFRESH DICTIONARY</button>					
 				</div>
-			</div>
-			<div class="col-sm-12">
-				<div class="col-sm-1 dictionaryInfo center text-center hidden"></div>
-				<div class="col-sm-2 text-right">
-					<button class="hidden" id="dictionary-button">
-						<img src="stylesheets/images/arrow_refresh.png" alt="Reload Dictionary" />
-					</button>
+				<div class="col-sm-12 dictInfoRow">
+					<div class="col-sm-1 dictionaryInfo center text-center hidden"></div>
+					<div class="col-sm-11">&nbsp;</div>
 				</div>
-				<div class="col-sm-8">&nbsp;</div>
 			</div>
 			<div class="col-sm-12 dictionary center hidden" id="SASHADictionary">
 				<ul id="dict" class="treeview-black">

@@ -11,51 +11,51 @@ var dictionaryTimer = false;
 window.dictionaryReload = false;
 
 $(document).ready(function () {
-
-    //Obtain Environment and the ConnectionId that your trying to view either from cookies or by URL parameter
-    var environment = Cookies.get('environment');
-    window.connectionId = Cookies.get('connectionId');
+	
+	//Obtain Environment and the ConnectionId that your trying to view either from cookies or by URL parameter
+	var environment = Cookies.get('environment');
+	window.connectionId = Cookies.get('connectionId');
     if (typeof window.connectionId == 'undefined' || typeof environment == 'undefined') {
-        console.log('not passed in cookies, getting parameters');
-        var environment = getParameterByName('env');
-        window.connectionId = getParameterByName('id');
-        if (environment == '' || window.connectionId == '') {
-            $('body').empty();
-            $('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MONITOR WINDOW OR PASS THE ENVIRONMENT AND CONNECTION ID IN THE URL</span></div>');
-            if (typeof socket != 'undefined') {
-                socket.disconnect();
-            }
-            setTimeout(function () {
-                window.close();
-            }, AutoRefresh * 1000);
-            Cookies.remove('connectionId');
-            throw new Error('No Environment or Connection Id set');
-        }
+		console.log('not passed in cookies, getting parameters');
+		var environment = getParameterByName('env');
+		window.connectionId = getParameterByName('id');
+		if (environment == '' || window.connectionId == '') {
+			$('body').empty();
+			$('body').append('<div class="header text-center"><span class="data">YOU MUST LAUNCH THIS FROM THE SAMS MONITOR WINDOW OR PASS THE ENVIRONMENT AND CONNECTION ID IN THE URL</span></div>');
+			if (typeof socket != 'undefined') {
+				socket.disconnect();
+			}
+			setTimeout(function () {
+				window.close();
+			}, AutoRefresh * 1000);
+			Cookies.remove('connectionId');
+			throw new Error('No Environment or Connection Id set');
+		}
     }
     Cookies.remove('connectionId');
 
-    // Set Address for SAMS Server
+	// Set Address for SAMS Server
     var serverAddress = 'http://10.100.49.77';
 
-    // Set Port based on environment
+	// Set Port based on environment
     switch (environment) {
-    case 'fde':
-        var socketURL = serverAddress + ':5510';
-        break;
-    case 'pre-prod':
-        var socketURL = serverAddress + ':5520';
-        break;
-    case 'prod':
-        var socketURL = serverAddress + ':5530';
-        break;
-    default:
-        var socketURL = serverAddress + ':5530';
-        break;
+        case 'fde':
+            var socketURL = serverAddress + ':5510';
+            break;
+        case 'pre-prod':
+            var socketURL = serverAddress + ':5520';
+            break;
+        case 'prod':
+            var socketURL = serverAddress + ':5530';
+            break;
+        default:
+            var socketURL = serverAddress + ':5530';
+            break;
     }
-    // Connect to SAMS Server
-    window.socket = io.connect(socketURL);
+	// Connect to SAMS Server
+	window.socket = io.connect(socketURL);
 
-    // Upon connection request database configuration information from SAMS server
+	// Upon connection request database configuration information from SAMS server
     socket.on('connect', function () {
         socket.emit('Request DB Config');
         window.SASHAClientId = window.connectionId;
@@ -64,11 +64,11 @@ $(document).ready(function () {
         });
     });
 
-    // Handle disconnection from SAMS server
+	// Handle disconnection from SAMS server
     socket.on('disconnect', function () {
-    });
+	});
 
-    // Create Larger version of screenshot images viewable when clicked
+	// Create Larger version of screenshot images viewable when clicked
     $('img.fancybox').each(function () {
         var src = $(this).attr('src');
         var a = $('<a href="#" class="fancybox current"></a>').attr('href', src);
@@ -78,15 +78,15 @@ $(document).ready(function () {
         });
     });
 
-    // View Dictionary
-    $('button#dictionary-button').off('click').on('click', function () {
+	// Refresh Dictionary
+    $('button#refreshDict').off('click').on('click', function () {
+		$('button#refreshDict').attr('disabled', true);
         $('div.dictionary').html('<ul id="dict" class="treeview-black"></ul>');
-        $('#dictionary-button').addClass('hidden');
         $('div.dictionaryInfo').addClass('hidden');
         reloadDictionary();
     });
 
-    // Event to handle sending the message to the agent
+	// Event to handle sending the message to the agent 
     $('button#pushMessageButton').off('click.broadcast').on('click.broadcast', function () {
         var broadcastText = $('textarea#pushMessage').val().replace(/\r\n|\r|\n/g, '<br />');
         socket.emit('Send User Message to Server', {
@@ -307,9 +307,8 @@ $(document).ready(function () {
                 collapsed: true,
             });
             $('div.dictionaryInfo').removeClass('hidden');
-            $('#dictionary-button').removeClass('hidden');
             $('div.dictionary').removeClass('hidden');
-            $('button#dictionary-button').removeClass('hidden');
+			$('button#refreshDict').attr('disabled', false);
         }
         $('button#showDict').off('click').on('click', function () {
             $('button#showDict').remove();
@@ -320,9 +319,9 @@ $(document).ready(function () {
                     collapsed: true,
                 });
                 $('div.dictionaryInfo').removeClass('hidden');
-                $('#dictionary-button').removeClass('hidden');
                 $('div.dictionary').removeClass('hidden');
-                $('button#dictionary-button').removeClass('hidden');
+	            $('button#refreshDict').show();
+				$('button#refreshDict').attr('disabled', false);
             }, 500);
         });
     });
@@ -380,9 +379,9 @@ $(document).ready(function () {
             clearTimeout(skillgroupInfoTimer);
             clearTimeout(screenshotTimer);
             clearTimeout(dictionaryTimer);
-            $('button#dictionary-button').off('click');
+            $('button#refreshDict').off('click');
             $('input#autoclose').closest('div').removeClass('text-left').addClass('data text-center').html('SESSION CLOSED');
-            $('button#dictionary-button').remove();
+            $('button#refreshDict').remove();
         }
     });
 
@@ -430,25 +429,25 @@ let requestHistoricalImages = function (smpSessionId) {
         }).done(function (data) {
             if (data.hasOwnProperty('ERROR')) {
                 switch (data.ERROR) {
-                case 'NO RECORDS RETURNED MATCHING REQUEST':
-                    break;
-                default:
-                    if ($('.flexcontainer').hasClass('pending')) {
-                        $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
-                        $('.flexcontainer').removeClass('pending setHeight');
-                    }
-                    var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
-                    $('ul.slides').append(html);
-                    $('.flexslider').flexslider({
-                        controlsContainer: '.flexslider',
-                        animation: 'slide',
-                        animationLoop: false,
-                        slideshow: false,
-                        directionNav: true,
-                        prevText: 'Previous',
-                        nextText: 'Next'
-                    });
-                    break;
+                    case 'NO RECORDS RETURNED MATCHING REQUEST':
+                        break;
+                    default:
+                        if ($('.flexcontainer').hasClass('pending')) {
+                            $('.flexcontainer').html('<div class="flexslider"><ul class="slides"></ul></div>');
+                            $('.flexcontainer').removeClass('pending setHeight');
+                        }
+                        var html = '<li><img class="fancybox makefancybox" src="images/Database Error.png" /></li>';
+                        $('ul.slides').append(html);
+                        $('.flexslider').flexslider({
+                            controlsContainer: '.flexslider',
+                            animation: 'slide',
+                            animationLoop: false,
+                            slideshow: false,
+                            directionNav: true,
+                            prevText: 'Previous',
+                            nextText: 'Next'
+                        });
+                        break;
                 }
             } else {
                 if ($('.flexcontainer').hasClass('pending')) {
@@ -550,20 +549,20 @@ let getSkillGroupInfo = function (skillGroup) {
     // set skillGroup Specific Data Requests
     var requestValue = new Object();
     switch (skillGroup) {
-    case 'TSC':
-        // You may use the below to have an empty column space if desired:
-        // requestValue["blank"] == '';
-        requestValue['VenueCode'] = 'Venue Code:';
-        requestValue['VenueName'] = 'Venue Name:';
-        requestValue['TicketNum'] = 'Ticket Number:';
-        requestValue['MAC'] = 'MAC Address:';
-        requestValue['IP'] = 'IP Address:';
-        requestValue['DeviceRole'] = 'Device Type:';
-        break;
-    case 'UNKNOWN':
-        requestValue['userName'] = 'ATT UID:';
-    default:
-        break;
+        case 'TSC':
+            // You may use the below to have an empty column space if desired:
+            // requestValue["blank"] == '';
+            requestValue['VenueCode'] = 'Venue Code:';
+            requestValue['VenueName'] = 'Venue Name:';
+            requestValue['TicketNum'] = 'Ticket Number:';
+            requestValue['MAC'] = 'MAC Address:';
+            requestValue['IP'] = 'IP Address:';
+            requestValue['DeviceRole'] = 'Device Type:';
+            break;
+        case 'UNKNOWN':
+            requestValue['userName'] = 'ATT UID:';
+        default:
+            break;
     }
     if (Object.keys(requestValue).length == 0) {
         $('div.skillGroup').hide();
@@ -678,12 +677,12 @@ let showFlowHistory = function (UserInfo) {
 
 
 let getParameterByName = function (name) {
-    var regexS = '[\\?&]"+name+"=([^&#]*)',
-	    regex = new RegExp(regexS),
-	    results = regex.exec( window.location.search );
-    if( results == null ){
-	    return '';
-    } else{
-	    return decodeURIComponent(results[1].replace(/\+/g, ' '));
-    }
+	var regexS = "[\\?&]"+name+"=([^&#]*)", 
+		regex = new RegExp(regexS),
+		results = regex.exec( window.location.search );
+	if( results == null ){
+		return "";
+	} else{
+		return decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
 };
