@@ -16,6 +16,7 @@
 
 		<!-- Add Moment -->
 		<script src="scripts/jquery.moment.min.js" type="text/javascript"></script>
+		<script src="scripts/jquery.moment.duration.js" type="text/javascript"></script>
 		<!-- End Add Moment.js -->
 
 		<!-- Add Date Range Picker -->
@@ -56,13 +57,27 @@
 		<script src="scripts/socket.io.min.js" type="text/javascript"></script>
 		<!-- End Add Socket.io -->
 
+		<!-- Begin Add Cookie -->
+		<script src="scripts/jquery.plainmodal.min.js" type="text/javascript"></script>
+		<!-- End Add Cookie -->
+		
 		<!-- Begin Add local stylesheet and javascript -->
 		<link href="stylesheets/stylesheet.css" rel="stylesheet" type="text/css" />
 		<script src="scripts/javascript.js" type="text/javascript"></script>
 		<!-- End Add local stylesheet and javascript -->
 	</head>
 	<body>
-		<div class="overlay"></div>
+		<div class="modal">
+			<h3 class="text-center">NOTE</h3>
+			<div class="text-justify">This site makes extensive use of JavaScript. This browser does not support running JavaScript in the background which may limit your experience and your browser may become unresponsive during report generation.</div>
+			<br />
+			<div class="text-center">
+				<button class="modalOkay btn btn-primary">OKAY</button>
+			</div>
+		</div>
+		<div class="statusModal">
+			<h3 class="text-center status"></h3>
+		</div>
 		<div class='col-sm-12 text-center'>
 			<select id="environment">
 				<option value='fde'>FDE (DEVELOPMENT)</option>
@@ -88,10 +103,15 @@
 					<select id='ReportType' class='chosen' data-placeholder='SELECT A REPORT / ACTION'>
 						<option value=''></option>
 						<optgroup label='SUMMARIZATION REPORTS'>
-							<option value='SlowAutomationSummary'>MOTIVE STEPS OVER XXX (BY FLOWNAME)</option>
-							<option value='SlowManualSummary'>AGENT STEPS OVER XXX (BY FLOWNAME/STEPNAME)</option>
-							<option value='AgentSummary'>AGENT PERFORMANCE (BY AGENT)</option>
-							<option value='AgentPerformance'>AGENT PERFORMANCE (BY SESSION)</option>
+							<option value='MotiveStepsOverThreshold'>MOTIVE STEPS OVER XXX (BY FLOWNAME)</option>
+							<option value='AgentStepsOverThreshold'>AGENT STEPS OVER XXX (BY FLOWNAME/STEPNAME)</option>
+							<option value='AgentPerformanceByAgent'>AGENT PERFORMANCE (BY AGENT)</option>
+							<option value='AgentPerformanceBySession'>AGENT PERFORMANCE (BY SESSION)</option>
+						</optgroup>
+						<optgroup label="ASSET WORK HISTORY">
+							<option value='AssetHistoryNonAWS'>WORKFLOW HISTORY BY ASSET (NON AWS)</option>
+							<option value='AssetHistoryAWS'>WORKFLOW HISTORY BY ASSET/NAME/ROOM (AWS ONLY)</option>
+							<option value='MACHistoryAWS'>WORKFLOW HISTORY BY MAC (AWS ONLY)</option>
 						</optgroup>
 						<optgroup label="WORKFLOW COUNTS">
 							<option value='PerformanceSummary'>WORKFLOW COMPLETION COUNTS</option>
@@ -111,8 +131,8 @@
 					<i class='glyphicon white glyphicon-calendar fa fa-calendar'></i>
 				</div>
 				<div class='col-md-4'>
-					<input class='hideFilter' type='text' id='AutomationStepThreshold' data-ph='MOTIVE STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) MOTIVE STEP TIME THRESHOLD IN SECONDS' />
-					<input class='hideFilter' type='text' id='ManualStepThreshold' data-ph='AGENT STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) AGENT STEP THRESHOLD IN SECONDS'/>
+					<input class='hideFilter' type='text' id='MotiveStepThreshold' data-ph='MOTIVE STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) MOTIVE STEP TIME THRESHOLD IN SECONDS' />
+					<input class='hideFilter' type='text' id='AgentStepThreshold' data-ph='AGENT STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) AGENT STEP THRESHOLD IN SECONDS'/>
 					<input class='hideFilter' type='text' id='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT: 1200)' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' ) />
 					<select id='AttUIDSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE ATTUIDS'>
 						<option value=''></option>
@@ -126,7 +146,25 @@
 					<select id='TaskTypeSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE TASK TYPES'>
 						<option value=''></option>
 					</select>
+					<select id='CitySel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE AGENT CITIES'>
+						<option value=''></option>
+					</select>
+					<select id='AssetIdSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE ASSET ID'>
+						<option value=''></option>
+					</select>
 					<input class='hideFilter' type='text' id='SessionId' data-ph='SMP SESSION ID' data-opt-ph='(OPTIONAL) SMP SESSION ID' />
+					<select id='MinimumCountSel' class='chosen hideFilter'/>
+						<option value='1'>MINIMUM OF 1 INSTANCE</option>
+						<option value='2'>MINIMUM OF 2 INSTANCES</option>
+						<option value='4'>MINIMUM OF 4 INSTANCES</option>
+						<option value='5'>MINIMUM OF 5 INSTANCES</option>
+						<option value='10'>MINIMUM OF 10 INSTANCES</option>
+						<option value='15'>MINIMUM OF 15 INSTANCES</option>
+						<option value='20'>MINIMUM OF 20 INSTANCES</option>
+						<option value='30'>MINIMUM OF 30 INSTANCES</option>
+						<option value='40'>MINIMUM OF 40 INSTANCES</option>
+						<option value='50'>MINIMUM OF 50 INSTANCES</option>
+					</select>
 				</div>
 				<div clas='col-sm-1'>
 					<input class='btn btn-primary' type='button' id='RequestReport' value='REQUEST REPORT' />

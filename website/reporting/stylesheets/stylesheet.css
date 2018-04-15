@@ -209,3 +209,19 @@ div.footerData {
 .data {
     font-weight: bold;
 }
+
+.modal {
+  width: 500px;
+  height: 220px;
+  border: 2px solid #999;
+  border-radius: 8px;
+  background-color: #eee;
+  padding: 10px;
+  display: none;
+}
+
+.error {
+	color: red !important;
+	
+}
+	

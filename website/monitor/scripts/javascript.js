@@ -2,7 +2,8 @@
 var windowManager = new Object();
 
 // Create global variable to store the filter by supervisor attuid
-window.filter = ''; // Create global variable to store the window filter
+window.filterCity = ''; // Create global variable to store the window filter for City
+window.filterSupervisor = ''; // Create global variable to store the window filter for Supervisor
 
 $(document).ready(function () {
 	
@@ -69,41 +70,93 @@ $(document).ready(function () {
         });
     });
 
-
-	// Reset SupervisorsList to its saved value on load
-    $('#SupervisorList').val(Cookies.get( environment +'-SupervisorList'));
-
-    // Handle updating the supervisors list
-    $('#SupervisorList').off('keyup').on('keyup', function () {
-        Cookies.set(environment + '-SupervisorList', $('#SupervisorList').val().trim());
-        if ($('#SupervisorList').val().trim().length > 0) {
-            var supervisorList = $('#SupervisorList').val().trim();
-            supervisorList = supervisorList.replace(/[;|: ,]+/g, ',');
-            var supervisorListArray = supervisorList.split(',');
-            $.each(supervisorListArray, function (index, value) {
-                if (index == 0) {
-                    window.filter = '[supervisorId~="' + value + '"]';
-                } else {
-                    window.filter = window.filter + ', [supervisorId~="' + value + '"]';
-                }
-            });
-            $('tbody tr').show();
-            $('tbody tr').not(window.filter).hide();
-            $('table').trigger('update', true);
-        } else {
-            window.filter = '';
-            $('tbody tr').show();
-            $('table').trigger('update', true);
-        }
-    });
-
 	// Set Window Title
     document.title = 'SAMS - ' + version + ' SASHA ACTIVITY MONITORING SYSTEM';
 
 
 	// Create the All Sessions, Not Started, and Stalled Sessions Tabs
 	createDefaultTabs();
-	
+
+	// Update Filters
+	$(document).on('change', 'select#CitySel', function(evt, params) {
+		if ($('select#CitySel').val().length == 0)  {
+			Cookies.remove(environment + '-CitySel');
+		} else {
+			Cookies.set(environment + '-CitySel', $('#CitySel').val());
+		}
+		var CitySel = $('select#CitySel').val();
+		window.filterCity = '';
+		if (CitySel.length > 0) {
+			$.each(CitySel, function (index, value) {
+				if (index == 0) {
+					window.filterCity = '[city~="' + value + '"]';
+				} else {
+					window.filterCity = window.filterCity +  ', [city~="' + value + '"]';
+				}
+			});
+		}
+		if (window.filterCity == '') {
+			// There is no City filter, apply only Supervisor filter if appropriate
+			if (window.filterSupervisor == '') {
+				// Show all rows
+				$('tbody tr').not('.filtered').show();
+			} else {
+				// Apply Only Supervisor filter
+				$('tbody tr').not('.filtered').show();
+				showRows = $(showRows).filter(window.filterSupervisor);
+				$('tbody tr').not('.filtered').not(showRows).hide();
+			}
+		} else {
+			$('tbody tr').not('.filtered').show();
+			showRows = $('tbody tr').not('.filtered');
+			showRows = $(showRows).filter(window.filterCity);
+			if (window.filterSupervisor != '') {
+				showRows = $(showRows).filter(window.filterSupervisor);
+			}
+			$('tbody tr').not('.filtered').not(showRows).hide();
+		}
+        $('table').trigger('update', true);
+	});
+	$(document).on('change', 'select#SupervisorSel', function(evt, params) {
+		if ($('select#SupervisorSel').val().length == 0)  {
+			Cookies.remove(environment + '-SupervisorSel');
+        } else {
+			Cookies.set(environment + '-SupervisorSel', $('#SupervisorSel').val());
+		}
+		var SupervisorSel = $('select#SupervisorSel').val();
+		window.filterSupervisor = '';
+		if (SupervisorSel.length > 0) {
+			$.each(SupervisorSel, function (index, value) {
+				if (index == 0) {
+					window.filterSupervisor = '[supervisorId~="' + value + '"]';
+				} else {
+					window.filterSupervisor = window.filterSupervisor +  ', [supervisorId~="' + value + '"]';
+				}
+			});
+		}
+		if (window.filterSupervisor == '') {
+			// There is no Supervisor filter, apply only City filter if appropriate
+			if (window.filterCity == '') {
+				// Show all rows
+				$('tbody tr').not('.filtered').show();
+			} else {
+				// Apply Only City filter
+				$('tbody tr').not('.filtered').show();
+				showRows = $(showRows).filter(window.filterCity);
+				$('tbody tr').not('.filtered').not(showRows).hide();
+			}
+		} else {
+			$('tbody tr').not('.filtered').show();
+			showRows = $('tbody tr').not('.filtered');
+			if (window.filterCity != '') {
+				showRows = $(showRows).filter(window.filterCity);
+			}
+			showRows = $(showRows).filter(window.filterSupervisor);
+			$('tbody tr').not('.filtered').not(showRows).hide();
+		}
+		$('table').trigger('update', true);
+	});
+
 	// Connect to SAMS Server
 	window.socket = io.connect(socketURL);
 
@@ -117,6 +170,7 @@ $(document).ready(function () {
 
 	// Connection to SAMS Server is Established
     socket.on('connect', function () {
+        socket.emit('Request DB Config');
         showMainScreen();
 		// Request data for all connected clients from SAMS Server
         socket.emit('Request Current Connection Data', {
@@ -142,13 +196,16 @@ $(document).ready(function () {
 		if ($('table.INACTIVESESSIONS tbody tr[connectionId="' + connectionId + '"]').length) {
 			return;
 		}
-        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '" + city="' + UserInfo.City + '">' +
             '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
             '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
             '<td class="text-center">' + sessionStartTime + '</td>' +
             '<td class="text-right"><div InactiveSessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
             '</tr>';
         $('table.INACTIVESESSIONS tbody:last').append(row);
+		if (window.filterCity != '' || window.filterSupervisor != '') {
+			filterNewRow();
+		}
         // Begin Counters for the new row
         $('div[InactiveSessionDurationId=sessionDuration_' + connectionId + ']').countdown({
             since: sessionStartTimestamp,
@@ -189,7 +246,7 @@ $(document).ready(function () {
         }
 		
 		// Begin adding to 'ALLSESSIONS' tab
-        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '" + city="' + UserInfo.City + '">' +
             '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
             '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
             '<td class="text-center">' + workType + '</td>' +
@@ -197,8 +254,8 @@ $(document).ready(function () {
             '<td class="text-left">' + skillGroup + '</td>' +
             '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
             '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
-            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '" title="' + flowName + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '" title="' + stepName + '"><span class="stepInfo">' + stepName + '</span></td>' +
             '</tr>';
         $('table.ALLSESSIONS tbody:last').append(row);
 		// Update User Count in 'INACTIVESESSIONS' tab
@@ -210,17 +267,20 @@ $(document).ready(function () {
 			addTab(skillGroup);
             sortTabs('ul#Tabs');
 		}
-        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+        row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '" city="' + UserInfo.City + '">' +
             '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
             '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
             '<td class="text-left">' + workType + '</td>' +
             '<td class="text-center">' + taskType + '</td>' +
             '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
             '<td class="text-right" stepStartTitle="stepStartTitle_' + connectionId + '" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
-            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '" title="' + flowName + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '" title="' + stepName + '"><span class="stepInfo">' + stepName + '</span></td>' +
             '</tr>';
         $('table.' + skillGroup + ' tbody:last').append(row);
+		if (window.filterCity != '' || window.filterSupervisor != '') {
+			filterNewRow();
+		}
 		// Update User Count in 'INACTIVESESSIONS' tab
         $('span.count-' + skillGroup).html($('table.' + skillGroup + ' tbody tr').not('.group-header').length);
 
@@ -331,7 +391,7 @@ $(document).ready(function () {
         if (skillGroup === null || skillGroup === 'null' || skillGroup === '') {
             skillGroup = 'UNKNOWN';
         }
-        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '">' +
+        var row = '<tr connectionId="' + connectionId + '" supervisorId="' + UserInfo.Manager + '" city="' + UserInfo.City + '">' +
             '<td class="text-left"><img src="stylesheets/images/more-details.png" class="tableIcon moreDetails">' + attUID + '</a></td>' +
             '<td class="text-left" title="Supervisor: ' + UserInfo.Manager + '">' + reverseName + '</td>' +
             '<td class="text-left">' + workType + '</td>' +
@@ -339,10 +399,13 @@ $(document).ready(function () {
             '<td class="text-center">' + skillGroup + '</td>' +
             '<td class="text-right" title="Session Started ' + sessionStartTime + '"><div sessionDurationId="sessionDuration_' + connectionId + '" title="' + sessionStartTime + '"></div></td>' +
             '<td class="text-right" title="Step Started ' + stepStartTime + '"><div stepDurationId="stepDuration_' + connectionId + '" title="' + stepStartTime + '"></div></td>' +
-            '<td class="text-left" flowNameId="flowName_' + connectionId + '">' + flowName + '</td>' +
-            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo">' + stepName + '</span></td>' +
+            '<td class="text-left" flowNameId="flowName_' + connectionId + '" title="' + flowName + '">' + flowName + '</td>' +
+            '<td class="text-left" stepNameId="stepName_' + connectionId + '"><span class="stepInfo" title="' + stepName + '">' + stepName + '</span></td>' +
             '</tr>';
         $('table.STALLEDSESSIONS tbody:last').append(row);
+		if (window.filterCity != '' || window.filterSupervisor != '') {
+			filterNewRow();
+		}
 
         // Begin Counters
         $('div[sessionDurationId="sessionDuration_' + connectionId + '"]').countdown({
@@ -368,6 +431,113 @@ $(document).ready(function () {
         // Trigger table to sort
         $('table.STALLEDSESSIONS').trigger('update', true);
     });
+
+    socket.on('Return DB Config', function (data) {
+        dbHost = data.dbConfig.host;
+        dbUser = data.dbConfig.user;
+        dbPassword = data.dbConfig.password;
+        dbName = data.dbConfig.database;
+        useDB = data.useDB;
+        if (!useDB) {
+			$('div#cityFilter').html('&nbsp');
+			$('div#supervisorFilter').html('&nbsp');
+            return false;
+        }
+        $('select#CitySel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
+        });
+        var sql = 'SELECT DISTINCT(city) FROM duration_log_session ORDER BY city';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function (data) {
+            if (!data.hasOwnProperty('ERROR')) {
+                $.each(data, function (key, value) {
+					if (value.trim != '') {
+						$('#CitySel').append($('<option>', {
+							value: value.city,
+							text: value.city
+						}));
+					}
+                });
+                $('select#CitySel.chosen').trigger('chosen:updated');
+				$('div#cityFilter').show();
+				// Reset CitySel to saved values on load
+				var citySel = Cookies.get( environment +'-CitySel')
+				citySel = citySel.replace(/["\[\]]/g,'');	
+				citySel = citySel.split(',');
+				if (citySel.length > 0) {
+					$.each(citySel, function (index, value) {
+						if (value.trim != '') {
+							$('select#CitySel [value="' + value + '"]').attr('selected','selected');
+						}
+					});
+					$('select#CitySel').trigger('chosen:updated').trigger('change');
+				}
+            } else {
+				$('div#cityFilter').html('&nbsp');
+            }
+        }).fail(function () {
+			$('div#cityFilter').html('&nbsp');
+		});
+        $('select#SupervisorSel.chosen').chosen({
+            width: '100%',
+            allow_single_deselect: true,
+            disable_search_threshold: 10
+        });
+        var sql = 'SELECT DISTINCT(manager_id) FROM duration_log_session ORDER BY manager_id';
+        $.ajax({
+            type: 'post',
+            url: 'ajax/getinfo.php',
+            data: {
+                databaseIP: dbHost,
+                databaseUser: dbUser,
+                databasePW: dbPassword,
+                databaseName: dbName,
+                sql: sql
+            },
+            dataType: 'json',
+        }).done(function (data) {
+            if (!data.hasOwnProperty('ERROR')) {
+                $.each(data, function (key, value) {
+					if (value.trim != '') {
+						$('#SupervisorSel').append($('<option>', {
+							value: value.manager_id,
+							text: value.manager_id
+						}));
+					}
+                });
+                $('select#SupervisorSel.chosen').trigger('chosen:updated');
+				$('div#supervisorFilter').show();
+				// Reset SupervisorSel to saved values on load
+				var supervisorSel = Cookies.get( environment +'-SupervisorSel')
+				supervisorSel = supervisorSel.replace(/["\[\]]/g,'');	
+				supervisorSel = supervisorSel.split(',');
+				if (supervisorSel.length > 0) {
+					$.each(supervisorSel, function (index, value) {
+						if (value.trim != '') {
+							$('select#SupervisorSel [value="' + value + '"]').attr('selected','selected');
+						}
+					});
+					$('select#SupervisorSel').trigger('chosen:updated').trigger('change');
+				}
+            } else {
+				$('div#supervisorFilter').html('&nbsp');
+            }
+        }).fail(function () {
+			$('div#supervisorFilter').html('&nbsp');
+		});
+	});
 });
 
 
@@ -818,7 +988,6 @@ let sortTabs = function (element) {
 let showMainScreen = function () {
     $('div.initializationScreen').hide();
     $('div.mainScreen').show();
-    $('div#supervisorFilter').show();
 };
 
 
@@ -851,4 +1020,29 @@ let checkTimerStyling = function (periods) {
     } else {
         $(this).removeClass('highlightDuration');
     }
+};
+
+let filterNewRow = function() {
+	// Apply filters to newly added rows if filters are enabled
+	if (window.filterCity == '') {
+		// There is no City filter, apply only Supervisor filter if appropriate
+		if (window.filterSupervisor == '') {
+			// Show all rows
+			$('tbody tr').not('.filtered').show();
+		} else {
+			// Apply Only Supervisor filter
+			$('tbody tr').not('.filtered').show();
+			showRows = $(showRows).filter(window.filterSupervisor);
+			$('tbody tr').not('.filtered').not(showRows).hide();
+		}
+	} else {
+		$('tbody tr').not('.filtered').show();
+		showRows = $('tbody tr').not('.filtered');
+		showRows = $(showRows).filter(window.filterCity);
+		if (window.filterSupervisor != '') {
+			showRows = $(showRows).filter(window.filterSupervisor);
+		}
+		$('tbody tr').not('.filtered').not(showRows).hide();
+	}
+	$('table').trigger('update', true);
 };

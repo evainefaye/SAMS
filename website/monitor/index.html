@@ -73,15 +73,27 @@
 				<br />
 				<span id="serverStartTime">UNAVAILABLE (NOT CONNECTED)</span>
 			</div>
-			<div class="col-sm-4">&nbsp;</div>
-			<div id="supervisorFilter" style="display: none;" class="col-sm-4 text-center">
+			<div id="cityFilter" style="display: none;" class="col-sm-4">
 				<span>
 					<small>
-						<b>FILTER DISPLAY TO SUPERVISOR ATT UID'S BELOW</b>
+						<b>FILTER DISPLAY TO AGENTS IN SELECTED CITIES</b>
 					</small>
 				</span>
 				<br />
-				<input type=text name="SupervisorList" id="SupervisorList" size="60" style="color: black;">
+				<select id='CitySel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE CITIES TO LIMIT VIEW'>
+					<option value=''></option>
+				</select>
+			</div>
+			<div id="supervisorFilter" style="display: none;" class="col-sm-4">
+				<span>
+					<small>
+						<b>FILTER DISPLAY TO SELECTED SUPERVISOR ATT UID'S</b>
+					</small>
+				</span>
+				<br />
+				<select id='SupervisorSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE SUPERVISORS TO LIMIT VIEW'>
+					<option value=''></option>
+				</select>
 			</div>
 		</div>
 		<br />
