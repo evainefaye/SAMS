@@ -1,31 +1,5 @@
 <?php
 
-/**
- * @param array $array
- * @param string $value
- * @param bool $asc - ASC (true) or DESC (false) sorting
- * @param bool $preserveKeys
- * @return array
- * */
-function sortBySubValue($array, $value, $asc = true, $preserveKeys = false)
-{
-    if (is_object(reset($array))) {
-        $preserveKeys ? uasort($array, function ($a, $b) use ($value, $asc) {
-            return $a->{$value} == $b->{$value} ? 0 : ($a->{$value} - $b->{$value}) * ($asc ? 1 : -1);
-        }) : usort($array, function ($a, $b) use ($value, $asc) {
-            return $a->{$value} == $b->{$value} ? 0 : ($a->{$value} - $b->{$value}) * ($asc ? 1 : -1);
-        });
-    } else {
-        $preserveKeys ? uasort($array, function ($a, $b) use ($value, $asc) {
-            return $a[$value] == $b[$value] ? 0 : ($a[$value] - $b[$value]) * ($asc ? 1 : -1);
-        }) : usort($array, function ($a, $b) use ($value, $asc) {
-            return $a[$value] == $b[$value] ? 0 : ($a[$value] - $b[$value]) * ($asc ? 1 : -1);
-        });
-    }
-    return $array;
-}
-
-
 $array = array();
 $lookup = array();
 
@@ -62,11 +36,7 @@ $mysqli = new mysqli($databaseIP, $databaseUser, $databasePW, $databaseName);
 
 // Oh no! A connect_errno exists so the connection attempt failed!
 if ($mysqli->connect_errno) {
-    // The connection failed. What do you want to do? 
-    // You could contact yourself (email?), log the error, show a nice page, etc.
-    // You do not want to reveal sensitive information
 
-    // Let's try this:
 	$array['ERROR'] = 'FAILED TO CONNECT TO DATABASE';
 	echo json_encode($array);
     exit;
@@ -162,6 +132,12 @@ case 'MotiveStepsOverThreshold':
 		break;
 	}
 
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
 	while ($row = $result->fetch_assoc()) {
 		$flow_name = $row['flow_name'];
 		if (array_key_exists($flow_name, $lookup)) {
@@ -235,6 +211,13 @@ case 'AgentStepsOverThreshold':
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
 		break;
 	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
 
 	while ($row = $result->fetch_assoc()) {
 		$flow_and_step = $row['flow_and_step'];
@@ -493,11 +476,6 @@ case 'AssetHistoryNonAWS':
 		break;
 	}
 		
-	// No rows returned
-	if ($result->num_rows === 0) {
-		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
-		break;
-	}
 	$row = $result->fetch_assoc();
 	$table_name = $row['table_name'];
 	
@@ -508,6 +486,12 @@ case 'AssetHistoryNonAWS':
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
 		break;
 	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
 	
 	// gather detail records
 	$sql = "SELECT session.asset_id, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session session LEFT JOIN $table_name temp ON session.asset_id = temp.asset_id WHERE task_type NOT LIKE '%AWSX%' AND (business_line != 'TSC' AND business_line != 'TSCNOC') AND session.asset_id !='UNKNOWN' AND session.asset_id != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, session.asset_id ASC, session.start_time ASC";
@@ -516,6 +500,12 @@ case 'AssetHistoryNonAWS':
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
 		break;
 	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}	
 	
 	$asset_count = 0;
 	while ($row = $result->fetch_assoc()) {
@@ -544,11 +534,6 @@ case 'AssetHistoryAWS':
 		break;
 	}
 		
-	// No rows returned
-	if ($result->num_rows === 0) {
-		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
-		break;
-	}
 	$row = $result->fetch_assoc();
 	$table_name = $row['table_name'];
 	
@@ -556,15 +541,27 @@ case 'AssetHistoryAWS':
 	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS $table_name AS SELECT DISTINCT UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) AS mainKey, COUNT(*) AS instance_count FROM duration_log_session WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source !='AWS Training Simulator' AND asset_id !='UNKNOWN' AND asset_id != '' AND asset_id != 'INFO' AND contact_name != '' AND start_time BETWEEN('$startDate') AND ('$endDate')$assetIdFilter GROUP BY UCASE(CONCAT(RTRIM(LTRIM(asset_id)), RTRIM(LTRIM(contact_name)), RTRIM(LTRIM(room_number)))) $minimumCountFilter ORDER BY instance_count DESC, asset_id ASC";
 	
 	if (!$result = $mysqli->query($sql)) {
-		$array['ERROR'] = 'SQL FAILED TO EXECUTE1'.$sql;
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
 		break;
 	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
 	// gather detail records
 	$sql = "SELECT UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) AS rowKey, asset_id, UCASE(venue_name) AS venue_name, UCASE(RTRIM(LTRIM(contact_name))) AS contact_name, UCASE(RTRIM(LTRIM(room_number))) AS room_number, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session session LEFT JOIN $table_name temp ON UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) = mainKey WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source != 'AWS Training Simulator' AND session.asset_id !='UNKNOWN' AND asset_id !='UNKNOWN' AND asset_id != '' AND asset_id !='INFO' AND contact_name != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, asset_id ASC, session.start_time ASC";
 
-	
 	if (!$result = $mysqli->query($sql)) {
-		$array['ERROR'] = 'SQL FAILED TO EXECUTE2'.$sql;
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+	
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
 		break;
 	}
 	
@@ -586,265 +583,168 @@ case 'AssetHistoryAWS':
 	}
 	
 	$sql = "DROP TABLE IF EXISTS $table_name";
-//	$result = ($mysqli->query($sql));
+	$result = ($mysqli->query($sql));
 	break;
 
-}
-echo json_encode($array);
-exit;
+// *** REPORT: ASSET HISTORY (AWS) ***
+case 'MACHistoryAWS':
 
-
-// *** REPORT: ASSET HISTORY (AWS ONLY) ***
-if ($reportType == 'AssetHistoryAWS') {
-	$lookup = array();
-
-	// Perform initial query to get slow motive step information
-	$sql = "SELECT DISTINCT UCASE(CONCAT(RTRIM(LTRIM(asset_id)), LTRIM(RTRIM(contact_name)), LTRIM(RTRIM(room_number)))) AS lookup_key, asset_id AS asset_id, UCASE(LTRIM(RTRIM(contact_name))) AS contact_name, UCASE(LTRIM(RTRIM(room_number))) AS room_number, COUNT(*) AS count FROM duration_log_session WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source != ' AWS Training Simulator' AND asset_id !='UNKNOWN' AND asset_id != '' AND start_time BETWEEN('$startDate') AND ('$endDate') $assetIdFilter GROUP BY CONCAT(RTRIM(LTRIM((asset_id))), contact_name) ORDER BY count DESC, asset_id ASC, COUNT DESC";
+	// Generate unique name for temporary table
+	$sql = "SELECT CONCAT('temp_table_', REPLACE(UUID(), '-', '')) AS table_name";
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+		
+	$row = $result->fetch_assoc();
+	$table_name = $row['table_name'];
+	
+	// create a temporary table with the count and asset id's to use
+	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS $table_name AS SELECT UCASE(LTRIM(RTRIM(mac))) AS rowKey, COUNT(*) AS instance_count FROM duration_log_session WHERE mac != '' AND (business_line = 'TSC' OR business_line = 'TSCNOC' OR task_type LIKE '%AWSX%') AND start_time BETWEEN('$startDate') AND ('$endDate')$assetIdFilter GROUP BY mac $minimumCountFilter ORDER BY instance_count DESC, mac";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-		echo json_encode($array);
-		exit;
-	}
-		
-	// No rows returned
-	if ($result->num_rows === 0) {
-		// Oh, no rows! Sometimes that's expected and okay, sometimes
-		// it is not. You decide. In this case, maybe actor_id was too
-		// large? 
-		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
-		echo json_encode($array);
-		exit;
+		break;
 	}
 	
+		// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+	
+	$sql = "SELECT recorded, mac, instance_count, smp_session_id, ticket_number, start_time, stop_time, work_source, task_type, UCASE(asset_id) AS venue_code, UCASE(venue_name) AS venue_name, problem_abstract FROM duration_log_session LEFT JOIN $table_name temp ON mac=temp.rowKey WHERE mac != '' AND (business_line = 'TSC' OR business_line = 'TSCNOC' OR task_type like '%AWSX%') AND start_time BETWEEN('$startDate') AND ('$endDate') AND work_source != 'AWS Training Simulator' AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY mac, recorded;";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
 	$asset_count = 0;
 	while ($row = $result->fetch_assoc()) {
-		set_time_limit(300);
-		$asset_id = trim($row['asset_id']);
-		$lookup_key = $row['lookup_key'];
-		$count = $row['count'];
-		$array[$asset_count]['asset_id'] = $asset_id;
-		$contact_name = $row['contact_name'];
-		$room_number = $row['room_number'];
-		if ($contact_name == '') {
-			$contact_name = 'NOT ENTERED IN SASHA';
+		$array[$asset_count]['rowKey'] = $row['mac'];
+		$array[$asset_count]['mac'] = $row['mac'];
+		$array[$asset_count]['count'] = $row['instance_count'];		
+		if (strlen($row['venue_name']) > 27) {
+			$venue = substr($row['venue_name'], 0,30). ' ...';
+		} else {
+			$venue = $row['venue_name'];
 		}
-		if ($room_number == '') {
-			$room_number = 'NOT ENTERED IN SASHA';
-		}
-		$array[$asset_count]['contact_name'] = $contact_name;
-		$array[$asset_count]['room_number'] = $room_number;
-		$array[$asset_count]['count'] = $count;
-		$lookup[$lookup_key] = $asset_count;
+		$array[$asset_count]['venue_code'] = $row['venue_code'];
+		$array[$asset_count]['venue_name'] = $venue;
+		$array[$asset_count]['session_id'] = $row['smp_session_id'];
+		$array[$asset_count]['ticket_number'] = $row['ticket_number'];
+		$array[$asset_count]['work_type'] = $row['work_source'];
+		$array[$asset_count]['task_type'] = $row['task_type'];
+		$array[$asset_count]['start_time']  = $row['start_time'];
+		$array[$asset_count]['stop_time'] = $row['stop_time'];
+		$array[$asset_count]['problem_abstract'] = $row['problem_abstract'];
 		$asset_count++;
 	}
+	
+	$sql = "DROP TABLE IF EXISTS $table_name";
+	$result = ($mysqli->query($sql));
+	break;
 
-	$sql = "SELECT UCASE(CONCAT(RTRIM(LTRIM(asset_id)), LTRIM(RTRIM(contact_name)), LTRIM(RTRIM(room_number)))) AS lookup_key, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source != 'AWS Training Simulator' AND asset_id !='UNKNOWN' AND asset_id != '' AND start_time BETWEEN('$startDate') AND ('$endDate') $assetIdFilter ORDER BY lookup_key, start_time ASC";
+// *** REPORT: WORKFLOW COMPLETION COUNT BREAKDOWN ***
+case 'WorkflowCompletionCountBreakdown':
+
+	$row_count = 0;
+	$sql = "SELECT COUNT(*) AS count FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate'))$attUIDFilter$cityFilter";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-		echo json_encode($array);
-		exit;
+		break;
 	}
-	$detail_count = 0;
-	$asset = '';
 
 	while ($row = $result->fetch_assoc()) {
-		set_time_limit(300);
-		$row_asset = trim($row['lookup_key']);
-		if ($asset != $row_asset) {
-			$detail_count = 0;
-			$asset_lookup = $lookup[$row_asset];
-			$asset = $row_asset;
-		}
-		$array[$asset_lookup]['detail'][$detail_count]['session_id'] = $row['smp_session_id'];
-		$array[$asset_lookup]['detail'][$detail_count]['ticket_number'] = $row['ticket_number'];
-		$array[$asset_lookup]['detail'][$detail_count]['work_type'] = $row['work_source'];
-		$array[$asset_lookup]['detail'][$detail_count]['task_type'] = $row['task_type'];
-		$array[$asset_lookup]['detail'][$detail_count]['start_time']  = $row['start_time'];
-		$array[$asset_lookup]['detail'][$detail_count]['stop_time'] = $row['stop_time'];
-		$detail_count++;
+		$total_count = $row['count'];
 	}
-	echo json_encode($array);
-	exit;
-}
 
-
-/*** REPORT AWS MAC HISTORY ***/
-
-if ($reportType == 'MACHistoryAWS') {
-	$lookup = array();
-
-	// Perform initial query to get slow motive step information
-	$sql = "SELECT count(*) AS repeat_count, UCASE(LTRIM(RTRIM(mac))) AS mac FROM duration_log_session WHERE mac != '' AND (business_line = 'TSC' OR business_line = 'TSCNOC') AND start_time BETWEEN('$startDate') AND ('$endDate') $assetIdFilter GROUP BY mac HAVING repeat_count > 1 ORDER BY repeat_count DESC, mac";
+	$sql = "SELECT COUNT(*) AS count, UCASE(CONCAT(last_name, ', ', first_name, ' (', att_uid, ')')) AS agent_name FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) AND work_source != 'AWS Training Simulator' $attUIDFilter$cityFilter GROUP BY att_uid ORDER BY agent_name";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-		echo json_encode($array);
-		exit;
+		break;
 	}
-		
+
 	// No rows returned
 	if ($result->num_rows === 0) {
-		// Oh, no rows! Sometimes that's expected and okay, sometimes
-		// it is not. You decide. In this case, maybe actor_id was too
-		// large? 
 		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
-		echo json_encode($array);
-		exit;
-	}
-	
-	$mac_list = '';
-	$mac_count = 0;
-	while ($row = $result->fetch_assoc()) {
-		set_time_limit(300);
-		$mac = $row['mac'];
-		$count = $row['repeat_count'];
-		$array[$mac_count]['mac'] = $mac;
-		$array[$mac_count]['count'] = $count;
-		$lookup[$mac] = $mac_count;
-		if ($mac_list == '') {
-			$mac_list = "'$mac'";
-		} else {
-			$mac_list = $mac_list . ", '$mac'";
-		}
-		$mac_count++;
+		break;
 	}
 
-	$sql = "SELECT recorded, mac, smp_session_id, ticket_number, start_time, stop_time, work_source, CONCAT(last_name, ' ', first_name, ' (', att_uid, ')') AS agent, UCASE(CONCAT(asset_id, ' - ',venue_name)) as venue, problem_abstract FROM duration_log_session WHERE mac != '' AND (business_line = 'TSC' OR business_line = 'TSCNOC') AND start_time BETWEEN('$startDate') AND ('$endDate') $assetIdFilter AND mac IN ($mac_list) ORDER BY mac, recorded;";
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['report_name'] = 'CountByAgent';
+		$array[$row_count]['row_name'] = $row['agent_name'];
+		$array[$row_count]['count'] = $row['count'];
+		$array[$row_count]['total_count'] = $total_count;
+		$row_count++;
+	}
+
+	$sql = "SELECT COUNT(*) AS count, business_line FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) AND work_source !='AWS Training Simulator'$attUIDFilter$cityFilter GROUP BY business_line ORDER BY business_line";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-		echo json_encode($array);
-		exit;
+		break;
 	}
-	$detail_count = 0;
-	$mac_asset = '';
 
 	while ($row = $result->fetch_assoc()) {
-		set_time_limit(300);
-		$row_mac = $row['mac'];
-		if ($mac_asset != $row_mac) {
-			$detail_count = 0;
-			$mac_lookup = $lookup[$row_mac];
-			$mac_asset = $row_mac;
-		}
-		$venue = $row['venue'];
-		if (strlen($venue) > 30)  {
-			$venue = substr($venue, 0, 30). '...';
-		}
-		$work_source = $row['work_source'];
-		if ($work_source == "Phone Call") {
-			$work_source = "PHONE";
-		} else {
-			$work_source = "TASK";
-		}
-		$array[$mac_lookup]['detail'][$detail_count]['session_id'] = $row['smp_session_id'];
-		$array[$mac_lookup]['detail'][$detail_count]['ticket_number'] = $row['ticket_number'];
-		$array[$mac_lookup]['detail'][$detail_count]['start_time']  = $row['start_time'];
-		$array[$mac_lookup]['detail'][$detail_count]['stop_time'] = $row['stop_time'];
-		$array[$mac_lookup]['detail'][$detail_count]['agent'] = $row['agent'];
-		$array[$mac_lookup]['detail'][$detail_count]['work_source'] = $work_source;
-		$array[$mac_lookup]['detail'][$detail_count]['venue'] = $venue;
-		$array[$mac_lookup]['detail'][$detail_count]['problem_abstract'] = $row['problem_abstract'];
-		$detail_count++;
+		$array[$row_count]['report_name'] = 'CountByBusinessLine';
+		$array[$row_count]['row_name'] = $row['business_line'];
+		$array[$row_count]['count'] = $row['count'];
+		$array[$row_count]['total_count'] = $total_count;
+		$row_count++;
 	}
-	echo json_encode($array);
-	exit;
-}
 
-
-/*** OTHER ***/
-
-if ($reportType != 'PerformanceSummary') {
+	$sql = "SELECT COUNT(*) AS count, work_source FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) AND work_source != 'AWS Training Simulator'$attUIDFilter$cityFilter GROUP BY work_source ORDER BY work_source";
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-		echo json_encode($array);
-		exit;
-	}
-	
-	// No rows returned
-	if ($result->num_rows === 0) {
-		// Oh, no rows! Sometimes that's expected and okay, sometimes
-		// it is not. You decide. In this case, maybe actor_id was too
-		// large? 
-		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
-		echo json_encode($array);
-		exit;
+		break;
 	}
 
 	while ($row = $result->fetch_assoc()) {
-		$array[] = $row;
+		$array[$row_count]['report_name'] = 'CountByWorkSource';
+		$array[$row_count]['row_name'] = $row['work_source'];
+		$array[$row_count]['count'] = $row['count'];
+		$array[$row_count]['total_count'] = $total_count;
+		$row_count++;
 	}
-	echo json_encode($array);
-	exit;
-}
 
+	$sql = "SELECT COUNT(*) as count FROM duration_log_session WHERE task_type != '' AND (start_time BETWEEN('$startDate') AND ('$endDate')) AND work_source != 'AWS Training Simulator'$attUIDFilter$cityFilter";
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+	break;
+	}
 
-$startDate = $_POST['startDate'];
-$endDate = $_POST['endDate'];
-$sql = "SELECT COUNT(*) AS count FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE' . $sql;
-	echo json_encode($array);
-	exit;
-}
-while ($row = $result->fetch_assoc()) {
-	$array['TotalCount'][] = $row;
-}
+	while ($row = $result->fetch_assoc()) {
+		$total_count = $row['count'];
+	}
 
-$sql = "SELECT COUNT(*) AS agent_name_count, CONCAT(last_name, ', ', first_name, ' (', UCASE(att_uid), ')') AS agent_name FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter GROUP BY att_uid ORDER BY agent_name";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-	echo json_encode($array);
-	exit;
-}
-while ($row = $result->fetch_assoc()) {
-	$array['CountByAgent'][] = $row;
-}
+	$sql = "SELECT COUNT(*) AS count, task_type FROM duration_log_session WHERE task_type != '' AND (start_time BETWEEN('$startDate') AND ('$endDate')) AND work_source != 'AWS Training Simulator'$attUIDFilter$cityFilter GROUP BY task_type ORDER BY task_type";
 
-$sql = "SELECT COUNT(*) AS business_line_count, business_line FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter GROUP BY business_line ORDER BY business_line";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-	echo json_encode($array);
-	exit;
-}
-while ($row = $result->fetch_assoc()) {
-	$array['CountByBusinessLine'][] = $row;
-}
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
 
-$sql = "SELECT COUNT(*) AS work_source_count, work_source FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter GROUP BY work_source ORDER BY work_source";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-	echo json_encode($array);
-	exit;
-}
-while ($row = $result->fetch_assoc()) {
-	$array['CountByWorkSource'][] = $row;
-}
-
-$sql = "SELECT COUNT(*) AS task_type_count, task_type FROM duration_log_session WHERE task_type != '' AND (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter GROUP BY task_type ORDER BY task_type";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-	echo json_encode($array);
-	exit;
-}
-
-while ($row = $result->fetch_assoc()) {
-	$array['CountByTaskType'][] = $row;
-}
-
-$sql = "SELECT COUNT(*) as count FROM duration_log_session WHERE task_type != '' AND (start_time BETWEEN('$startDate') AND ('$endDate')) $attUIDFilter $cityFilter";
-if (!$result = $mysqli->query($sql)) {
-	$array['ERROR'] = 'SQL FAILED TO EXECUTE';
-	echo json_encode($array);
-	exit;
-}
-
-while ($row = $result->fetch_assoc()) {
-	$array['TaskTypeTotal'] = $row;
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['report_name'] = 'CountByTaskType';
+		$array[$row_count]['row_name'] = $row['task_type'];
+		$array[$row_count]['count'] = $row['count'];
+		$array[$row_count]['total_count'] = $total_count;
+		$row_count++;
+	}
+	break;
 }
 
 echo json_encode($array);
 exit;
+
 ?>

@@ -12,6 +12,7 @@
         },
         "sourceType": "module"
     },
+    "extends": "eslint:recommended",
     "rules": {
         "no-const-assign": "warn",
         "no-compare-neg-zero": "warn",
