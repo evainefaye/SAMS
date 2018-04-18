@@ -25,8 +25,8 @@ $(document).ready(function () {
     });
     $('div#main').hide();
     // Set the location of the Node.JS server
-//    var serverAddress = 'http://10.100.49.77';
-    var serverAddress = 'http://127.0.0.1';
+    var serverAddress = 'http://10.100.49.77';
+    // var serverAddress = 'http://127.0.0.1';
 
     var environment = Cookies.get('environmentReporting');
     if (typeof environment == 'undefined') {
@@ -1176,7 +1176,7 @@ $(document).ready(function () {
                         return;
                     }
                     recordCount++;
-                    var lastKey = '';
+                    lastKey = '';
                     total_elapsed_time = 0;
                     data.forEach(function(dataRow) {
                         recordCount++;
@@ -1203,11 +1203,11 @@ $(document).ready(function () {
                             total_elapsed_time = 0;
                         } else {
                             previous_stop_time = moment(previous_stop_time);
-                            elapsed_since_previous_display = moment.duration(moment(start_time).diff(previous_stop_time, "seconds"), "seconds").format('d [days] HH:mm:ss', {
-                                stopTrim: "h",
+                            elapsed_since_previous_display = moment.duration(moment(start_time).diff(previous_stop_time, 'seconds'), 'seconds').format('d [days] HH:mm:ss', {
+                                stopTrim: 'h',
                                 forceLength: true
                             });
-                            elapsed_since_previous = moment.duration(moment(start_time).diff(previous_stop_time, "seconds"), "seconds");
+                            elapsed_since_previous = moment.duration(moment(start_time).diff(previous_stop_time, 'seconds'), 'seconds');
                             if (elapsed_since_previous < 0) {
                                 errorClass = ' error';
                             } else {
@@ -1215,7 +1215,6 @@ $(document).ready(function () {
                             }
                             previous_stop_time = stop_time;
                             $('table.results tbody').append('<tr><td> </td><td> </td><td class="text-left">' + dataRow.session_id + '</td><td class="text-right">' + dataRow.ticket_number + '</td><td class="text-left">' + dataRow.work_type +'</td><td class="text-left">' + venue_display + '</td><td class="text-right">' + start_time.format('MM/DD/YYYY HH:mm:ss') + '</td><td class="text-right">' + stop_time.format('MM/DD/YYYY HH:mm:ss') + '</td><td class="text-right' + errorClass + '">' + elapsed_since_previous_display + '</td><td class="text-right">' + elapsed_time + '</td><td class="text-right">' + total_elapsed_display + '</td></tr>');
-                
                         }
                         var reportProgress = Math.floor(recordCount/recordSize * 100);
                         $('span#progressPct').html(reportProgress + '%');
@@ -1262,7 +1261,7 @@ $(document).ready(function () {
                         return;
                     }
                     recordCount++;
-                    var lastKey = '';
+                    lastKey = '';
                     total_elapsed_time = 0;
                     data.forEach(function(dataRow) {
                         recordCount++;
@@ -1563,12 +1562,12 @@ function showReport(result) {
             displayScreenshots(session_id);
         });
     }, 1000);
-};
+}
 
 function displayScreenshots(session_id) {
     var sql = 'SELECT ss.smp_session_id, ss.flow_name, ss.step_name, ss.screenshot_time, ss.image_data, sl.start_time, sl.stop_time, SEC_TO_TIME(sl.elapsed_seconds) AS elapsed_seconds, CONCAT(sl.last_name, ", ", sl.first_name, " (", UCASE(sl.att_uid), ")") AS agent_name, UCASE(sl.manager_id) AS manager_id, sl.work_source, sl.business_line, sl.task_type FROM screenshots ss LEFT JOIN duration_log_session sl ON ss.smp_session_id = sl.smp_session_id WHERE ss.smp_session_id = "' + session_id + '" ORDER BY ss.recorded';
     sessionIdFilter = ' ss.smp_session_id LIKE "%' + session_id + '%"';
-    $('.modal').html('<div class="text-center"><h3>RETRIEVING SESSION / SCREENSHOT DATA</h3></div><div class="text-center"><img src="stylesheets/images/3.gif" />')
+    $('.modal').html('<div class="text-center"><h3>RETRIEVING SESSION / SCREENSHOT DATA</h3></div><div class="text-center"><img src="stylesheets/images/3.gif" />');
     $('.modal').off('plainmodalbeforeclose', false).plainModal('close');
     $.ajax({
         type: 'post',
@@ -1654,7 +1653,7 @@ function displayScreenshots(session_id) {
             $(this).removeClass('makefancybox');
         });
     });
-};
+}
 
 
 function populateSelect(selectName) {
@@ -1686,4 +1685,4 @@ function populateSelect(selectName) {
         });
         $(selectName).trigger('chosen:updated');
     });
-};
+}
