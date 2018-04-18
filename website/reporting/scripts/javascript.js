@@ -25,8 +25,8 @@ $(document).ready(function () {
     });
     $('div#main').hide();
     // Set the location of the Node.JS server
-    var serverAddress = 'http://10.100.49.77';
-    // var serverAddress = 'http://127.0.0.1';
+    // var serverAddress = 'http://10.100.49.77';
+    var serverAddress = 'http://127.0.0.1';
 
     var environment = Cookies.get('environmentReporting');
     if (typeof environment == 'undefined') {
