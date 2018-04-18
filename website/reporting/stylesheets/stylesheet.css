@@ -14,19 +14,6 @@ img.tableIcon {
 	cursor: pointer;
 }
 
-/* Create Overlay for loading screen */
-div.overlay {
-    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url(images/6.gif) center center no-repeat;
-	z-index: 2000;
-    display: none;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    opacity: 0.5;
-}
-
 /* Position Calendar Screens */
 .calendarinput {
     position: relative;
@@ -107,7 +94,7 @@ table#header {
     color: #ffffff;
 }
 
-table#results {
+table.results {
     margin-left: auto;
     margin-right: auto;
 }

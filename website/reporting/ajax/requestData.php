@@ -23,6 +23,7 @@ $motiveStepFilterExceeded = $_POST['motiveStepFilterExceeded'];
 $motiveStepFilterWithin = $_POST['motiveStepFilterWithin'];
 $motiveStepThreshold = $_POST['motiveStepThreshold'];
 $reportType = $_POST['reportType'];
+$sessionIdFilter = $_POST['sessionIdFilter'];
 $sessionThreshold = $_POST['sessionThreshold'];
 $sessionThresholdExceeded = $_POST['sessionThresholdExceeded'];
 $sessionThresholdWithin = $_POST['sessionThresholdWithin'];
@@ -739,6 +740,78 @@ case 'WorkflowCompletionCountBreakdown':
 		$array[$row_count]['row_name'] = $row['task_type'];
 		$array[$row_count]['count'] = $row['count'];
 		$array[$row_count]['total_count'] = $total_count;
+		$row_count++;
+	}
+	break;
+
+// *** REPORT: VIEW COMPLETED WORKFLOWS ***
+case 'ViewCompletedWorkflows':
+
+	$row_count = 0;
+	$sql = "SELECT duration_log_session.smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS flow_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) AS work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type, screenshots.city FROM duration_log_session LEFT JOIN screenshots ON duration_log_session.smp_session_id = screenshots.smp_session_id WHERE (start_time BETWEEN('$startDate') AND ('$endDate'))$attUIDFilter$businessLineFilter$workSourceFilter$taskTypeFilter$cityFilter$assetIdFilter$sessionIdFilter ORDER BY start_time";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['smp_session_id'] = $row['smp_session_id'];
+		$array[$row_count]['start_time'] = $row['start_time'];
+		$array[$row_count]['stop_time'] = $row['stop_time'];
+		$array[$row_count]['flow_duration'] = $row['flow_duration'];
+		$array[$row_count]['att_uid'] = $row['att_uid'];
+		$array[$row_count]['agent_name'] = $row['agent_name'];		
+		$array[$row_count]['manager_id'] = $row['manager_id'];
+		$array[$row_count]['work_source'] = $row['work_source'];
+		$array[$row_count]['business_line'] = $row['business_line'];
+		$array[$row_count]['task_type'] = $row['task_type'];
+		if ($row['city'] != '') {
+			$array[$row_count]['screenshots'] = 'YES';
+		} else {
+			$array[$row_count]['screenshots'] = 'NO';
+		}
+		$row_count++;
+	}
+	break;
+
+// *** GET SCREENSHOT DATA ***
+case 'GetScreenShotData':
+
+	$row_count = 0;
+	$sql = "SELECT ss.smp_session_id, ss.flow_name, ss.step_name, ss.screenshot_time, ss.image_data, sl.start_time, sl.stop_time, SEC_TO_TIME(sl.elapsed_seconds) AS elapsed_seconds, CONCAT(sl.last_name, ', ', sl.first_name, ' (', UCASE(sl.att_uid), ')') AS agent_name, UCASE(sl.manager_id) AS manager_id, sl.work_source, sl.business_line, sl.task_type FROM screenshots ss LEFT JOIN duration_log_session sl ON ss.smp_session_id = sl.smp_session_id WHERE$sessionIdFilter ORDER BY ss.recorded";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['smp_session_id'] = $row['smp_session_id'];
+		$array[$row_count]['flow_name'] = $row['flow_name'];
+		$array[$row_count]['step_name'] = $row['step_name'];
+		$array[$row_count]['screenshot_time'] = $row['screenshot_time'];
+		$array[$row_count]['image_data'] = $row['image_data'];
+		$array[$row_count]['start_time'] = $row['start_time'];		
+		$array[$row_count]['stop_time'] = $row['stop_time'];
+		$array[$row_count]['elapsed_seconds'] = $row['elapsed_seconds'];
+		$array[$row_count]['agent_name'] = $row['agent_name'];
+		$array[$row_count]['manager_id'] = $row['manager_id'];
+		$array[$row_count]['work_source'] = $row['work_source'];
+		$array[$row_count]['business_line'] = $row['business_line'];
+		$array[$row_count]['task_type'] = $row['task_type'];
 		$row_count++;
 	}
 	break;
