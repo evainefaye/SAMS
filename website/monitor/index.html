@@ -56,9 +56,9 @@
 	<body>
 		<div class='col-sm-12 text-center'>
 			<select id="environment">
-				<option value='fde'>FDE (DEVELOPMENT)</option>
-				<option value="pre-prod">PRE-PROD (BETA)</option>
-				<option value="prod">PRODUCTION</option>
+				<option value='fde'>FDE (DEVELOPMENT) SASHA / SAMS</option>
+				<option value="pre-prod">PRE-PROD (BETA) SASHA / SAMS</option>
+				<option value="prod">PRODUCTION SASHA / SAMS</option>
 			</select>
 		</div>
 		<div class="initializationScreen">
@@ -68,7 +68,10 @@
 			</b>&nbsp;ENVIRONMENT....
 		</div>
 		<div class="col-sm-12">
-			<div class="col-sm-3 col-sm-offset-1 text-center">
+			<div class="col-sm-1 text-center">
+				<a href='../reporting/' target="_blank"><button id="switchSite" style="display:none;" class="btn btn-primary">REPORTING</button></a>
+			</div>
+			<div class="col-sm-3 text-center">
 				<b>SERVER INITIALIZED</b>
 				<br />
 				<span id="serverStartTime">UNAVAILABLE (NOT CONNECTED)</span>
@@ -80,7 +83,7 @@
 					</small>
 				</span>
 				<br />
-				<select id='CitySel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE CITIES TO LIMIT VIEW'>
+				<select id='CitySel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE CITIES TO LIMIT VIEW'>
 					<option value=''></option>
 				</select>
 			</div>
@@ -91,7 +94,7 @@
 					</small>
 				</span>
 				<br />
-				<select id='SupervisorSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE SUPERVISORS TO LIMIT VIEW'>
+				<select id='SupervisorSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE SUPERVISORS TO LIMIT VIEW'>
 					<option value=''></option>
 				</select>
 			</div>

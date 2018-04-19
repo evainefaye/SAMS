@@ -211,4 +211,7 @@ div.footerData {
 	color: red !important;
 	
 }
-	
+
+.btn-primary {
+    margin-top: 8px;
+}

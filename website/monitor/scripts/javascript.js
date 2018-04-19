@@ -456,6 +456,7 @@ $(document).ready(function () {
         });
         populateSelect('#SupervisorSel', 'RETRIEVING MANAGER AGENT LIST...');
         populateSelect('#CitySel', 'RETRIEVING CITY LIST...');
+        $('button#switchSite').show();
     });
 });
 
