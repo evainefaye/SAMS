@@ -120,9 +120,9 @@
 							<option value='ViewCompletedWorkflows'>VIEW COMPLETED WORKFLOWS / SCREENSHOTS</option>
 						</optgroup>
 						<optgroup label='RAW DATA'>
-							<option value='AllAutomation'>MOTIVE STEP DATA</option>
-							<option value='AllManual'>AGENT STEP DATA</option>
-							<option value='AllWorkflow'>WORKFLOW SESSION DATA</option>
+							<option value='RawMotiveStepData'>RAW MOTIVE STEP DATA</option>
+							<option value='RawAgentStepData'>RAW AGENT STEP DATA</option>
+							<option value='RawWorkflowData'>RAW WORKFLOW SESSION DATA</option>
 						</optgroup>
 					</select>
 				</div>
@@ -134,22 +134,22 @@
 					<input class='hideFilter' type='text' id='MotiveStepThreshold' data-ph='MOTIVE STEP TIME THRESHOLD IN SECONDS (DEFAULT: 30)' data-opt-ph='(OPTIONAL) MOTIVE STEP TIME THRESHOLD IN SECONDS' />
 					<input class='hideFilter' type='text' id='AgentStepThreshold' data-ph='AGENT STEP THRESHOLD IN SECONDS (DEFAULT: 300)' data-opt-ph='(OPTIONAL) AGENT STEP THRESHOLD IN SECONDS'/>
 					<input class='hideFilter' type='text' id='SessionThreshold' data-ph='WORKFLOW SESSION THRESHOLD IN SECONDS (DEFAULT: 1200)' data-opt-ph='(OPTIONAL) WORKFLOW SESSION THRESHOLD IN SECONDS' ) />
-					<select id='AttUIDSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE ATTUIDS'>
+					<select id='AttUIDSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE ATTUIDS'>
 						<option value=''></option>
 					</select>
-					<select id='BusinessLineSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE BUSINESS LINES'>
+					<select id='BusinessLineSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE BUSINESS LINES'>
 						<option value=''></option>
 					</select>
-					<select id='WorkSourceSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE WORK TYPES'>
+					<select id='WorkSourceSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE WORK TYPES'>
 						<option value=''></option>
 					</select>
-					<select id='TaskTypeSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE TASK TYPES'>
+					<select id='TaskTypeSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE TASK TYPES'>
 						<option value=''></option>
 					</select>
-					<select id='CitySel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE AGENT CITIES'>
+					<select id='CitySel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE AGENT CITIES'>
 						<option value=''></option>
 					</select>
-					<select id='AssetIdSel' multiple class='chosen showFilter optional' data-placeholder='(OPTIONAL) SELECT ONE OR MORE ASSET ID'>
+					<select id='AssetIdSel' multiple class='chosen showFilter optional' data-ph='(OPTIONAL) SELECT ONE OR MORE ASSET ID'>
 						<option value=''></option>
 					</select>
 					<input class='hideFilter' type='text' id='SessionId' data-ph='SMP SESSION ID' data-opt-ph='(OPTIONAL) SMP SESSION ID' />

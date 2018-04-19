@@ -210,7 +210,7 @@ $(document).ready(function () {
             }
             $('select#MinimumCountSel').trigger('chosen:updated');
             break;
-        case 'AllAutomation':
+        case 'RawMotiveStepData':
             phText = $('input#MotiveStepThreshold').attr('data-opt-ph');
             $('input#MotiveStepThreshold').removeClass('hideFilter').addClass('showFilter optional').val('').prop('placeholder', phText);
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
@@ -226,10 +226,10 @@ $(document).ready(function () {
             $('.chosen-container').not('#AssetIdSel_chosen').not('#MinimumCountSel_chosen').show();
             $('#AssetIdSel_chosen, #MinimumCountSel_chosen').hide();
             break;
-        case 'AllManual':
+        case 'RawAgentStepData':
             $('input#MotiveStepThreshold').removeClass('showFilter').addClass('hideFilter').val('');
             $('input#SessionThreshold').removeClass('showFilter').addClass('hideFilter');
-            phText = $('input#AgentStepStepThreshold').attr('data-opt-ph');
+            phText = $('input#AgentStepThreshold').attr('data-opt-ph');
             $('input#AgentStepThreshold').removeClass('hideFilter').addClass('showFilter optional').val('').prop('placeholder', phText);
             $('select#AttUIDSel').removeClass('hideFilter').addClass('showFilter optional');
             $('select#BusinessLineSel').removeClass('hideFilter').addClass('showFilter optional');
@@ -242,7 +242,7 @@ $(document).ready(function () {
             $('.chosen-container').not('#AssetIdSel_chosen').not('#MinimumCountSel_chosen').show();
             $('#AssetIdSel_chosen, #MinimumCountSel_chosen').hide();
             break;
-        case 'AllWorkflow':
+        case 'RawWorkflowData':
             $('input#MotiveStepThreshold').removeClass('showFilter').addClass('hideFilter');
             phText = $('input#SessionThreshold').attr('data-opt-ph');
             $('input#SessionThreshold').removeClass('hideFilter').addClass('showFilter optional').prop('placeholder', phText).val('');
@@ -451,7 +451,7 @@ $(document).ready(function () {
                 valid = true;
             }
             break;
-        case 'AllAgentAutomation':
+        case 'RawMotiveStepData':
             element = $('input#MotiveStepThreshold');
             if (isNaN($(element).val().trim()) || $(element).val() <= 0) {
                 if ($(element).hasClass('optional') && $(element).val().trim() == '') {
@@ -464,7 +464,7 @@ $(document).ready(function () {
                 valid = true;
             }
             break;
-        case 'AllManual':
+        case 'RawAgentStepData':
             element = $('input#AgentStepThreshold');
             if (isNaN($(element).val().trim()) || $(element).val() <= 0) {
                 if ($(element).hasClass('optional') && $(element).val().trim() == '') {
@@ -477,7 +477,7 @@ $(document).ready(function () {
                 valid = true;
             }
             break;
-        case 'AllWorkflow':
+        case 'RawWorkflowData':
             element = $('input#SessionThreshold');
             if (isNaN($(element).val().trim()) || $(element).val() <= 0) {
                 if ($(element).hasClass('optional') && $(element).val().trim() == '') {
@@ -561,7 +561,7 @@ $(document).ready(function () {
                 break;
             case 'AttUIDSel':
                 if ($(element).val() != '') {
-                    attUIDFilter = 'AND (';
+                    attUIDFilter = ' AND (';
                     if (parameters === '') {
                         parameters = 'ATTUID:&nbsp;[';
                     } else {
@@ -587,7 +587,7 @@ $(document).ready(function () {
                 break;
             case 'BusinessLineSel':
                 if ($(element).val() != '') {
-                    businessLineFilter = 'AND (';
+                    businessLineFilter = ' AND (';
                     if (parameters === '') {
                         parameters = 'BUSINESS&nbsp;LINE:&nbsp;[';
                     } else {
@@ -612,7 +612,7 @@ $(document).ready(function () {
                 break;
             case 'WorkSourceSel':
                 if ($(element).val() != '') {
-                    workSourceFilter = 'AND (';
+                    workSourceFilter = ' AND (';
                     if (parameters == '') {
                         parameters = 'WORK&nbsp;TYPE: [';
                     } else {
@@ -637,7 +637,7 @@ $(document).ready(function () {
                 break;
             case 'TaskTypeSel':
                 if ($(element).val() != '') {
-                    taskTypeFilter = 'AND (';
+                    taskTypeFilter = ' AND (';
                     if (parameters == '') {
                         parameters = 'TASK&nbsp;TYPE: [';
                     } else {
@@ -662,7 +662,7 @@ $(document).ready(function () {
                 break;
             case 'CitySel':
                 if ($(element).val() != '') {
-                    cityFilter = 'AND (';
+                    cityFilter = ' AND (';
                     if (parameters == '') {
                         parameters = 'CITY: [';
                     } else {
@@ -687,7 +687,7 @@ $(document).ready(function () {
                 break;
             case 'AssetIdSel':
                 if ($(element).val() != '') {
-                    assetIdFilter = 'AND (';
+                    assetIdFilter = ' AND (';
                     if (parameters == '') {
                         parameters = 'ASSET: [';
                     } else {
@@ -696,10 +696,10 @@ $(document).ready(function () {
                     var assetId = $(element).val();
                     $.each(assetId, function (key, value) {
                         if (key == 0) {
-                            assetIdFilter = assetIdFilter + 'LTRIM(RTRIM(asset_id)) = "' + value + '"';
+                            assetIdFilter = assetIdFilter + 'LTRIM(RTRIM(duration_log_session.asset_id)) = "' + value + '"';
                             parameters = parameters + value;
                         } else {
-                            assetIdFilter = assetIdFilter + ' OR LTRIM(RTRIM(asset_id)) = "' + value + '"';
+                            assetIdFilter = assetIdFilter + ' OR LTRIM(RTRIM(duration_log_session.asset_id)) = "' + value + '"';
                             parameters = parameters + ', ' + value;
                         }
                     });
@@ -733,32 +733,6 @@ $(document).ready(function () {
                 break;
             }
         });
-        switch (reportType) {
-        case 'AllAutomation':
-            if (parameters == '') {
-                titleText = 'MOTIVE STEPS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');
-            } else {
-                titleText = 'MOTIVE STEPS THAT TAKING ' + motiveStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            }
-            var sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS automation_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) as work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '"))' + motiveStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + + cityFilter + ' ORDER BY start_time ASC';
-            break;
-        case 'AllManual':
-            if (parameters == '') {
-                titleText = 'AGENT STEPS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');
-            } else {
-                titleText = 'AGENT STEPS TAKING ' + agentStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            }
-            sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = "N" AND (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + agentStepFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter +  cityFilter + 'ORDER BY start_time';
-            break;
-        case 'AllWorkflow':
-            if (parameters == '') {
-                titleText = 'WORKFLOW SESSION DATA FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss');
-            } else {
-                titleText = 'WORKFLOW SESSION DATA FOR SESSIONS TAKING ' + sessionThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
-            }
-            sql = 'SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS manual_step_duration, att_uid, CONCAT(last_name, ", ", first_name) AS agent_name, IF(manager_id IS NULL, "Not Available", manager_id) AS manager_id, IF(work_source IS NULL, "Not Available", work_source) AS work_source, IF(business_line IS NULL, "Not Available", business_line) AS business_line, IF(task_type IS NULL, "", task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN("' + startDate + '") AND ("' + endDate + '")) ' + sessionThresholdFilterExceeded + attUIDFilter + workSourceFilter + businessLineFilter + taskTypeFilter + cityFilter + 'ORDER BY start_time';
-            break;
-        }
         $.ajax({
             type: 'post',
             url: 'ajax/requestData.php',
@@ -1094,7 +1068,6 @@ $(document).ready(function () {
                         showReport('error');
                         return;
                     }
-                    recordCount++;
                     var lastKey = '';
                     total_elapsed_time = 0;
                     data.forEach(function(dataRow) {
@@ -1175,7 +1148,6 @@ $(document).ready(function () {
                         showReport('error');
                         return;
                     }
-                    recordCount++;
                     lastKey = '';
                     total_elapsed_time = 0;
                     data.forEach(function(dataRow) {
@@ -1260,7 +1232,6 @@ $(document).ready(function () {
                         showReport('error');
                         return;
                     }
-                    recordCount++;
                     lastKey = '';
                     total_elapsed_time = 0;
                     data.forEach(function(dataRow) {
@@ -1294,7 +1265,7 @@ $(document).ready(function () {
                 break;
 
             case 'ViewCompletedWorkflows':
-                titleText = 'WORKFLOW SESSION DATA FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>DOUBLE CLICK ON A ROW FROM THE LIST TO VIEW THE ASSOCIATED SCREENSHOTS</i></small>';
+                titleText = 'WORKFLOW SESSION DATA FOR SESSIONS STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small><br /><small><i>DOUBLE CLICK ON A ROW FROM THE LIST TO VIEW THE ASSOCIATED SCREENSHOTS</i></small>';
                 $('div#reportBody').html('<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="viewCompletedWorkflowsResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false filter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="CountByAgent" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center filter-select group-false">SCREENSHOTS AVAILABLE</th><th class="text-center sortInitialOrder-asc group-false">SESSION ID</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc filter-select group-text">WORK TYPE</th><th class="text-center filter-select sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc filter-select group-text">TASK TYPE</th></tr></thead><tbody></tbody></table>');
                 if (useWebWorker) {
                     worker = new Worker('webworkers/viewCompletedWorkflows.js');
@@ -1319,18 +1290,12 @@ $(document).ready(function () {
                 } else {
                     recordSize = data.length;
                     recordCount = 0;
-                    totals = new Object();
-                    totals['Agent'] = 0;
-                    totals['BusinessLine'] = 0;
-                    totals['WorkSource'] = 0;
-                    totals['TaskType'] = 0;
                     /* If your data contained an 'ERROR' property send the error result and exit out */
                     if (data.hasOwnProperty('ERROR')) {
                         $('table.results tbody').append('<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>');
                         showReport('error');
                         return;
                     }
-                    recordCount++;
                     data.forEach(function(dataRow) {
                         recordCount++;
                         percentage = dataRow.count / dataRow.total_count * 100;
@@ -1345,46 +1310,141 @@ $(document).ready(function () {
                 }
                 break;
 
-            case 'AllAutomation':
-                var html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="allAutomationResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="AllAutomation" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">MOTIVE STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th></tr></thead><tbody>';
-                if (!data.hasOwnProperty('ERROR')) {
-                    $.each(data, function (key, value) {
-                        var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
-                        var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
-                        html = html + '<tr><td class="text-left">' + value.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + value.automation_step_duration + '</td><td class="text-left">' + value.agent_name + '</td><td class="text left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-left">' + value.flow_name + '</td></tr>';
-                    });
+            case 'RawMotiveStepData':
+                titleText = 'MOTIVE STEPS THAT TAKING ' + motiveStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
+                $('div#reportBody').html('<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="rawMotiveStepDataResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=11 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="RawMotiveStepData" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">MOTIVE STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center sortInitialOrder-asc group-separator">FLOW NAME</th></tr></thead><tbody></tbody></table>');
+                if (useWebWorker) {
+                    worker = new Worker('webworkers/rawMotiveStepData.js');
+                    worker.postMessage(data);
+                    worker.onmessage = function(e) {
+                        data = e.data;
+                        if (data.hasOwnProperty('reportProgress')) {
+                            $('span#progressPct').html(data.reportProgress + '%');
+                        }
+                        if (data.hasOwnProperty('reportError')) {
+                            $('table.results tbody').html(data.reportRow);
+                            showReport('error');
+                            return;
+                        }
+                        if (data.hasOwnProperty('reportRow')) {
+                            $('table.results tbody').append(data.reportRow);
+                        }
+                        if (data.hasOwnProperty('reportSuccess')) {
+                            showReport('success');
+                        }
+                    };
                 } else {
-                    html = html + '<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>';
+                    recordSize = data.length;
+                    recordCount = 0;
+                    /* If your data contained an 'ERROR' property send the error result and exit out */
+                    if (data.hasOwnProperty('ERROR')) {
+                        $('table.results tbody').append('<tr><td colspan=11 class="text-center">' + data.ERROR + '</td></tr>');
+                        showReport('error');
+                        return;
+                    }
+                    recordCount++;
+                    data.forEach(function(dataRow) {
+                        percentage = dataRow.count / dataRow.total_count * 100;
+                        percentage = percentage.toFixed(2) + '%';
+                        var start_time = moment(new Date(dataRow.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                        var stop_time = moment(new Date(dataRow.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                        $('table.results tbody').append('<tr><td class="text-left">' + dataRow.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + dataRow.motive_step_duration + '</td><td class="text-left">' + dataRow.agent_name + '</td><td class="text left">' + dataRow.att_uid + '</td><td class="text-left">' + dataRow.manager_id + '</td><td class="text-left">' + dataRow.work_source + '</td><td class="text-left">' + dataRow.business_line + '</td><td class="text-left">' + dataRow.task_type + '</td><td class="text-left">' + dataRow.flow_name + '</td></tr>');
+                        var reportProgress = Math.floor(recordCount/recordSize * 100);
+                        $('span#progressPct').html(reportProgress + '%');
+                    });
+                    showReport('success');
                 }
-                html = html + '</tbody></table>';
                 break;
 
-            case 'AllManual':
-                html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="allManualResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=12 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="AllManual" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">AGENT STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center group-separator">FLOW NAME</th><th class="text-center group-false">STEP NAME</th></tr></thead><tbody>';
-                if (!data.hasOwnProperty('ERROR')) {
-                    $.each(data, function (key, value) {
-                        var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
-                        var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
-                        html = html + '<tr><td class="text-left">' + value.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + value.manual_step_duration + '</td><td class="text-left">' + value.agent_name + '</td><td class="text-left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td><td class="text-left">' + value.flow_name + '</td><td class="text-left">' + value.step_name + '</td></tr>';
-                    });
+            case 'RawAgentStepData':
+                titleText = 'AGENT STEPS TAKING ' + agentStepThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
+                $('div#reportBody').html('<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="rawAgentStepData" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=12 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="RawAgentStepData" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-text">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">AGENT STEP DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th><th class="text-center group-separator">FLOW NAME</th><th class="text-center group-false">STEP NAME</th></tr></thead><tbody>');
+                if (useWebWorker) {
+                    worker = new Worker('webworkers/rawAgentStepData.js');
+                    worker.postMessage(data);
+                    worker.onmessage = function(e) {
+                        data = e.data;
+                        if (data.hasOwnProperty('reportProgress')) {
+                            $('span#progressPct').html(data.reportProgress + '%');
+                        }
+                        if (data.hasOwnProperty('reportError')) {
+                            $('table.results tbody').html(data.reportRow);
+                            showReport('error');
+                            return;
+                        }
+                        if (data.hasOwnProperty('reportRow')) {
+                            $('table.results tbody').append(data.reportRow);
+                        }
+                        if (data.hasOwnProperty('reportSuccess')) {
+                            showReport('success');
+                        }
+                    };
                 } else {
-                    html = html + '<tr><td colspan=12 class="text-center">' + data.ERROR + '</td></tr>';
+                    recordSize = data.length;
+                    recordCount = 0;
+                    /* If your data contained an 'ERROR' property send the error result and exit out */
+                    if (data.hasOwnProperty('ERROR')) {
+                        $('table.results tbody').append('<tr><td colspan=12 class="text-center">' + data.ERROR + '</td></tr>');
+                        showReport('error');
+                        return;
+                    }
+                    recordCount++;
+                    data.forEach(function(dataRow) {
+                        percentage = dataRow.count / dataRow.total_count * 100;
+                        percentage = percentage.toFixed(2) + '%';
+                        var start_time = moment(new Date(dataRow.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                        var stop_time = moment(new Date(dataRow.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                        $('table.results tbody').append('<tr><td class="text-left">' + dataRow.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + dataRow.agent_step_duration + '</td><td class="text-left">' + dataRow.agent_name + '</td><td class="text-left">' + dataRow.att_uid + '</td><td class="text-left">' + dataRow.manager_id + '</td><td class="text-left">' + dataRow.work_source + '</td><td class="text-left">' + dataRow.business_line + '</td><td class="text-left">' + dataRow.task_type + '</td><td class="text-left">' + dataRow.flow_name + '</td><td class="text-left">' + dataRow.step_name + '</td></tr>');
+                        var reportProgress = Math.floor(recordCount/recordSize * 100);
+                        $('span#progressPct').html(reportProgress + '%');
+                    });
+                    showReport('success');
                 }
-                html = html + '</tbody></table>';
                 break;
-
-            case 'AllWorkflow':
-                html = '<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="allWorkflowResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=10 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="AllWorkflow" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-false">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th></tr></thead><tbody>';
-                if (!data.hasOwnProperty('ERROR')) {
-                    $.each(data, function (key, value) {
-                        var start_time = moment(new Date(value.start_time)).format('MM/DD/YYYY HH:mm:ss');
-                        var stop_time = moment(new Date(value.stop_time)).format('MM/DD/YYYY HH:mm:ss');
-                        html = html + '<tr><td class="text-left">' + value.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + value.manual_step_duration + '</td><td class="text-left">' + value.agent_name + '</td><td class="text-left">' + value.att_uid + '</td><td class="text-left">' + value.manager_id + '</td><td class="text-left">' + value.work_source + '</td><td class="text-left">' + value.business_line + '</td><td class="text-left">' + value.task_type + '</td></tr>';
-                    });
+            case 'RawWorkflowData':
+                titleText = 'WORKFLOW SESSION DATA FOR SESSIONS TAKING ' + sessionThreshold + ' OR MORE SECONDS TO COMPLETE STARTED BETWEEN ' + moment(new Date(startDate)).format('MM/DD/YYYY HH:mm:ss') + ' AND ' + moment(new Date(endDate)).format('MM/DD/YYYY: HH:mm:ss') + '<br /><small><i>' + parameters + '</i></small>';
+                $('div#reportBody').html('<h3 class="text-center">' + $('select#ReportType :selected').text() + '</h3><h5 class="text-center">' + titleText + '</h5><table id="rawWorkflowDataResults" class="table results table-bordered center hover-highlight"><thead><tr><th colspan=10 class="sorter-false text-center"><div class="col-sm-1 hidden-print text-left"><img class="tableIcon reset clear-filters" report="RawWorkflowData" src="stylesheets/images/clear-filters.png"><img class="tableIcon csv" src="stylesheets/images/csv.png"><img class="tableIcon print" src="stylesheets/images/print.png"></div><div class="col-sm-10 text-center">' + $('select#ReportType :selected').text() + '</div></th></tr><tr><th class="text-center group-false">SESSION ID</th><th class="text-center filter-false group-false">START TIME</th><th class="text-center filter-false group-false">COMPLETION TIME</th><th class="text-center filter-false group-false">WORKFLOW DURATION</th><th class="text-center sortInitialOrder-asc group-text">AGENT NAME</th><th class="text-center sortInitialOrder-asc group-text">ATT UID</th><th class="text-center sortInitialOrder-asc group-text">MANAGER ATT UID</th><th class="text-center sortInitialOrder-asc group-text">WORK TYPE</th><th class="text-center sortInitialOrder-asc group-text">BUSINESS LINE</th><th class="text-center sortInitialOrder-asc group-text">TASK TYPE</th></tr></thead><tbody>');
+                if (useWebWorker) {
+                    worker = new Worker('webworkers/rawWorkflowData.js');
+                    worker.postMessage(data);
+                    worker.onmessage = function(e) {
+                        data = e.data;
+                        if (data.hasOwnProperty('reportProgress')) {
+                            $('span#progressPct').html(data.reportProgress + '%');
+                        }
+                        if (data.hasOwnProperty('reportError')) {
+                            $('table.results tbody').html(data.reportRow);
+                            showReport('error');
+                            return;
+                        }
+                        if (data.hasOwnProperty('reportRow')) {
+                            $('table.results tbody').append(data.reportRow);
+                        }
+                        if (data.hasOwnProperty('reportSuccess')) {
+                            showReport('success');
+                        }
+                    };
                 } else {
-                    html = html + '<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>';
+                    recordSize = data.length;
+                    recordCount = 0;
+                    /* If your data contained an 'ERROR' property send the error result and exit out */
+                    if (data.hasOwnProperty('ERROR')) {
+                        $('table.results tbody').append('<tr><td colspan=10 class="text-center">' + data.ERROR + '</td></tr>');
+                        showReport('error');
+                        return;
+                    }
+                    recordCount++;
+                    data.forEach(function(dataRow) {
+                        percentage = dataRow.count / dataRow.total_count * 100;
+                        percentage = percentage.toFixed(2) + '%';
+                        var start_time = moment(new Date(dataRow.start_time)).format('MM/DD/YYYY HH:mm:ss');
+                        var stop_time = moment(new Date(dataRow.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+                        $('table.results tbody').append('<tr><td class="text-left">' + dataRow.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + dataRow.workflow_duration + '</td><td class="text-left">' + dataRow.agent_name + '</td><td class="text-left">' + dataRow.att_uid + '</td><td class="text-left">' + dataRow.manager_id + '</td><td class="text-left">' + dataRow.work_source + '</td><td class="text-left">' + dataRow.business_line + '</td><td class="text-left">' + dataRow.task_type + '</td></tr>');
+                        var reportProgress = Math.floor(recordCount/recordSize * 100);
+                        $('span#progressPct').html(reportProgress + '%');
+                    });
+                    showReport('success');
                 }
-                html = html + '</tbody></table>';
                 break;
             }
         }).fail(function () {
@@ -1470,12 +1530,12 @@ $(document).ready(function () {
             $('.modal').plainModal('open').on('plainmodalbeforeclose', false);
             return false;
         }
-        populateSelect('#AttUIDSel');
-        populateSelect('#BusinessLineSel');
-        populateSelect('#WorkSourceSel');
-        populateSelect('#TaskTypeSel');
-        populateSelect('#CitySel');
-        populateSelect('#AssetIdSel');
+        populateSelect('#AttUIDSel', 'RETRIEVING MANAGER / AGENT LIST...');
+        populateSelect('#BusinessLineSel', 'RETRIEVING BUSINESS LINE LIST...');
+        populateSelect('#WorkSourceSel', 'RETRIEVING WORK TYPE LIST...');
+        populateSelect('#TaskTypeSel', 'RETRIEVING TASK TYPE LIST...');
+        populateSelect('#CitySel', 'RETRIEVING CITY LIST...');
+        populateSelect('#AssetIdSel', 'RETRIEVING ASSET ID LIST...');
     });
 
 
@@ -1656,7 +1716,8 @@ function displayScreenshots(session_id) {
 }
 
 
-function populateSelect(selectName) {
+function populateSelect(selectName, populatePH) {
+    $(selectName).prop('disabled', true).attr('data-placeholder', populatePH).trigger('chosen:updated');
     $.ajax({
         type: 'post',
         url: 'ajax/requestData.php',
@@ -1683,6 +1744,6 @@ function populateSelect(selectName) {
                 text: Item.value
             }));
         });
-        $(selectName).trigger('chosen:updated');
+        $(selectName).prop('disabled', false).attr('data-placeholder', $(selectName).attr('data-ph')).trigger('chosen:updated');
     });
 }

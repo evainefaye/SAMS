@@ -1,3 +1,4 @@
+importScripts('../scripts/jquery.moment.min.js');
 onmessage = function(e) {
     var data = e.data;
     var recordSize = data.length;
@@ -13,9 +14,9 @@ onmessage = function(e) {
     data.forEach(function(dataRow) {
         workerMessage = new Object;
         recordCount++;
-        dataRow.percent_standard = (dataRow.count_standard / dataRow.count * 100).toFixed(2) + '%';
-        dataRow.percent_slow = (dataRow.count_slow / dataRow.count * 100).toFixed(2) + '%';
-        workerMessage['reportRow'] = '<tr><td class="text-left">' + dataRow.flow_name + '</td><td class="text-left">' + dataRow.step_name + '</td><td class="text-right">' + dataRow.count + '</td><td class="text-right">' + dataRow.average + '</td><td class="text-right">' + dataRow.count_standard + '</td><td class="text-right">' + dataRow.average_standard + '</td><td class="text-right">' + dataRow.percent_standard + '</td><td class="text-right">' + dataRow.count_slow + '</td><td class="text-right">' + dataRow.average_slow + '</td><td class="text-right">' + dataRow.percent_slow + '</td></tr>';
+        var start_time = moment(new Date(dataRow.start_time)).format('MM/DD/YYYY HH:mm:ss');
+        var stop_time = moment(new Date(dataRow.stop_time)).format('MM/DD/YYYY HH:mm:ss');
+        workerMessage['reportRow'] = '<tr><td class="text-left">' + dataRow.smp_session_id + '</td><td class="text-center">' + start_time + '</td><td class="text-center">' + stop_time + '</td><td class="text-center">' + dataRow.workflow_duration + '</td><td class="text-left">' + dataRow.agent_name + '</td><td class="text-left">' + dataRow.att_uid + '</td><td class="text-left">' + dataRow.manager_id + '</td><td class="text-left">' + dataRow.work_source + '</td><td class="text-left">' + dataRow.business_line + '</td><td class="text-left">' + dataRow.task_type + '</td></tr>';
         workerMessage['reportProgress'] = Math.floor(recordCount/recordSize * 100);
         postMessage(workerMessage);
     });

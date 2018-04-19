@@ -1,28 +1,28 @@
 onmessage = function(e) {
-    data = e.data;
-    recordSize = data.length;
-    recordCount = 0;
-    totals = new Object();
+    var data = e.data;
+    var recordSize = data.length;
+    var recordCount = 0;
+    var totals = new Object();
     totals['Agent'] = 0;
     totals['BusinessLine'] = 0;
     totals['WorkSource'] = 0;
     totals['TaskType'] = 0;
-    workerMessage = new Object;
+    var workerMessage = new Object;
     /* If your data contained an 'ERROR' property send the error result and exit out */
     if (data.hasOwnProperty('ERROR')) {
         workerMessage['reportRow'] = '<tr><td colspan=3 class="text-center">' + data.ERROR + '</td></tr>';
-        workerMessage['reportError'] = true;	
+        workerMessage['reportError'] = true;
         postMessage(workerMessage);
         return;
     }
     data.forEach(function(dataRow) {
         workerMessage = new Object;
         recordCount++;
-        percentage = dataRow.count / dataRow.total_count * 100;
+        var percentage = dataRow.count / dataRow.total_count * 100;
         percentage = percentage.toFixed(2) + '%';
         workerMessage['reportName'] = dataRow.report_name;
         workerMessage['reportRow'] = '<tr><td class="text-right">' + dataRow.row_name + '</td><td class="text-right">' + dataRow.count + '</td><td class="text-right">' + percentage + '</td></tr>';
-        workerMessage['reportProgress'] = Math.floor((recordCount/recordSize) * 100);
+        workerMessage['reportProgress'] = Math.floor(recordCount/recordSize * 100);
         switch (dataRow.report_name) {
         case 'CountByAgent':
             totals['Agent'] = dataRow.total_count;

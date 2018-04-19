@@ -44,6 +44,7 @@
         "html2canvas": true,
         "moment": true,
         "define": true,
-        "Cookies": true
+        "Cookies": true,
+        "importScripts": true
     }
 }

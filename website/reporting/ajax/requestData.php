@@ -495,7 +495,7 @@ case 'AssetHistoryNonAWS':
 	}
 	
 	// gather detail records
-	$sql = "SELECT session.asset_id, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session session LEFT JOIN $table_name temp ON session.asset_id = temp.asset_id WHERE task_type NOT LIKE '%AWSX%' AND (business_line != 'TSC' AND business_line != 'TSCNOC') AND session.asset_id !='UNKNOWN' AND session.asset_id != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, session.asset_id ASC, session.start_time ASC";
+	$sql = "SELECT duration_log_session.asset_id, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session LEFT JOIN $table_name temp ON duration_log_session.asset_id = temp.asset_id WHERE task_type NOT LIKE '%AWSX%' AND (business_line != 'TSC' AND business_line != 'TSCNOC') AND duration_log_session.asset_id !='UNKNOWN' AND duration_log_session.asset_id != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, duration_log_session.asset_id ASC, duration_log_session.start_time ASC";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
@@ -553,7 +553,7 @@ case 'AssetHistoryAWS':
 	}
 
 	// gather detail records
-	$sql = "SELECT UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) AS rowKey, asset_id, UCASE(venue_name) AS venue_name, UCASE(RTRIM(LTRIM(contact_name))) AS contact_name, UCASE(RTRIM(LTRIM(room_number))) AS room_number, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session session LEFT JOIN $table_name temp ON UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) = mainKey WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source != 'AWS Training Simulator' AND session.asset_id !='UNKNOWN' AND asset_id !='UNKNOWN' AND asset_id != '' AND asset_id !='INFO' AND contact_name != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, asset_id ASC, session.start_time ASC";
+	$sql = "SELECT UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) AS rowKey, asset_id, UCASE(venue_name) AS venue_name, UCASE(RTRIM(LTRIM(contact_name))) AS contact_name, UCASE(RTRIM(LTRIM(room_number))) AS room_number, temp.instance_count, smp_session_id, ticket_number, work_source, task_type, start_time, stop_time FROM duration_log_session LEFT JOIN $table_name temp ON UCASE(CONCAT(RTRIM(LTRIM((asset_id))), SOUNDEX(RTRIM(LTRIM(contact_name))), RTRIM(LTRIM(room_number)))) = mainKey WHERE (task_type LIKE '%AWSX%' OR business_line = 'TSC' OR business_line = 'TSCNOC') AND work_source != 'AWS Training Simulator' AND duration_log_session.asset_id !='UNKNOWN' AND asset_id !='UNKNOWN' AND asset_id != '' AND asset_id !='INFO' AND contact_name != '' AND start_time BETWEEN('$startDate') AND ('$endDate') AND temp.instance_count IS NOT NULL$assetIdFilter $minimumCountFilter ORDER BY temp.instance_count DESC, asset_id ASC, duration_log_session.start_time ASC";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
@@ -747,8 +747,27 @@ case 'WorkflowCompletionCountBreakdown':
 // *** REPORT: VIEW COMPLETED WORKFLOWS ***
 case 'ViewCompletedWorkflows':
 
+	// Generate unique name for temporary table
+	$sql = "SELECT CONCAT('temp_table_', REPLACE(UUID(), '-', '')) AS table_name";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+		
+	$row = $result->fetch_assoc();
+	$table_name = $row['table_name'];
+	
+	// create a temporary table with the count and asset id's to use
+	$sql = "CREATE TEMPORARY TABLE IF NOT EXISTS $table_name AS SELECT DISTINCT smp_session_id, city FROM screenshots WHERE (screenshot_time BETWEEN('$startDate') AND ('$endDate'))$attUIDFilter$businessLineFilter$workSourceFilter$taskTypeFilter$cityFilter$assetIdFilter$sessionIdFilter";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
 	$row_count = 0;
-	$sql = "SELECT duration_log_session.smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS flow_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) AS work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type, screenshots.city FROM duration_log_session LEFT JOIN screenshots ON duration_log_session.smp_session_id = screenshots.smp_session_id WHERE (start_time BETWEEN('$startDate') AND ('$endDate'))$attUIDFilter$businessLineFilter$workSourceFilter$taskTypeFilter$cityFilter$assetIdFilter$sessionIdFilter ORDER BY start_time";
+	$sql = "SELECT duration_log_session.smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS flow_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) AS work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type, $table_name.city FROM duration_log_session LEFT JOIN $table_name ON duration_log_session.smp_session_id = $table_name.smp_session_id WHERE (start_time BETWEEN('$startDate') AND ('$endDate'))$attUIDFilter$businessLineFilter$workSourceFilter$taskTypeFilter$cityFilter$assetIdFilter$sessionIdFilter ORDER BY start_time";
 
 	if (!$result = $mysqli->query($sql)) {
 		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
@@ -779,6 +798,9 @@ case 'ViewCompletedWorkflows':
 		}
 		$row_count++;
 	}
+	
+	$sql = "DROP TABLE IF EXISTS $table_name";
+	$result = ($mysqli->query($sql));
 	break;
 
 // *** GET SCREENSHOT DATA ***
@@ -807,6 +829,102 @@ case 'GetScreenShotData':
 		$array[$row_count]['start_time'] = $row['start_time'];		
 		$array[$row_count]['stop_time'] = $row['stop_time'];
 		$array[$row_count]['elapsed_seconds'] = $row['elapsed_seconds'];
+		$array[$row_count]['agent_name'] = $row['agent_name'];
+		$array[$row_count]['manager_id'] = $row['manager_id'];
+		$array[$row_count]['work_source'] = $row['work_source'];
+		$array[$row_count]['business_line'] = $row['business_line'];
+		$array[$row_count]['task_type'] = $row['task_type'];
+		$row_count++;
+	}
+	break;
+	
+// *** REPORT: RAW MOTIVE STEP DATA ***
+case 'RawMotiveStepData':
+
+	$sql = "SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS motive_step_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) as work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type, flow_name FROM duration_log_step_automation WHERE in_progress = 'N' AND (start_time BETWEEN('$startDate') AND ('$endDate'))$motiveStepFilterExceeded$attUIDFilter$workSourceFilter$businessLineFilter$taskTypeFilter$cityFilter ORDER BY start_time ASC";
+	
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+	$row_count = 0;
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['smp_session_id'] = $row['smp_session_id'];
+		$array[$row_count]['start_time'] = $row['start_time'];		
+		$array[$row_count]['stop_time'] = $row['stop_time'];
+		$array[$row_count]['motive_step_duration'] = $row['motive_step_duration'];
+		$array[$row_count]['att_uid'] = $row['att_uid'];
+		$array[$row_count]['agent_name'] = $row['agent_name'];
+		$array[$row_count]['manager_id'] = $row['manager_id'];
+		$array[$row_count]['work_source'] = $row['work_source'];
+		$array[$row_count]['business_line'] = $row['business_line'];
+		$array[$row_count]['task_type'] = $row['task_type'];
+		$array[$row_count]['flow_name'] = $row['flow_name'];
+		$row_count++;
+	}
+	break;
+	
+// *** REPORT: RAW AGENT STEP DATA ***
+case 'RawAgentStepData':
+
+	$sql = "SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS agent_step_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) AS work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type, flow_name, step_name FROM duration_log_step_manual WHERE in_progress = 'N' AND (start_time BETWEEN('$startDate') AND ('$endDate'))$agentStepFilterExceeded$attUIDFilter$workSourceFilter$businessLineFilter$taskTypeFilter$cityFilter ORDER BY start_time";
+	
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+	$row_count = 0;
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['smp_session_id'] = $row['smp_session_id'];
+		$array[$row_count]['start_time'] = $row['start_time'];		
+		$array[$row_count]['stop_time'] = $row['stop_time'];
+		$array[$row_count]['agent_step_duration'] = $row['agent_step_duration'];
+		$array[$row_count]['att_uid'] = $row['att_uid'];		
+		$array[$row_count]['agent_name'] = $row['agent_name'];
+		$array[$row_count]['manager_id'] = $row['manager_id'];
+		$array[$row_count]['work_source'] = $row['work_source'];
+		$array[$row_count]['business_line'] = $row['business_line'];
+		$array[$row_count]['task_type'] = $row['task_type'];
+		$array[$row_count]['flow_name'] = $row['flow_name'];
+		$array[$row_count]['step_name'] = $row['step_name'];
+		$row_count++;
+	}
+	break;
+
+// *** REPORT: RAW WORKFLOW DATA DATA ***
+case 'RawWorkflowData':
+
+	$sql = "SELECT smp_session_id, start_time, stop_time, SEC_TO_TIME(elapsed_seconds) AS workflow_duration, att_uid, CONCAT(last_name, ', ', first_name) AS agent_name, IF(manager_id IS NULL, 'Not Available', manager_id) AS manager_id, IF(work_source IS NULL, 'Not Available', work_source) AS work_source, IF(business_line IS NULL, 'Not Available', business_line) AS business_line, IF(task_type IS NULL, '', task_type) AS task_type FROM duration_log_session WHERE (start_time BETWEEN('$startDate') AND ('$endDate'))$sessionThresholdFilterExceeded$attUIDFilter$workSourceFilter$businessLineFilter$taskTypeFilter$cityFilter ORDER BY start_time";
+
+	if (!$result = $mysqli->query($sql)) {
+		$array['ERROR'] = 'SQL FAILED TO EXECUTE';
+		break;
+	}
+
+	// No rows returned
+	if ($result->num_rows === 0) {
+		$array['ERROR'] = 'NO RECORDS RETURNED MATCHING REQUEST';
+		break;
+	}
+	$row_count = 0;
+	while ($row = $result->fetch_assoc()) {
+		$array[$row_count]['smp_session_id'] = $row['smp_session_id'];
+		$array[$row_count]['start_time'] = $row['start_time'];		
+		$array[$row_count]['stop_time'] = $row['stop_time'];
+		$array[$row_count]['workflow_duration'] = $row['workflow_duration'];
+		$array[$row_count]['att_uid'] = $row['att_uid'];		
 		$array[$row_count]['agent_name'] = $row['agent_name'];
 		$array[$row_count]['manager_id'] = $row['manager_id'];
 		$array[$row_count]['work_source'] = $row['work_source'];

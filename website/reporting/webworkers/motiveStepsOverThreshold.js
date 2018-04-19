@@ -1,8 +1,8 @@
 onmessage = function(e) {
-    data = e.data;
-    recordSize = data.length;
-    recordCount = 0;
-    workerMessage = new Object;
+    var data = e.data;
+    var recordSize = data.length;
+    var recordCount = 0;
+    var workerMessage = new Object;
     /* If your data contained an 'ERROR' property send the error result and exit out */
     if (data.hasOwnProperty('ERROR')) {
         workerMessage['reportRow'] = '<tr><td colspan=9 class="text-center">' + data.ERROR + '</td></tr>';
