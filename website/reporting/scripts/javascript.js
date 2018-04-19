@@ -1447,9 +1447,13 @@ $(document).ready(function () {
                 }
                 break;
             }
-        }).fail(function () {
-            alert('Request Timed Out');
-            $('input, select').attr('disabled', false);
+        }).fail(function (jqXHR, textStatus) {
+            $('.modal').html('<div><h4 class="text-center">UNABLE TO LOAD REPORT, ' + textStatus.toUpperCase() + '  DURING DATA RETRIEVAL</h3></div><br /><div class="text-center"><button class="modalOkay btn btn-primary">OKAY</button></div>');
+            $('.modal').plainModal('open').on('plainmodalbeforeclose', false);
+            $('button.modalOkay').off('click').on('click', function () {
+                $('.modal').off('plainmodalbeforeclose', false).plainModal('close');
+
+            });
         });
     });
 
@@ -1730,7 +1734,15 @@ function populateSelect(selectName, populatePH) {
             selectName: selectName
         },
         dataType: 'json'
-    }).fail(function () {
+    }).fail(function (jqXHR, textStatus) {
+        if (textStatus != 'timeout') {
+            $('.modal').html('<div><h4 class="text-center">' + textStatus.toUpperCase() + '  DURING RETRIEVAL OF SELECTION OPTIONS</h3></div><br /><div class="text-center"><button class="modalOkay btn btn-primary">OKAY</button></div>');
+            $('.modal').plainModal('open').on('plainmodalbeforeclose', false);
+            $('button.modalOkay').off('click').on('click', function () {
+                $('.modal').off('plainmodalbeforeclose', false).plainModal('close');
+
+            });
+        }
         $(selectName).remove();
     }).done(function (data) {
         if (data.hasOwnProperty('ERROR')) {

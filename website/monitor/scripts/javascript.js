@@ -979,7 +979,15 @@ function populateSelect(selectName, populatePH) {
             selectName: selectName
         },
         dataType: 'json'
-    }).fail(function () {
+    }).fail(function (jqXHR, textStatus) {
+        if (textStatus != 'timeout') {
+            $('.modal').html('<div><h4 class="text-center">' + textStatus.toUpperCase() + '  DURING RETRIEVAL OF SELECTION OPTIONS</h3></div><br /><div class="text-center"><button class="modalOkay btn btn-primary">OKAY</button></div>');
+            $('.modal').plainModal('open').on('plainmodalbeforeclose', false);
+            $('button.modalOkay').off('click').on('click', function () {
+                $('.modal').off('plainmodalbeforeclose', false).plainModal('close');
+
+            });
+        }
         $(selectName).remove();
         switch (selectName) {
         case '#CitySel':
