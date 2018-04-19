@@ -8,7 +8,8 @@ window.filterSupervisor = ''; // Create global variable to store the window filt
 $(document).ready(function () {
 
     // Set Address for SAMS Server
-    var serverAddress = 'http://10.100.49.77';
+    // var serverAddress = 'http://10.100.49.77';
+    var serverAddress ='http://127.0.0.1';
 
     // Initialize Environment Selection
     $('select#environment').chosen({
@@ -18,7 +19,7 @@ $(document).ready(function () {
     });
 
     // Get Environment from Cookie if available, default to prod on none found.   Set Environment Selection to value.
-    var environment = Cookies.get('environment');
+    environment = Cookies.get('environment');
     if (typeof environment == 'undefined') {
         environment = Cookies.get('environment');
         if (typeof environment == 'undefined') {
@@ -433,11 +434,11 @@ $(document).ready(function () {
     });
 
     socket.on('Return DB Config', function (data) {
-        var dbHost = data.dbConfig.host;
-        var dbUser = data.dbConfig.user;
-        var dbPassword = data.dbConfig.password;
-        var dbName = data.dbConfig.database;
-        var useDB = data.useDB;
+        dbHost = data.dbConfig.host;
+        dbUser = data.dbConfig.user;
+        dbPassword = data.dbConfig.password;
+        dbName = data.dbConfig.database;
+        useDB = data.useDB;
         if (!useDB) {
             $('div#cityFilter').html('&nbsp');
             $('div#supervisorFilter').html('&nbsp');
@@ -448,102 +449,20 @@ $(document).ready(function () {
             allow_single_deselect: true,
             disable_search_threshold: 10
         });
-        var sql = 'SELECT DISTINCT(city) FROM duration_log_session ORDER BY city';
-        $.ajax({
-            type: 'post',
-            url: 'ajax/getinfo.php',
-            data: {
-                databaseIP: dbHost,
-                databaseUser: dbUser,
-                databasePW: dbPassword,
-                databaseName: dbName,
-                sql: sql
-            },
-            dataType: 'json',
-        }).done(function (data) {
-            if (!data.hasOwnProperty('ERROR')) {
-                $.each(data, function (key, value) {
-                    if (value.trim != '') {
-                        $('#CitySel').append($('<option>', {
-                            value: value.city,
-                            text: value.city
-                        }));
-                    }
-                });
-                $('select#CitySel.chosen').trigger('chosen:updated');
-                $('div#cityFilter').show();
-                // Reset CitySel to saved values on load
-                var citySel = Cookies.get( environment +'-CitySel');
-                citySel = citySel.replace(/["\[\]]/g, '');
-                citySel = citySel.split(',');
-                if (citySel.length > 0) {
-                    $.each(citySel, function (index, value) {
-                        if (value.trim != '') {
-                            $('select#CitySel [value="' + value + '"]').attr('selected', 'selected');
-                        }
-                    });
-                    $('select#CitySel').trigger('chosen:updated').trigger('change');
-                }
-            } else {
-                $('div#cityFilter').html('&nbsp');
-            }
-        }).fail(function () {
-            $('div#cityFilter').html('&nbsp');
-        });
         $('select#SupervisorSel.chosen').chosen({
             width: '100%',
             allow_single_deselect: true,
             disable_search_threshold: 10
         });
-        sql = 'SELECT DISTINCT(manager_id) FROM duration_log_session ORDER BY manager_id';
-        $.ajax({
-            type: 'post',
-            url: 'ajax/getinfo.php',
-            data: {
-                databaseIP: dbHost,
-                databaseUser: dbUser,
-                databasePW: dbPassword,
-                databaseName: dbName,
-                sql: sql
-            },
-            dataType: 'json',
-        }).done(function (data) {
-            if (!data.hasOwnProperty('ERROR')) {
-                $.each(data, function (key, value) {
-                    if (value.trim != '') {
-                        $('#SupervisorSel').append($('<option>', {
-                            value: value.manager_id,
-                            text: value.manager_id
-                        }));
-                    }
-                });
-                $('select#SupervisorSel.chosen').trigger('chosen:updated');
-                $('div#supervisorFilter').show();
-                // Reset SupervisorSel to saved values on load
-                var supervisorSel = Cookies.get( environment +'-SupervisorSel');
-                supervisorSel = supervisorSel.replace(/["\[\]]/g, '');
-                supervisorSel = supervisorSel.split(',');
-                if (supervisorSel.length > 0) {
-                    $.each(supervisorSel, function (index, value) {
-                        if (value.trim != '') {
-                            $('select#SupervisorSel [value="' + value + '"]').attr('selected', 'selected');
-                        }
-                    });
-                    $('select#SupervisorSel').trigger('chosen:updated').trigger('change');
-                }
-            } else {
-                $('div#supervisorFilter').html('&nbsp');
-            }
-        }).fail(function () {
-            $('div#supervisorFilter').html('&nbsp');
-        });
+        populateSelect('#SupervisorSel', 'RETRIEVING MANAGER AGENT LIST...');
+        populateSelect('#CitySel', 'RETRIEVING CITY LIST...');
     });
 });
 
 
 /****** HELPER PROCEDURES ******/
 
-let createDefaultTabs = function () {
+function createDefaultTabs() {
 
     // Create Tab for 'ALLSESSIONS'
     var row = '<li class="pull-right" tabId="ALLSESSIONS">' +
@@ -835,7 +754,7 @@ let createDefaultTabs = function () {
 };
 
 
-let addTab = function (skillGroup) {
+function addTab(skillGroup) {
     // Create Tab for new skill group
     var row = '<li tabId=' + skillGroup + '>' +
         '<a class=nav-link" data-toggle="tab" skillGroup="' + skillGroup + '" href="#' + skillGroup + '">' + skillGroup + ' (<span class="count-' + skillGroup + '">0</span>)</a>' +
@@ -965,7 +884,7 @@ let addTab = function (skillGroup) {
     });
 };
 
-let sortTabs = function (element) {
+function sortTabs(element) {
     var myList = $(element);
     var listItems = myList.children('li').get();
     listItems.sort(function (a, b) {
@@ -985,13 +904,13 @@ let sortTabs = function (element) {
 
 
 // Hide Initialization and show screen on connection
-let showMainScreen = function () {
+function showMainScreen() {
     $('div.initializationScreen').hide();
     $('div.mainScreen').show();
 };
 
 
-let checkStalledSessions = function (periods) {
+function checkStalledSessions(periods) {
     if ($.countdown.periodsToSeconds(periods) > 1200) {
         $(this).addClass('highlightDuration');
         var connectionId = $(this).closest('tr').attr('connectionId');
@@ -1005,7 +924,7 @@ let checkStalledSessions = function (periods) {
 
 
 // Add Styling on Timer if over threshold
-let checkTimerStyling = function (periods) {
+function checkTimerStyling(periods) {
     if ($.countdown.periodsToSeconds(periods) > 30) {
         var stepInfo = $(this).parent().parent().find('span.stepInfo');
         if (stepInfo.html() == 'SO WAIT') {
@@ -1022,7 +941,7 @@ let checkTimerStyling = function (periods) {
     }
 };
 
-let filterNewRow = function() {
+function filterNewRow() {
     // Apply filters to newly added rows if filters are enabled
     if (window.filterCity == '') {
         // There is no City filter, apply only Supervisor filter if appropriate
@@ -1046,3 +965,83 @@ let filterNewRow = function() {
     }
     $('table').trigger('update', true);
 };
+
+function populateSelect(selectName, populatePH) {
+    $(selectName).prop('disabled', true).attr('data-placeholder', populatePH).trigger('chosen:updated');
+    $.ajax({
+        type: 'post',
+        url: 'ajax/requestData.php',
+        data: {
+            databaseIP: dbHost,
+            databaseUser: dbUser,
+            databasePW: dbPassword,
+            databaseName: dbName,
+            selectName: selectName
+        },
+        dataType: 'json'
+    }).fail(function () {
+        $(selectName).remove();
+        switch (selectName) {
+        case '#CitySel':
+            $('div#cityFilter').html('&nbsp');
+            break;
+        case '#SupervisorSel':
+            $('div#supervisorFilter').html('&nbsp');
+            break;
+        }
+    }).done(function (data) {
+        if (data.hasOwnProperty('ERROR')) {
+            $('select' + selectName).chosen('destroy');
+            $('select' + selectName).remove();
+            switch (selectName) {
+            case '#CitySel':
+                $('div#cityFilter').html('&nbsp');
+                break;
+            case '#SupervisorSel':
+                $('div#supervisorFilter').html('&nbsp');
+                break;
+            }    
+            return;
+        }
+        data.forEach(function(Item) {
+            $(selectName).append($('<option>', {
+                value: Item.key,
+                text: Item.value
+            }));
+        });
+        $(selectName).prop('disabled', false).attr('data-placeholder', $(selectName).attr('data-ph')).trigger('chosen:updated');
+
+        switch (selectName) {
+        case '#CitySel':
+            var citySel = Cookies.get( environment +'-CitySel');
+            if (typeof citySel != 'undefined') {
+                citySel = citySel.replace(/["\[\]]/g, '');
+                citySel = citySel.split(',');
+                if (citySel.length > 0) {
+                    $.each(citySel, function (index, value) {
+                        if (value.trim != '') {
+                            $('select#CitySel [value="' + value + '"]').attr('selected', 'selected');
+                        }
+                    });
+                    $('select#CitySel').trigger('chosen:updated').trigger('change');
+                }
+            }
+            break;
+        case '#SupervisorSel':
+            var supervisorSel = Cookies.get( environment +'-SupervisorSel');
+            if (typeof supervisorSel != 'undefined') {
+                supervisorSel = supervisorSel.replace(/["\[\]]/g, '');
+                supervisorSel = supervisorSel.split(',');
+                if (supervisorSel.length > 0) {
+                    $.each(supervisorSel, function (index, value) {
+                        if (value.trim != '') {
+                            $('select#SupervisorSel [value="' + value + '"]').attr('selected', 'selected');
+                        }
+                    });
+                    $('select#SupervisorSel').trigger('chosen:updated').trigger('change');
+                }
+            }
+            break;
+        }
+    });
+}
